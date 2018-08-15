@@ -19,7 +19,7 @@
 import groovy.time.*
 
     metadata {
-        definition (name: "Ambient Weather Station Tile 1.0", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+        definition (name: "Ambient Weather Station Tile", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
             capability "Illuminance Measurement"
             capability "Temperature Measurement"
             capability "Relative Humidity Measurement"
