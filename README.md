@@ -1,9 +1,7 @@
 # STAmbientWeather
--
-#### SmartThings Integration for Ambient Weather Stations
+*SmartThings Integration for Ambient Weather Stations*
 
-###### A custom SmartThings Device Handler (DTH) which connects to your Ambient weather station using the AmbientWeather API.  The user can determine the refresh rate from 1 min to 180 mins.  
--
+A custom SmartThings Device Handler (DTH) which connects to your Ambient weather station using the AmbientWeather API.  The user can determine the refresh rate from 1 min to 180 mins.  
 
 #### Requirements:
 1. Ambient Weather Station (Model 2902A for example)
