@@ -17,6 +17,7 @@
 *  Date: 2018-08-10
 */
 import groovy.time.*
+import java.text.DecimalFormat
 
     metadata {
         definition (name: "Ambient Weather Station Tile", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
@@ -87,7 +88,7 @@ import groovy.time.*
         tiles(scale: 2) {
             multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
                 tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
-                    attributeState("temperature",label:'${currentValue}°',
+                    attributeState("default",label:'${currentValue}°',
                                    backgroundColors:[
                                        [value: 32, color: "#153591"],
                                        [value: 44, color: "#1e9cbb"],
@@ -104,7 +105,7 @@ import groovy.time.*
             }
         }
         valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-            state "tempinf", label: 'Inside Temp\n${currentValue}°', 
+            state "default", label: 'Inside Temp\n${currentValue}°', 
                 backgroundColors:[
                     [value: 60, color: "#153591"],
                     [value: 65, color: "#1e9cbb"],
@@ -133,65 +134,45 @@ import groovy.time.*
         valueTile("baromabsin", "device.baromabsin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Abs Pres\n${currentValue} in'
         }
-        valueTile("location", "device.location", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        valueTile("location", "device.location", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Location\n${currentValue}'
         }
         valueTile("name", "device.name", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "name", label:'Name\n${currentValue}'
+            state "default", label:'Name\n${currentValue}'
         }
         valueTile("humidity", "device.humidity", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Humidity\n${currentValue}%'
         }
         valueTile("eventrainin", "device.eventrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "default", label:'Rain Event\n${currentValue} in', 
+            state "default", label:'Rain Event\n${currentValue} in/hr', 
                 backgroundColors:[ 
-                    [value: 0,    color: "#ffffff"],
-                    [value: 0.25, color: "#153591"],
-                    [value: 0.50, color: "#1e9cbb"],
-                    [value: 0.75, color: "#90d2a7"],
-                    [value: 1.00, color: "#44b621"],
-                    [value: 1.50, color: "#f1d801"],
-                    [value: 2.00, color: "#d04e00"],
-                    [value: 3.00, color: "#bc2323"]
+                    [value: 0,   color: "#ffffff"],
+                    [value: 0.1, color: "#153591"],
+                    [value: 5,   color: "#bc2323"]
                 ]
         }
         valueTile("hourlyrainin", "device.hourlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Rain Hr\n${currentValue} in', 
                 backgroundColors:[ 
-                    [value: 0,    color: "#ffffff"],
-                    [value: 0.25, color: "#153591"],
-                    [value: 0.50, color: "#1e9cbb"],
-                    [value: 0.75, color: "#90d2a7"],
-                    [value: 1.00, color: "#44b621"],
-                    [value: 1.50, color: "#f1d801"],
-                    [value: 2.00, color: "#d04e00"],
-                    [value: 3.00, color: "#bc2323"]
+                    [value: 0,   color: "#ffffff"],
+                    [value: 0.1, color: "#153591"],
+                    [value: 5,   color: "#bc2323"]
                 ]
         }
         valueTile("dailyrainin", "device.dailyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Rain Daily\n${currentValue} in', 
                 backgroundColors:[ 
                     [value: 0,    color: "#ffffff"],
-                    [value: 0.25, color: "#153591"],
-                    [value: 0.50, color: "#1e9cbb"],
-                    [value: 0.75, color: "#90d2a7"],
-                    [value: 1.00, color: "#44b621"],
-                    [value: 1.50, color: "#f1d801"],
-                    [value: 2.00, color: "#d04e00"],
-                    [value: 3.00, color: "#bc2323"]
+                    [value: 0.1,  color: "#153591"],
+                    [value: 5,   color: "#bc2323"]
                 ]
         }
         valueTile("weeklyrainin", "device.weeklyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'Rain Weekly\n${currentValue} in', 
                 backgroundColors:[ 
                     [value: 0,    color: "#ffffff"],
-                    [value: 0.25, color: "#153591"],
-                    [value: 0.50, color: "#1e9cbb"],
-                    [value: 0.75, color: "#90d2a7"],
-                    [value: 1.00, color: "#44b621"],
-                    [value: 1.50, color: "#f1d801"],
-                    [value: 2.00, color: "#d04e00"],
-                    [value: 3.00, color: "#bc2323"]
+                    [value: 0.1, color: "#153591"],
+                    [value: 10, color: "#bc2323"]
                 ]
         }
         valueTile("monthlyrainin", "device.monthlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -201,13 +182,16 @@ import groovy.time.*
             state "default", label:'Rain Total\n${currentValue} in'
         }
         valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-            state "lastRain", label:'Rain Last Date\n${currentValue}'
+            state "default", label:'Rain Last Date\n${currentValue}'
         }
         valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-            state "lastRainDuration", label:'Time Since Last Rain\n${currentValue}'
+            state "default", label:'Time Since Last Rain\n${currentValue}'
         }
         valueTile("uv", "device.uv", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "uv", label: 'UV Index\n${currentValue}'
+            state "default", label: 'UV Index\n${currentValue}'
+        }
+        valueTile("solarradiation", "device.solarradiation", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+            state "default", label: 'Solar Radiation\n${currentValue}'
         }
         standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
             state "wet", label: 'Rain', backgroundColor:"#77ec20", icon: "st.Weather.weather10"
@@ -218,16 +202,16 @@ import groovy.time.*
             state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
         }
         valueTile("dewPoint", "device.dewPoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "dewPoint", label:'Dewpoint\n${currentValue}°'
+            state "default", label:'Dewpoint\n${currentValue}°'
         }
         valueTile("winddir", "device.winddir", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "winddir", label: 'Wind Dir Deg\n${currentValue}º'
+            state "default", label: 'Wind Dir Deg\n${currentValue}º'
         }
         valueTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "winddirection", label: 'Wind Dir Compass ${currentValue}'
+            state "default", label: 'Wind Dir Compass ${currentValue}'
         }
         valueTile("windspeedmph", "device.windspeedmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "windspeedmph", label: 'Wind Speed\n${currentValue} mph', 
+            state "default", label: 'Wind Speed\n${currentValue} mph', 
                 backgroundColors:[ 
                     [value: 0,    color: "#ffffff"],
                     [value: 5, color: "#153591"],
@@ -240,7 +224,7 @@ import groovy.time.*
                 ]
         }
         valueTile("windgustmph", "device.windgustmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "windgustmph", label: 'Wind Gust\n${currentValue} mph', 
+            state "default", label: 'Wind Gust\n${currentValue} mph', 
                 backgroundColors:[ 
                     [value: 0,    color: "#ffffff"],
                     [value: 5, color: "#153591"],
@@ -253,7 +237,7 @@ import groovy.time.*
                 ]
         }
         valueTile("maxdailygust", "device.maxdailygust", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "maxdailygust", label: 'Wind Daily Gust\n${currentValue} mph', 
+            state "default", label: 'Wind Daily Gust\n${currentValue} mph', 
                 backgroundColors:[ 
                     [value: 0,    color: "#ffffff"],
                     [value: 5, color: "#153591"],
@@ -265,11 +249,11 @@ import groovy.time.*
                     [value: 50, color: "#bc2323"]
                 ]
         }
-        valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-            state "macAddress", label: 'macAddress\n ${currentValue}'
+        valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+            state "default", label: 'macAddress\n ${currentValue}'
         }
         valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-            state "scheduleFreqMin", label: 'Run Every\n${currentValue} mins',
+            state "default", label: 'Run Every\n${currentValue} mins',
                 backgroundColors:[ 
                     [value: 'Off',  color: "#FF0000"],
                     [value: '1',    color: "#9400D3"],
@@ -284,10 +268,10 @@ import groovy.time.*
                     [value: '180',  color: "#ff69b4"]
                 ]    
         }
-        valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
             state("default", label: 'Last Updated\n ${currentValue}')
         }
-        standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        standardTile("refresh", "device.weather", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
         }
 
@@ -300,26 +284,26 @@ import groovy.time.*
                 "tempinf", 
                 "humidityin" , 
                 // Outside Sensors
-                "baromrelin", 
-                "baromabsin", 
-                "humidity" , 
-                "dewPoint", 
-                "solarradiation", 
-                "uv", 
-                "winddir",
-                "winddirection",
-                "windspeedmph", 
-                "motion",
-                "windgustmph",
                 "eventrainin", 
                 "water", 
                 "hourlyrainin", 
                 "dailyrainin", 
                 "weeklyrainin", 
                 "monthlyrainin", 
-                "totalrainin",
                 "lastRain",
                 "lastRainDuration",
+                "totalrainin",
+                "winddir",
+                "winddirection",
+                "windspeedmph", 
+                "motion",
+                "windgustmph",
+                "baromrelin", 
+                "baromabsin", 
+                "humidity" , 
+                "dewPoint", 
+                "solarradiation", 
+                "uv", 
                 "name", 
                 "location",
                 "macAddress",
@@ -352,7 +336,6 @@ def updated() {
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
         setScheduler(schedulerFreq)
-        
     }
 }
 def configure() {
@@ -363,7 +346,6 @@ def configure() {
 // handle commands
 def refresh() {
     log.info "Ambient Weather STATION: Executing 'Refresh'"
-
     if (getAmbientStationData()) {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
@@ -402,16 +384,23 @@ def refresh() {
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if(k=='tempf'){k='temperature'}
+            if(v.isNumber() && v > 0 && v <= 0.1) {
+                v=(v.toFloat()+0.04).round(1)
+            }
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             sendEvent(name: k, value: v)
         }
         state.ambientMap.info[0].each{ k, v -> 
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: '${v})'"}
-            sendEvent(name: k, value: v)
         } 
     } else {
         if(debugVerbose){log.info "getAmbientStationData() did not return any weather data"}
     }
+}
+
+def logdata(name,val) {
+    log.debug "${name} -> ${val}"
+    return
 }
 
 def getAmbientStationData() {
