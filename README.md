@@ -26,5 +26,5 @@ A custom SmartThings Device Handler (DTH) which connects to your Ambient weather
 ## SmartThings Tile Configuration
 1. Enter API and APP key into the Device Handler either in the device IDE or Tile Gear.
 
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClientSettings.jpg)
+![STAmbientWeather Mobile Client Settings](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClientSettings.png)
 
