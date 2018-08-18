@@ -306,7 +306,6 @@ def configure() {
 // handle commands
 def refresh() {
     log.info "Ambient Weather STATION: Executing 'Refresh'"
-    log.info "rainBkgrdColors -> ${rainBkgrdColors}"
     if (getAmbientStationData()) {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
