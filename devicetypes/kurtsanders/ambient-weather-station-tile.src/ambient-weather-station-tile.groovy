@@ -305,7 +305,7 @@ def configure() {
 
 // handle commands
 def refresh() {
-    log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq=='Off'?'schedulerFreq:schedulerFreq ' min(s)'}"
+    log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)}"
     if (getAmbientStationData()) {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
