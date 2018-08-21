@@ -28,6 +28,8 @@ metadata {
         capability "Refresh"
         capability "Motion Sensor"
         capability "Water Sensor"
+        capability "Ultraviolet Index"
+
 
         // Start of Ambient Weather API Rest MAP
         attribute "baromabsin", "string"
@@ -50,7 +52,6 @@ metadata {
         attribute "temperature", "string"
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
-        attribute "uv", "string"
         attribute "weeklyrainin", "string"
         attribute "winddir", "string"
         attribute "winddirection", "string"
@@ -167,7 +168,7 @@ metadata {
     valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Time Since Last Rain\n${currentValue}'
     }
-    valueTile("uv", "device.uv", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'UV Index\n${currentValue}'
     }
     valueTile("solarradiation", "device.solarradiation", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -263,7 +264,7 @@ metadata {
             "humidity" , 
             "dewPoint", 
             "solarradiation", 
-            "uv", 
+            "ultravioletIndex", 
             "name", 
             "location",
             "macAddress",
@@ -346,6 +347,9 @@ def refresh() {
             if(k=='tempf'){k='temperature'}
             if(v.isNumber() && v > 0 && v <= 0.1) {
                 v=(v.toFloat()+0.04).round(1)
+            }
+            if(k=='uv') {
+                k='ultravioletIndex'
             }
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             sendEvent(name: k, value: v)
