@@ -3,6 +3,8 @@
 
 ## Description:
 
+![arrow](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-right.svg)
+
 A custom SmartThings Device Handler (DTH) which connects to your Ambient weather station using the AmbientWeather API.  The user can determine the refresh rate from 1 min to 180 mins.
 
 ![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClient.PNG)
@@ -27,4 +29,6 @@ A custom SmartThings Device Handler (DTH) which connects to your Ambient weather
 1. Enter API and APP key into the Device Handler either in the device IDE or Tile Gear.
 
 ![STAmbientWeather Mobile Client Settings](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClientSettings.png)
+
+
 
