@@ -56,7 +56,15 @@ metadata {
         attribute "windgustmph", "string"
         attribute "windspeedmph", "string"   
         // End of Ambient Weather API Rest MAP
-
+        attribute "localSunrise", "string"
+        attribute "localSunset", "string"
+        attribute "weatherIcon", "string"
+        attribute "forecastIcon", "string"
+        attribute "sunriseDate", "string"
+        attribute "sunsetDate", "string"
+        attribute "alertKeys", "string"
+        attribute "alert", "string"
+        
         command "refresh"
     }
     preferences {
@@ -70,6 +78,7 @@ metadata {
             description: "Application Key",
             required: true,
             displayDuringSetup: true
+        input "zipCode", "text", title: "Zip Code for Weather Forecast (optional)", required: false
         input name: "schedulerFreq", type: "enum",
             title: "Run Refresh Every (mins)?",
             options: ['Off','1','2','3','4','5','10','15','30','60','180'],
@@ -85,9 +94,9 @@ metadata {
             required: false
     }
     tiles(scale: 2) {
-        multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
+        multiAttributeTile(name:"temperature", type:"generic", width:6, height:3, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
-                attributeState("default",label:'${currentValue}°',
+                attributeState("default",label:'${currentValue}º',
                                backgroundColors:[
                                    [value: 32, color: "#153591"],
                                    [value: 44, color: "#1e9cbb"],
@@ -115,6 +124,63 @@ metadata {
                 [value: 80, color: "#bc2323"]
             ]
     }    
+    standardTile("weatherIcon", "device.weatherIcon", width: 2, height: 2, decoration: "flat") {
+        state "chanceflurries", icon:"st.custom.wu1.chanceflurries", label: ""
+        state "chancerain", icon:"st.custom.wu1.chancerain", label: ""
+        state "chancesleet", icon:"st.custom.wu1.chancesleet", label: ""
+        state "chancesnow", icon:"st.custom.wu1.chancesnow", label: ""
+        state "chancetstorms", icon:"st.custom.wu1.chancetstorms", label: ""
+        state "clear", icon:"st.custom.wu1.clear", label: ""
+        state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
+        state "flurries", icon:"st.custom.wu1.flurries", label: ""
+        state "fog", icon:"st.custom.wu1.fog", label: ""
+        state "hazy", icon:"st.custom.wu1.hazy", label: ""
+        state "mostlycloudy", icon:"st.custom.wu1.mostlycloudy", label: ""
+        state "mostlysunny", icon:"st.custom.wu1.mostlysunny", label: ""
+        state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
+        state "partlysunny", icon:"st.custom.wu1.partlysunny", label: ""
+        state "rain", icon:"st.custom.wu1.rain", label: ""
+        state "sleet", icon:"st.custom.wu1.sleet", label: ""
+        state "snow", icon:"st.custom.wu1.snow", label: ""
+        state "sunny", icon:"st.custom.wu1.sunny", label: ""
+        state "tstorms", icon:"st.custom.wu1.tstorms", label: ""
+        state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
+        state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
+        state "nt_chanceflurries", icon:"st.custom.wu1.nt_chanceflurries", label: ""
+        state "nt_chancerain", icon:"st.custom.wu1.nt_chancerain", label: ""
+        state "nt_chancesleet", icon:"st.custom.wu1.nt_chancesleet", label: ""
+        state "nt_chancesnow", icon:"st.custom.wu1.nt_chancesnow", label: ""
+        state "nt_chancetstorms", icon:"st.custom.wu1.nt_chancetstorms", label: ""
+        state "nt_clear", icon:"st.custom.wu1.nt_clear", label: ""
+        state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
+        state "nt_flurries", icon:"st.custom.wu1.nt_flurries", label: ""
+        state "nt_fog", icon:"st.custom.wu1.nt_fog", label: ""
+        state "nt_hazy", icon:"st.custom.wu1.nt_hazy", label: ""
+        state "nt_mostlycloudy", icon:"st.custom.wu1.nt_mostlycloudy", label: ""
+        state "nt_mostlysunny", icon:"st.custom.wu1.nt_mostlysunny", label: ""
+        state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
+        state "nt_partlysunny", icon:"st.custom.wu1.nt_partlysunny", label: ""
+        state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
+        state "nt_rain", icon:"st.custom.wu1.nt_rain", label: ""
+        state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
+        state "nt_snow", icon:"st.custom.wu1.nt_snow", label: ""
+        state "nt_sunny", icon:"st.custom.wu1.nt_sunny", label: ""
+        state "nt_tstorms", icon:"st.custom.wu1.nt_tstorms", label: ""
+        state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
+        state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
+    }
+    valueTile("alert", "device.alert", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Weather Alerts:\n ${currentValue}'
+    }
+    valueTile("rise", "device.localSunrise", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Sunrise\n ${currentValue}'
+    }
+    valueTile("set", "device.localSunset", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Sunset\n ${currentValue}'
+    }
+    valueTile("weather", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
+    }
     valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Inside Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
     }
@@ -151,10 +217,10 @@ metadata {
     valueTile("totalrainin", "device.totalrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain Total\n${currentValue} in'
     }
-    valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain Last Date\n${currentValue}'
     }
-    valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 5, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Time Since Last Rain\n${currentValue}'
     }
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -215,7 +281,7 @@ metadata {
     valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
-    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Last Updated\n ${currentValue}')
     }
     standardTile("refresh", "device.weather", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
@@ -231,6 +297,7 @@ metadata {
             "tempinf", 
             "humidityin" , 
             // Outside Sensors
+            "weatherIcon", 
             "eventrainin", 
             "water", 
             "hourlyrainin", 
@@ -251,6 +318,10 @@ metadata {
             "dewPoint", 
             "solarradiation", 
             "ultravioletIndex", 
+            "rise", 
+            "set",
+            "alert",
+            "weather",
             "name", 
             "location",
             "macAddress",
@@ -290,9 +361,88 @@ def configure() {
     refresh()
 }
 
-// handle commands
 def refresh() {
-    log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)}"
+    // Weather Underground Station Forecast
+    log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"
+    def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
+    def currentDT = new Date()
+
+    // Current conditions
+    def obs = get("conditions")?.current_observation
+    if (obs) {
+        if(debugVerbose){log.debug "obs --> ${obs}"}
+        def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
+        send(name: "weather", value: obs.weather)
+        send(name: "weatherIcon", value: weatherIcon, displayed: false)
+    }
+    // Sunrise / sunset
+    def a = get("astronomy")?.moon_phase
+    def today = localDate("GMT${obs.local_tz_offset}")
+    def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+    ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+    def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    utf.setTimeZone(TimeZone.getTimeZone("GMT"))
+    def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
+    def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
+
+    def tf = new java.text.SimpleDateFormat("h:mm a")
+    tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+    def localSunrise = "${tf.format(sunriseDate)}"
+    def localSunset = "${tf.format(sunsetDate)}"
+    if(debugVerbose){log.debug "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
+    send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
+    send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
+
+    // Forecast
+    def f = get("forecast")
+    def f1= f?.forecast?.simpleforecast?.forecastday
+    if (f1) {
+        def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
+        def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
+        send(name: "forecastIcon", value: icon, displayed: false)
+    }
+    else {
+        if(debugVerbose){log.warn "Forecast not found"}
+    }
+
+    // Alerts
+    def alerts = get("alerts")?.alerts
+    def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
+    if(debugVerbose){log.debug "WUSTATION: newKeys = ${newKeys}"}
+    if(debugVerbose){log.trace device.currentState("alertKeys")}
+    def oldKeys = device.currentState("alertKeys")?.jsonValue
+    if(debugVerbose){log.debug "WUSTATION: oldKeys = ${oldKeys}"}
+
+    def noneString = "no current weather alerts"
+    if (!newKeys && oldKeys == null) {
+        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
+        send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
+    }
+    else if (newKeys != oldKeys) {
+        if (oldKeys == null) {
+            oldKeys = []
+        }
+        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
+
+        def newAlerts = false
+        alerts.each {alert ->
+            if (!oldKeys.contains(alert.type + alert.date_epoch)) {
+                def msg = "${alert.description} from ${alert.date} until ${alert.expires}"
+                send(name: "alert", value: pad(alert.description), descriptionText: msg, isStateChange: true)
+                newAlerts = true
+            }
+        }
+        if (!newAlerts && device.currentValue("alert") != noneString) {
+            send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
+        }
+    }
+    else {
+        if(debugVerbose){log.warn "No response from Weather Underground API"}
+    }
+
+
+    // Ambient Weather Station
+    log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)}"        
     if (getAmbientStationData()) {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
@@ -305,8 +455,6 @@ def refresh() {
                 }
             }
         }
-        def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
-        def currentDT = new Date()
         def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap.lastData.lastRain[0])
         use (groovy.time.TimeCategory) {
             if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
@@ -355,6 +503,16 @@ def refresh() {
 def logdata(name,val) {
     log.debug "${name} -> ${val}"
     return
+}
+
+private get(feature) {
+    getWeatherFeature(feature, zipCode)
+}
+
+private localDate(timeZone) {
+    def df = new java.text.SimpleDateFormat("yyyy-MM-dd")
+    df.setTimeZone(TimeZone.getTimeZone(timeZone))
+    df.format(new Date())
 }
 
 def getAmbientStationData() {
@@ -507,4 +665,53 @@ def TileBgColors(colorSetName) {
             [value: '0',  color: "#ffffff"]
         ]
     }
+}
+private send(map) {
+    sendEvent(map)
+}
+
+private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
+    def lux = 0
+    def now = new Date().time
+    if (now > sunriseDate.time && now < sunsetDate.time) {
+        //day
+        switch(weatherIcon) {
+            case 'tstorms':
+            lux = 200
+            break
+            case ['cloudy', 'fog', 'rain', 'sleet', 'snow', 'flurries',
+                  'chanceflurries', 'chancerain', 'chancesleet',
+                  'chancesnow', 'chancetstorms']:
+            lux = 1000
+            break
+            case 'mostlycloudy':
+            lux = 2500
+            break
+            case ['partlysunny', 'partlycloudy', 'hazy']:
+            lux = 7500
+            break
+            default:
+                //sunny, clear
+                lux = 10000
+        }
+
+        //adjust for dusk/dawn
+        def afterSunrise = now - sunriseDate.time
+        def beforeSunset = sunsetDate.time - now
+        def oneHour = 1000 * 60 * 60
+
+        if(afterSunrise < oneHour) {
+            //dawn
+            lux = (long)(lux * (afterSunrise/oneHour))
+        } else if (beforeSunset < oneHour) {
+            //dusk
+            lux = (long)(lux * (beforeSunset/oneHour))
+        }
+    }
+    else {
+        //night - always set to 10 for now
+        //could do calculations for dusk/dawn too
+        lux = 10
+    }
+    lux
 }
