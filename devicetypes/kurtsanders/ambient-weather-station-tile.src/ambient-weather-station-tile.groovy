@@ -28,7 +28,7 @@ metadata {
         capability "Motion Sensor"
         capability "Water Sensor"
         capability "Ultraviolet Index"
-
+        capability "Switch Level"
 
         // Start of Ambient Weather API Rest MAP
         attribute "baromabsin", "string"
@@ -47,7 +47,6 @@ metadata {
         attribute "macAddress", "string"
         attribute "maxdailygust", "string"
         attribute "monthlyrainin", "string"
-        attribute "solarradiation", "string"
         attribute "temperature", "string"
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
@@ -161,7 +160,7 @@ metadata {
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'UV Index\n${currentValue}'
     }
-    valueTile("solarradiation", "device.solarradiation", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("solarradiation", "device.illuminance", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Solar Rad\n${currentValue}', backgroundColors: TileBgColors('solar')
     }
     standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -338,6 +337,9 @@ def refresh() {
             }
             if(k=='uv') {
                 k='ultravioletIndex'
+            }
+            if(k=='solarradiation') {
+                k='illuminance'
             }
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             sendEvent(name: k, value: v)
