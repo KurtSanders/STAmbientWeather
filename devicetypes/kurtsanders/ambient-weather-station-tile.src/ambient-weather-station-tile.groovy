@@ -17,8 +17,7 @@
 *  Date: 2018-08-10
 */
 import groovy.time.*
-    import java.text.DecimalFormat
-
+import java.text.DecimalFormat
 metadata {
     definition (name: "Ambient Weather Station Tile", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
@@ -118,16 +117,7 @@ metadata {
             ]
     }    
     valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Inside Humidity\n${currentValue}%', 
-            backgroundColors:[
-                [value: 32, color: "#153591"],
-                [value: 44, color: "#1e9cbb"],
-                [value: 59, color: "#90d2a7"],
-                [value: 74, color: "#44b621"],
-                [value: 84, color: "#f1d801"],
-                [value: 92, color: "#d04e00"],
-                [value: 98, color: "#bc2323"]
-            ]
+        state "default", label:'Inside Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
     }
     valueTile("baromrelin", "device.baromrelin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rel Pres \n${currentValue} in '
@@ -142,19 +132,19 @@ metadata {
         state "default", label:'Name\n${currentValue}'
     }
     valueTile("humidity", "device.humidity", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Humidity\n${currentValue}%'
+        state "default", label:'Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
     }
     valueTile("eventrainin", "device.eventrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Event\n${currentValue} in/hr', backgroundColors: rainTileColors()
+        state "default", label:'Rain Event\n${currentValue} in/hr', backgroundColors: TileBgColors('rain')
     }
     valueTile("hourlyrainin", "device.hourlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Hr\n${currentValue} in',  backgroundColors: rainTileColors()
+        state "default", label:'Rain Hr\n${currentValue} in',  backgroundColors: TileBgColors('rain')
     }
     valueTile("dailyrainin", "device.dailyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Daily\n${currentValue} in', backgroundColors: rainTileColors()
+        state "default", label:'Rain Daily\n${currentValue} in', backgroundColors: TileBgColors('rain')
     }
     valueTile("weeklyrainin", "device.weeklyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Weekly\n${currentValue} in', backgroundColors: rainTileColors()
+        state "default", label:'Rain Weekly\n${currentValue} in', backgroundColors: TileBgColors('rain')
     }
     valueTile("monthlyrainin", "device.monthlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain Monthly\n${currentValue} in'
@@ -172,62 +162,59 @@ metadata {
         state "default", label: 'UV Index\n${currentValue}'
     }
     valueTile("solarradiation", "device.solarradiation", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Solar Radiation\n${currentValue}'
+        state "default", label: 'Solar Rad\n${currentValue}', backgroundColors: TileBgColors('solar')
     }
     standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "wet", label: 'Rain', backgroundColor:"#77ec20", icon: "st.Weather.weather10"
+        state "wet", label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-rain.png'
         state "dry", label: 'No Rain', icon: "st.Weather.weather12"
     }
     standardTile("motion", "device.motion", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "active",   label: 'Wind',   backgroundColor:"#00ff00", icon:"st.motion.motion.active"
+        state "active",   label: '',    icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-windy.png'
         state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
     }
     valueTile("dewPoint", "device.dewPoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Dewpoint\n${currentValue}°'
     }
     valueTile("winddir", "device.winddir", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Dir Deg\n${currentValue}º'
+        state "default", label: 'Wind Direction\n${currentValue}º'
     }
-    valueTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Dir Compass ${currentValue}'
+    valueTile("winddir2", "device.winddir2", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Direction\n${currentValue}'
+    }
+    standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    // "N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"
+        state "default",    label: '${currentValue}'
+        state "N",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
+        state "North NE", 	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
+        state "NE",   		label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
+        state "East NE",   	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
+        state "E",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-right.png'
+        state "East SE",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-right.png'
+        state "SE",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-right.png'
+        state "South SE",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-right.png'
+        state "S",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down.png'
+        state "South SW",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down.png'
+        state "SW",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-left.png'
+        state "West SW",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-left.png'
+        state "W",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-left.png'
+        state "West NW",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-left.png'
+        state "NW",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
+        state "North NW",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
     }
     valueTile("windspeedmph", "device.windspeedmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Speed\n${currentValue} mph', 
-            backgroundColors:[ 
-                [value: 0,    color: "#ffffff"],
-                [value: 5, color: "#153591"],
-                [value: 10, color: "#1e9cbb"],
-                [value: 15, color: "#90d2a7"],
-                [value: 20, color: "#44b621"],
-                [value: 25, color: "#f1d801"],
-                [value: 30, color: "#d04e00"],
-                [value: 50, color: "#bc2323"]
-            ]
+        state "default", label: 'Wind Speed\n${currentValue} mph', backgroundColors: TileBgColors('wind')
     }
     valueTile("windgustmph", "device.windgustmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Gust\n${currentValue} mph', backgroundColors: windTileColors()
+        state "default", label: 'Wind Gust\n${currentValue} mph', backgroundColors: TileBgColors('wind')
     }
     valueTile("maxdailygust", "device.maxdailygust", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Daily Gust\n${currentValue} mph', backgroundColors: windTileColors()
+        state "default", label: 'Wind Daily Gust\n${currentValue} mph', backgroundColors: TileBgColors('wind')
     }
     valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
     valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Run Every\n${currentValue} mins',
-            backgroundColors:[ 
-                [value: 'Off',  color: "#FF0000"],
-                [value: '1',    color: "#9400D3"],
-                [value: '2',    color: "#00FF00"],
-                [value: '3',    color: "#FFFF00"],
-                [value: '4',    color: "#FF7F00"],
-                [value: '5',    color: "#4B0082"],
-                [value: '10',   color: "#0000FF"],
-                [value: '15',   color: "#00FF00"],
-                [value: '30',   color: "#FFFF00"],
-                [value: '60',   color: "#FF7F00"],
-                [value: '180',  color: "#ff69b4"]
-            ]    
+        state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
     valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Last Updated\n ${currentValue}')
@@ -254,7 +241,7 @@ metadata {
             "lastRain",
             "lastRainDuration",
             "totalrainin",
-            "winddir",
+            "winddir2",
             "winddirection",
             "windspeedmph", 
             "motion",
@@ -340,7 +327,8 @@ def refresh() {
         def winddirectionState = degToCompass(state.ambientMap.lastData.winddir[0])
         if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
         sendEvent(name:'winddirection', value: winddirectionState)
-
+        sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
+        
         state.ambientMap.lastData[0].each{ k, v -> 
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
@@ -395,7 +383,7 @@ def getAmbientStationData() {
 
 def degToCompass(num) {
     def val = Math.floor((num.toFloat() / 22.5) + 0.5).toInteger()
-    def arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+    def arr = ["N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"]
     return arr[(val % 16)]
 }
 
@@ -444,23 +432,77 @@ def setScheduler(schedulerFreq) {
     }
 }
 
-def rainTileColors() {
-    return [ 
-        [value: 0,   color: "#ffffff"],
-        [value: 1,   color: "#0000ff"],
-        [value: 10,  color: "#ff0000"]
-    ]
-}
-
-def windTileColors() {
-    return [ 
-        [value: 0,  color: "#ffffff"],
-        [value: 5,  color: "#153591"],
-        [value: 10, color: "#1e9cbb"],
-        [value: 15, color: "#90d2a7"],
-        [value: 20, color: "#44b621"],
-        [value: 25, color: "#f1d801"],
-        [value: 30, color: "#d04e00"],
-        [value: 50, color: "#bc2323"]
-    ]
+def TileBgColors(colorSetName) {
+    switch(colorSetName) {
+        case 'rain':
+        return [ 
+            [value: 0,   color: "#ffffff"],
+            [value: 1,   color: "#0000ff"],
+            [value: 10,  color: "#ff0000"]
+        ]
+        break
+        case 'wind':
+        return [ 
+            [value: 0,  color: "#ffffff"],
+            [value: 5,  color: "#153591"],
+            [value: 10, color: "#1e9cbb"],
+            [value: 15, color: "#90d2a7"],
+            [value: 20, color: "#44b621"],
+            [value: 25, color: "#f1d801"],
+            [value: 30, color: "#d04e00"],
+            [value: 50, color: "#bc2323"]
+        ]
+        break
+        case 'humidity':
+        return [ 
+            [value: 0, color: "#ffffff"],
+            [value: 10, color: "#1e9cbb"],
+            [value: 20, color: "#90d2a7"],
+            [value: 30, color: "#44b621"],
+            [value: 40, color: "#f1d801"],
+            [value: 50, color: "#d04e00"],
+            [value: 60, color: "#d04e00"],
+            [value: 70, color: "#d04e00"],
+            [value: 80, color: "#d04e00"],
+            [value: 90, color: "#d04e00"],
+            [value: 99, color: "#ff0000"]
+        ]
+        break
+        case 'solar':
+        return [        
+            [value: 0,    color: "#000000"],
+            [value: 25,    color: "#FF0000"],
+            [value: 50,    color: "#9400D3"],
+            [value: 100,    color: "#00FF00"],
+            [value: 150,    color: "#FFFF00"],
+            [value: 200,    color: "#FF7F00"],
+            [value: 250,    color: "#4B0082"],
+            [value: 300,   color: "#0000FF"],
+            [value: 350,   color: "#00FF00"],
+            [value: 400,   color: "#FFFF00"],
+            [value: 450,   color: "#FF7F00"],
+            [value: 500,  color: "#ff69b4"],
+            [value: 550,  color: "#ffffff"]
+        ] 
+        break
+        case 'scheduleFreqMin':
+        return [
+            [value: 'Off',  color: "#FF0000"],
+            [value: '1',    color: "#9400D3"],
+            [value: '2',    color: "#00FF00"],
+            [value: '3',    color: "#FFFF00"],
+            [value: '4',    color: "#FF7F00"],
+            [value: '5',    color: "#4B0082"],
+            [value: '10',   color: "#0000FF"],
+            [value: '15',   color: "#00FF00"],
+            [value: '30',   color: "#FFFF00"],
+            [value: '60',   color: "#FF7F00"],
+            [value: '180',  color: "#ff69b4"]
+        ]    
+        break
+        case 'default':
+        return [                
+            [value: '0',  color: "#ffffff"]
+        ]
+    }
 }
