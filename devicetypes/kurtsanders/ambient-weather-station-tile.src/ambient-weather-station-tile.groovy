@@ -224,10 +224,10 @@ metadata {
         state "default", label:'Time Since Last Rain\n${currentValue}'
     }
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'UV Index\n${currentValue}'
+        state "default", label: 'UVI\n${currentValue}'
     }
     valueTile("solarradiation", "device.illuminance", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Solar Rad\n${currentValue}', backgroundColors: TileBgColors('solar')
+        state "default", label: 'Light\n${currentValue}', backgroundColors: TileBgColors('solar')
     }
     standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "wet", label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-rain.png'
