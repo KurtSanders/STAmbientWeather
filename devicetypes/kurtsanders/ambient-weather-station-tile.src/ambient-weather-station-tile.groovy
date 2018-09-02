@@ -28,7 +28,6 @@ metadata {
         capability "Motion Sensor"
         capability "Water Sensor"
         capability "Ultraviolet Index"
-        capability "Switch Level"
 
         // Start of Ambient Weather API Rest MAP
         attribute "baromabsin", "string"
@@ -42,8 +41,9 @@ metadata {
         attribute "feelsLike", "string"
         attribute "hourlyrainin", "string"
         attribute "humidty", "string"
-        attribute "humidtyin", "string"
+        attribute "humidityin", "string"
         attribute "lastRain", "string"
+        attribute "lastRainDuration", "string"
         attribute "macAddress", "string"
         attribute "maxdailygust", "string"
         attribute "monthlyrainin", "string"
