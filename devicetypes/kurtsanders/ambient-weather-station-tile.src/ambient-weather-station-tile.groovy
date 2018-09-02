@@ -40,7 +40,7 @@ metadata {
         attribute "eventrainin", "string"
         attribute "feelsLike", "string"
         attribute "hourlyrainin", "string"
-        attribute "humidty", "string"
+        attribute "humidity", "string"
         attribute "humidityin", "string"
         attribute "lastRain", "string"
         attribute "lastRainDuration", "string"
@@ -314,7 +314,7 @@ metadata {
             "windgustmph",
             "baromrelin", 
             "baromabsin", 
-            "humidity" , 
+            "humidity", 
             "dewPoint", 
             "solarradiation", 
             "ultravioletIndex", 
