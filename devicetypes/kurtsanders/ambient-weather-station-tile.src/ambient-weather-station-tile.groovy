@@ -522,7 +522,7 @@ def getAmbientStationData() {
     }
 
     def params = [
-        uri			: "https://api.ambientweather.net/v1/devices?applicationKey=${appString}&apiKey=${apiString}"
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appString}&apiKey=${apiString}"
     ]
     try {
         httpGet(params) { resp ->
