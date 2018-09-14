@@ -87,7 +87,7 @@ metadata {
             required: true,
             displayDuringSetup: true
         input "zipCode", type: "number",
-            title: "Zip Code for WU Weather API Forecast", 
+            title: "ZipCode for WU Weather API Forecast/Moon (Required)", 
             required: true,
             displayDuringSetup: true
         input name: "schedulerFreq", type: "enum",
@@ -381,11 +381,11 @@ def configure() {
 }
 
 def refresh() {
-    // Weather Underground Station Forecast
-    if(WUVerbose){log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"}
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
     def currentDT = new Date()
 
+    // Weather Underground Station Forecast
+    if(WUVerbose){log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"}
     // Current conditions
     def obs = get("conditions")?.current_observation
     if(WUVerbose){log.info "obs --> ${obs}"}
@@ -398,7 +398,6 @@ def refresh() {
     // Sunrise / sunset
     def a = get("astronomy")?.moon_phase
     if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
-    /*
     def today = localDate("GMT${obs.local_tz_offset}")
     def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
     ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
@@ -415,8 +414,7 @@ def refresh() {
     if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
     send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
     send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
-    */
-
+ 
     // Forecast
     def f = get("forecast")
     if (f) {
@@ -483,10 +481,10 @@ def refresh() {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
             state.ambientMap[0].each{ k, v -> 
-                log.info "${k} = ${v}"
+                log.debug "${k} = ${v}"
                 if (v instanceof Map) {
                     v.each { x, y ->
-                        log.info "${x} = ${y}"
+                        log.debug "${x} = ${y}"
                     }
                 }
             }
@@ -532,7 +530,7 @@ def refresh() {
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: '${v})'"}
         } 
     } else {
-        if(debugVerbose){log.info "getAmbientStationData() did not return any weather data"}
+        if(debugVerbose){log.debug "getAmbientStationData() did not return any weather data"}
     }
 }
 
@@ -542,6 +540,7 @@ def logdata(name,val) {
 }
 
 private get(feature) {
+    if(debugVerbose){log.debug "get feature->${feature}, zipCode->${zipCode}"}
     getWeatherFeature(feature, zipCode)
 }
 
