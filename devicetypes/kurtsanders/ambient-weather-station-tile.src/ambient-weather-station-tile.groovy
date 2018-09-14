@@ -19,7 +19,8 @@
 // Start Version Information
 def version() {
 //    return ["V1.0", "Original Code Base"]
-    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
+//    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
+    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
 }
 // End Version Information
 import groovy.time.*
@@ -186,17 +187,17 @@ metadata {
         state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
         state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
     }
-    valueTile("alert", "device.alert", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Weather Alerts:\n ${currentValue}'
+    valueTile("alert", "device.alert", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
+    }
+    valueTile("weather", "device.weather", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
+        state "default", label:'WU Forecast\n${currentValue}'
     }
     valueTile("rise", "device.localSunrise", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Sunrise\n ${currentValue}'
     }
     valueTile("set", "device.localSunset", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Sunset\n ${currentValue}'
-    }
-    valueTile("weather", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'${currentValue}'
     }
     valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Inside Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
@@ -237,7 +238,7 @@ metadata {
     valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain Last Date\n${currentValue}'
     }
-    valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 5, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Time Since Last Rain\n${currentValue}'
     }
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -292,16 +293,16 @@ metadata {
     valueTile("maxdailygust", "device.maxdailygust", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Wind Daily Gust\n${currentValue} mph', backgroundColors: TileBgColors('wind')
     }
-    valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
-    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
     valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: 'Last Updated\n ${currentValue}')
+        state("default", label: 'Tile Last Updated\n${currentValue}')
     }
-    standardTile("refresh", "device.weather", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
+    standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
     }
 
@@ -337,8 +338,8 @@ metadata {
             "ultravioletIndex", 
             "rise", 
             "set",
-            "alert",
             "weather",
+            "alert",
             "name", 
             "location",
             "macAddress",
@@ -389,7 +390,6 @@ def refresh() {
     if(WUVerbose){log.info "obs --> ${obs}"}
     if (obs) {
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
-        send(name: "weather", value: obs.weather)
         send(name: "weatherIcon", value: weatherIcon, displayed: false)
     } else {
         log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipcode-> ${zipcode}" 
@@ -421,6 +421,9 @@ def refresh() {
         log.error "Severre error getting WU forecast: ${f}"    
     }
     def f1= f?.forecast?.simpleforecast?.forecastday
+    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
+    send(name: "weather", value: f2)
+
     if (f1) {
         if(WUVerbose){log.info "WU Forecastday-> ${f1}"}
         def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
@@ -434,15 +437,18 @@ def refresh() {
     // Alerts
     def alerts = get("alerts")?.alerts
     def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
-    if(WUVerbose){log.info "WUSTATION: newKeys = ${newKeys}"}
-    if(WUVerbose){log.info "device.currentState("alertKeys")"}
+    if(WUVerbose){log.info "WUSTATION: newKeys   -> ${newKeys}"}
+    if(WUVerbose){log.info "WUSTATION: alertkeys -> ${alertKeys}"}
+    
     def oldKeys = device.currentState("alertKeys")?.jsonValue
-    if(WUVerbose){log.info "WUSTATION: oldKeys = ${oldKeys}"}
+    if(WUVerbose){log.info "WUSTATION: oldKeys   -> ${oldKeys}"}
 
-    def noneString = "no current weather alerts"
+    def noneString = "No current weather alerts"
+    def moonInfo = sprintf("Moon Info\nIlluminated: %s%%\nAge: %s\nTime: %s:%s", a.percentIlluminated, a.ageOfMoon, a.current_time.hour, a.current_time.minute) 
+    send(name: "alert", value: moonInfo, isStateChange: true)
     if (!newKeys && oldKeys == null) {
         send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
-        send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
+        send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
     }
     else if (newKeys != oldKeys) {
         if (oldKeys == null) {
@@ -459,11 +465,11 @@ def refresh() {
             }
         }
         if (!newAlerts && device.currentValue("alert") != noneString) {
-            send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
+            send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
         }
     }
     else {
-        if(WUVerbose){log.info "No response from Weather Underground API"}
+        if(WUVerbose){log.info "No alert response from Weather Underground API for ${zipCode} zipCode"}
     }
 
 
@@ -561,7 +567,7 @@ def getAmbientStationData() {
             }
         }
     } catch (e) {
-        log.error("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
+        log.warn("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
         return false
     }
     return true
