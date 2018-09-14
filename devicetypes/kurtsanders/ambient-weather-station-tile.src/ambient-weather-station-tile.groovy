@@ -20,7 +20,8 @@
 def version() {
 //    return ["V1.0", "Original Code Base"]
 //    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
-    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
+//    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
+    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
 }
 // End Version Information
 import groovy.time.*
@@ -397,11 +398,13 @@ def refresh() {
     // Sunrise / sunset
     def a = get("astronomy")?.moon_phase
     if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
+    /*
     def today = localDate("GMT${obs.local_tz_offset}")
     def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
     ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
     def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     utf.setTimeZone(TimeZone.getTimeZone("GMT"))
+    
     def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
     def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
 
@@ -412,6 +415,7 @@ def refresh() {
     if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
     send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
     send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
+    */
 
     // Forecast
     def f = get("forecast")
