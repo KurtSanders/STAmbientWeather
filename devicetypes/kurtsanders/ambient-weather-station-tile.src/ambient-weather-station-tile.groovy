@@ -16,6 +16,12 @@
 *
 *  Date: 2018-08-10
 */
+// Start Version Information
+def version() {
+//    return ["V1.0", "Original Code Base"]
+    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
+}
+// End Version Information
 import groovy.time.*
 import java.text.DecimalFormat
 metadata {
@@ -78,7 +84,10 @@ metadata {
             description: "Application Key",
             required: true,
             displayDuringSetup: true
-        input "zipCode", "text", title: "Zip Code for Weather Forecast (optional)", required: false
+        input "zipCode", type: "number",
+            title: "Zip Code for WU Weather API Forecast", 
+            required: true,
+            displayDuringSetup: true
         input name: "schedulerFreq", type: "enum",
             title: "Run Refresh Every (mins)?",
             options: ['Off','1','2','3','4','5','10','15','30','60','180'],
@@ -92,7 +101,15 @@ metadata {
             title: "Show Info Messages in IDE", 
             description: "Verbose Mode", 
             required: false
-    }
+        input name: "WUVerbose", type: "bool",
+            title: "Show Weather Underground Info Messages in IDE", 
+            description: "Verbose Mode", 
+            required: false
+        input name: "VersionInfo", type: "text",
+            title: "Updates: " + version()[1], 
+            description: "Version: " + version()[0], 
+            required: false
+     }
     tiles(scale: 2) {
         multiAttributeTile(name:"temperature", type:"generic", width:6, height:3, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
@@ -298,8 +315,8 @@ metadata {
             "humidityin" , 
             // Outside Sensors
             "weatherIcon", 
-            "eventrainin", 
             "water", 
+            "eventrainin", 
             "hourlyrainin", 
             "dailyrainin", 
             "weeklyrainin", 
@@ -363,20 +380,23 @@ def configure() {
 
 def refresh() {
     // Weather Underground Station Forecast
-    log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"
+    if(WUVerbose){log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"}
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
     def currentDT = new Date()
 
     // Current conditions
     def obs = get("conditions")?.current_observation
+    if(WUVerbose){log.info "obs --> ${obs}"}
     if (obs) {
-        if(debugVerbose){log.debug "obs --> ${obs}"}
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
         send(name: "weather", value: obs.weather)
         send(name: "weatherIcon", value: weatherIcon, displayed: false)
+    } else {
+        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipcode-> ${zipcode}" 
     }
     // Sunrise / sunset
     def a = get("astronomy")?.moon_phase
+    if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
     def today = localDate("GMT${obs.local_tz_offset}")
     def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
     ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
@@ -389,29 +409,35 @@ def refresh() {
     tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
     def localSunrise = "${tf.format(sunriseDate)}"
     def localSunset = "${tf.format(sunsetDate)}"
-    if(debugVerbose){log.debug "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
+    if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
     send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
     send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
 
     // Forecast
     def f = get("forecast")
+    if (f) {
+        if(WUVerbose){log.info "WU Forecast-> ${f}"}
+    } else {
+        log.error "Severre error getting WU forecast: ${f}"    
+    }
     def f1= f?.forecast?.simpleforecast?.forecastday
     if (f1) {
+        if(WUVerbose){log.info "WU Forecastday-> ${f1}"}
         def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
         def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
         send(name: "forecastIcon", value: icon, displayed: false)
     }
     else {
-        if(debugVerbose){log.warn "Forecast not found"}
+        if(debugVerbose){log.warn "Error WU forecastday Forecast not found"}
     }
 
     // Alerts
     def alerts = get("alerts")?.alerts
     def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
-    if(debugVerbose){log.debug "WUSTATION: newKeys = ${newKeys}"}
-    if(debugVerbose){log.trace device.currentState("alertKeys")}
+    if(WUVerbose){log.info "WUSTATION: newKeys = ${newKeys}"}
+    if(WUVerbose){log.info "device.currentState("alertKeys")"}
     def oldKeys = device.currentState("alertKeys")?.jsonValue
-    if(debugVerbose){log.debug "WUSTATION: oldKeys = ${oldKeys}"}
+    if(WUVerbose){log.info "WUSTATION: oldKeys = ${oldKeys}"}
 
     def noneString = "no current weather alerts"
     if (!newKeys && oldKeys == null) {
@@ -437,7 +463,7 @@ def refresh() {
         }
     }
     else {
-        if(debugVerbose){log.warn "No response from Weather Underground API"}
+        if(WUVerbose){log.info "No response from Weather Underground API"}
     }
 
 
