@@ -85,22 +85,18 @@ metadata {
         input name: "apiString", type: "text",
             title: "Ambient API Key (To view your keys, please visit: https://dashboard.ambientweather.net/account)",
             description: "API Key",
-            required: true,
-            displayDuringSetup: true
+            required: true
         input name: "appString", type: "text",
             title: "Ambient APPLICATION Key (To request an Application Key, please email support@ambientweather.com, and include a description of your project and the MAC address of your weather station.)",
             description: "Application Key",
-            required: true,
-            displayDuringSetup: true
+            required: true
         input "zipCode", type: "number",
             title: "ZipCode for WU Weather API Forecast/Moon (Required)", 
-            required: true,
-            displayDuringSetup: true
+            required: true
         input name: "schedulerFreq", type: "enum",
             title: "Run Refresh Every (mins)?",
             options: ['Off','1','2','3','4','5','10','15','30','60','180'],
-            required: true,
-            displayDuringSetup: true
+            required: true
         input name: "debugVerbose", type: "bool",
             title: "Show Debug Messages in IDE", 
             description: "Verbose Mode", 
@@ -394,7 +390,6 @@ def updated() {
     log.info "Ambient api string-> ${apiString}"
     log.info "Ambient app string-> ${appString}"
     log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"
-    log.info "The time zone map for your hub Location is: ${location.timeZone}"
 
     if(state.schedulerFreq!=schedulerFreq) {
         state.schedulerFreq = schedulerFreq
@@ -467,44 +462,9 @@ def refresh() {
     else {
         if(debugVerbose){log.warn "Error WU forecastday Forecast not found"}
     }
-    // Alerts
-    def noneString = "No current weather alerts"
-    def alerts = get("alerts")?.alerts
-    if (alerts==[]){
-        send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
-    }
-    def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
-    if(WUVerbose){log.info "WUSTATION: newKeys   -> ${newKeys}"}
-    if(WUVerbose){log.info "WUSTATION: alertkeys -> ${alertKeys}"}
-    
-    def oldKeys = device.currentState("alertKeys")?.jsonValue
-    if(WUVerbose){log.info "WUSTATION: oldKeys   -> ${oldKeys}"}
 
-    if (!newKeys && oldKeys == null) {
-        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
-        send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
-    }
-    else if (newKeys != oldKeys) {
-        if (oldKeys == null) {
-            oldKeys = []
-        }
-        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
-
-        def newAlerts = false
-        alerts.each {alert ->
-            if (!oldKeys.contains(alert.type + alert.date_epoch)) {
-                def msg = "${alert.description} from ${alert.date} until ${alert.expires}"
-                send(name: "alert", value: pad(alert.description), descriptionText: msg, isStateChange: true)
-                newAlerts = true
-            }
-        }
-        if (!newAlerts && device.currentValue("alert") != noneString) {
-            send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
-        }
-    }
-    else {
-        if(WUVerbose){log.info "No alert response from Weather Underground API for ${zipCode} zipCode"}
-    }
+    // Weather Underground Alerts
+    checkForSevereWeather()
 
     // Ambient Weather Station
     log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)}"        
@@ -571,8 +531,8 @@ def refresh() {
     }
 }
 
-def logdata(name,val) {
-    log.debug "${name} -> ${val}"
+def logdata(name) {
+    log.debug "${name}"
     return
 }
 
@@ -777,4 +737,53 @@ private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
         lux = 10
     }
     lux
+}
+
+def checkForSevereWeather() {
+    def alerts = get("alerts")?.alerts
+    if(debugVerbose){log.debug "WUSTATION: alerts = $alerts"}
+    if (alerts==[]){
+        if(debugVerbose){log.debug "WUSTATION: Updating Tile Alerts to 0"}
+        send(name: "alert", value: "0 current weather alert(s) for ${zipCode}", isStateChange: true)
+        return
+    }
+    if(debugVerbose){log.debug "WUSTATION: alertSize = $alertSize"}    
+    def noneString = "${alerts?.size()} current weather alert(s) for ${zipCode}"
+
+    def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
+    if(debugVerbose){log.debug "WUSTATION: newKeys = $newKeys"}
+    if(debugVerbose){log.debug "WUSTATION: alertKeys = ${device.currentState('alertKeys')}"}
+    def oldKeys = device.currentState("alertKeys")?.jsonValue
+    if(debugVerbose){log.debug "WUSTATION: oldKeys = $oldKeys"}
+
+    if (!newKeys && oldKeys == null) {
+        if(debugVerbose){log.debug "WUSTATION: !newKeys && oldKeys == null"}
+        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
+        send(name: "alert", value: "${noneString}", isStateChange: true)
+    }
+    else if (newKeys != oldKeys) {
+        if(debugVerbose){log.debug "WUSTATION: newKeys != oldKeys" }   
+        if (oldKeys == null) {
+            oldKeys = []
+        }
+        if(debugVerbose){log.debug "WUSTATION: alertKeys = $alertKeys"}
+        send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
+
+        def newAlerts = false
+        alerts.each {alert ->
+            if (!oldKeys.contains(alert.type + alert.date_epoch)) {
+                def msg = "${alert.description} from ${alert.date} until ${alert.expires}"
+                if(debugVerbose){log.debug "WUSTATION: msg = $msg"}
+                send(name: "alert", value: pad(alert.description), descriptionText: msg, isStateChange: true)
+                newAlerts = true
+            }
+        }
+
+        if (!newAlerts && device.currentValue("alert") != noneString) {
+            send(name: "alert", value: "${noneString}", isStateChange: true)
+        }
+    }
+    else {
+        if(WUVerbose){log.info "No alert response from Weather Underground API for ${zipCode} zipCode"}
+    }
 }
