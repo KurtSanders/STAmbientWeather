@@ -21,7 +21,8 @@ def version() {
 //    return ["V1.0", "Original Code Base"]
 //    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
 //    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
-    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
+//    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
+    return ["V1.04", "Tile Format Change, Extended Forecast, Error Handling for Zipcode/TimeZone"]
 }
 // End Version Information
 import groovy.time.*
@@ -192,7 +193,7 @@ metadata {
         state "default", label:'${currentValue}'
     }
     valueTile("weather", "device.weather", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
-        state "default", label:'WU Forecast\n${currentValue}'
+        state "default", label:'${currentValue}'
     }
     valueTile("rise", "device.localSunrise", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Sunrise\n ${currentValue}'
@@ -237,13 +238,13 @@ metadata {
         state "default", label:'Rain Total\n${currentValue} in'
     }
     valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Last Date\n${currentValue}'
+        state "default", label:'Last Rain Date\n${currentValue}'
     }
     valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Time Since Last Rain\n${currentValue}'
+        state "default", label:'Duration Since Last Rain\n${currentValue}'
     }
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'UVI\n${currentValue}'
+        state "default", label: 'UVI\n${currentValue}', backgroundColors: TileBgColors('uvi')
     }
     valueTile("solarradiation", "device.illuminance", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Light\n${currentValue}', backgroundColors: TileBgColors('solar')
@@ -300,7 +301,7 @@ metadata {
     valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
-    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Tile Last Updated\n${currentValue}')
     }
     standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -339,11 +340,10 @@ metadata {
             "ultravioletIndex", 
             "rise", 
             "set",
-            "weather",
             "alert",
             "name", 
             "location",
-            "macAddress",
+            "weather",
             "scheduleFreqMin",
             "lastSTupdate",
             "refresh"
@@ -366,9 +366,12 @@ def uninstalled() {
 }
 
 def updated() {
-    if(infoVerbose){log.info "Section: Updated"}
-    if(infoVerbose){log.info "Ambient api string-> ${apiString}"}
-    if(infoVerbose){log.info "Ambient app string-> ${appString}"}
+    log.info "Section: Updated"
+    log.info "Ambient api string-> ${apiString}"
+    log.info "Ambient app string-> ${appString}"
+    log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"
+    log.info "The time zone map for your hub Location is: ${location.timeZone}"
+
     if(state.schedulerFreq!=schedulerFreq) {
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
@@ -380,12 +383,12 @@ def configure() {
     refresh()
 }
 
-def refresh() {
+def refresh() {    
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
     def currentDT = new Date()
 
     // Weather Underground Station Forecast
-    if(WUVerbose){log.info "WUSTATION: Executing 'Weather Forecast for: ${location.name}"}
+    log.info "WUSTATION: Executing 'Weather Forecast, Sunrise, Sunset, Moon Info for zipCode: '${zipCode}'"
     // Current conditions
     def obs = get("conditions")?.current_observation
     if(WUVerbose){log.info "obs --> ${obs}"}
@@ -393,27 +396,39 @@ def refresh() {
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
         send(name: "weatherIcon", value: weatherIcon, displayed: false)
     } else {
-        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipcode-> ${zipcode}" 
+        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
     }
     // Sunrise / sunset
     def a = get("astronomy")?.moon_phase
     if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
-    def today = localDate("GMT${obs.local_tz_offset}")
-    def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
-    ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-    def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    utf.setTimeZone(TimeZone.getTimeZone("GMT"))
-    
-    def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
-    def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
-
+    /*
+        def today = localDate("GMT${obs.local_tz_offset}")
+        def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+        ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+        def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        utf.setTimeZone(TimeZone.getTimeZone("GMT"))
+        def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
+        def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
+        def tf = new java.text.SimpleDateFormat("h:mm a")
+        tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+        def localSunrise = "${tf.format(sunriseDate)}"
+        def localSunset = "${tf.format(sunsetDate)}"
+        send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
+        send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
+    */
+    def ltf = new java.text.SimpleDateFormat("HH:mm")
     def tf = new java.text.SimpleDateFormat("h:mm a")
-    tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-    def localSunrise = "${tf.format(sunriseDate)}"
-    def localSunset = "${tf.format(sunsetDate)}"
+    def sunriseTime = ltf.parse("${a.sunrise.hour}:${a.sunrise.minute}")
+    def sunsetTime  = ltf.parse("${a.sunset.hour}:${a.sunset.minute}")
+    def moonTime    = ltf.parse("${a.current_time.hour}:${a.current_time.minute}") 
+
+    def localSunrise   = "${tf.format(sunriseTime)}"
+    def localSunset    = "${tf.format(sunsetTime)}"
+    def localMoonTime  = "${tf.format(moonTime)}"
     if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
-    send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
-    send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
+    
+    send(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}")
+    send(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}")
  
     // Forecast
     def f = get("forecast")
@@ -423,7 +438,14 @@ def refresh() {
         log.error "Severre error getting WU forecast: ${f}"    
     }
     def f1= f?.forecast?.simpleforecast?.forecastday
-    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
+    //    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
+    def f2= sprintf(
+        "WU Forecast for zipcode: %s\n%s %s, %s",
+        zipCode, 
+        f?.forecast?.txt_forecast?.forecastday[0].fcttext, 
+        f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(), 
+        f?.forecast?.txt_forecast?.forecastday[1].fcttext
+    )
     send(name: "weather", value: f2)
 
     if (f1) {
@@ -446,7 +468,7 @@ def refresh() {
     if(WUVerbose){log.info "WUSTATION: oldKeys   -> ${oldKeys}"}
 
     def noneString = "No current weather alerts"
-    def moonInfo = sprintf("Moon Info\nIlluminated: %s%%\nAge: %s\nTime: %s:%s", a.percentIlluminated, a.ageOfMoon, a.current_time.hour, a.current_time.minute) 
+    def moonInfo = sprintf("Moon Info\nIlluminated: %s%%\nAge: %s\nTime: %s", a.percentIlluminated, a.ageOfMoon, localMoonTime) 
     send(name: "alert", value: moonInfo, isStateChange: true)
     if (!newKeys && oldKeys == null) {
         send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
@@ -481,10 +503,10 @@ def refresh() {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
             state.ambientMap[0].each{ k, v -> 
-                log.debug "${k} = ${v}"
+                log.info "${k} = ${v}"
                 if (v instanceof Map) {
                     v.each { x, y ->
-                        log.debug "${x} = ${y}"
+                        log.info "${x} = ${y}"
                     }
                 }
             }
@@ -539,9 +561,9 @@ def logdata(name,val) {
     return
 }
 
-private get(feature) {
+def get(feature) {
     if(debugVerbose){log.debug "get feature->${feature}, zipCode->${zipCode}"}
-    getWeatherFeature(feature, zipCode)
+    getWeatherFeature(feature, "${zipCode}")
 }
 
 private localDate(timeZone) {
@@ -666,18 +688,13 @@ def TileBgColors(colorSetName) {
         case 'solar':
         return [        
             [value: 0,    color: "#000000"],
-            [value: 25,    color: "#FF0000"],
-            [value: 50,    color: "#9400D3"],
-            [value: 100,    color: "#00FF00"],
-            [value: 150,    color: "#FFFF00"],
-            [value: 200,    color: "#FF7F00"],
-            [value: 250,    color: "#4B0082"],
-            [value: 300,   color: "#0000FF"],
-            [value: 350,   color: "#00FF00"],
-            [value: 400,   color: "#FFFF00"],
-            [value: 450,   color: "#FF7F00"],
-            [value: 500,  color: "#ff69b4"],
             [value: 550,  color: "#ffffff"]
+        ] 
+        break
+        case 'uvi':
+        return [        
+            [value: 0,    color: "#000000"],
+            [value: 12,   color: "#ffffff"]
         ] 
         break
         case 'scheduleFreqMin':
