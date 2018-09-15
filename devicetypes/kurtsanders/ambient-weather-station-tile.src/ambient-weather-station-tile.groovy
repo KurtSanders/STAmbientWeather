@@ -22,7 +22,8 @@ def version() {
 //    return ["V1.01", "Added WU Info Bool, Required Zipcode in Preferences"]
 //    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
 //    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
-    return ["V1.04", "Tile Format Change, Extended Forecast, Error Handling for Zipcode/TimeZone"]
+//    return ["V1.04", "Tile Format Change, Extended Forecast, Error Handling for Zipcode/TimeZone"]
+    return ["V1.05", "Tile Format Change, Moon Icons"]
 }
 // End Version Information
 import groovy.time.*
@@ -52,10 +53,13 @@ metadata {
         attribute "humidity", "string"
         attribute "humidityin", "string"
         attribute "lastRain", "string"
+        attribute "location", "string"
         attribute "lastRainDuration", "string"
         attribute "macAddress", "string"
         attribute "maxdailygust", "string"
         attribute "monthlyrainin", "string"
+        attribute "moonAge", "string"
+        attribute "name", "string"
         attribute "temperature", "string"
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
@@ -73,6 +77,7 @@ metadata {
         attribute "sunsetDate", "string"
         attribute "alertKeys", "string"
         attribute "alert", "string"
+        attribute "version", "string"
         
         command "refresh"
     }
@@ -189,7 +194,7 @@ metadata {
         state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
         state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
     }
-    valueTile("alert", "device.alert", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("alert", "device.alert", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
     valueTile("weather", "device.weather", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
@@ -266,8 +271,26 @@ metadata {
     valueTile("winddir2", "device.winddir2", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Wind Direction\n${currentValue}'
     }
+    standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 1, height: 1, decoration: "flat") {
+        state "default",    label: 'Age of Moon\n${currentValue}'
+        state "1",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-1.png'
+        state "2",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-2.png'
+        state "3",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-3.png'
+        state "4",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-4.png'
+        state "5",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-5.png'
+        state "6",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-6.png'
+        state "7",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-7.png'
+        state "8",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-8.png'
+        state "9",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-9.png'
+        state "10",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-10.png'
+        state "11",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-11.png'
+        state "12",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-12.png'
+        state "13",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-13.png'
+        state "14",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-14.png'
+        state "15",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-15.png'
+        
+    }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-    // "N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"
         state "default",    label: '${currentValue}'
         state "N",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
         state "North NE", 	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
@@ -298,13 +321,13 @@ metadata {
     valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
-    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
     valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: 'Tile Last Updated\n${currentValue}')
+        state("default", label: '${currentValue}')
     }
-    standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    standardTile("refresh", "device.weather", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
     }
 
@@ -340,13 +363,14 @@ metadata {
             "ultravioletIndex", 
             "rise", 
             "set",
-            "alert",
+            "moonAge",
+            "refresh",
             "name", 
             "location",
             "weather",
             "scheduleFreqMin",
-            "lastSTupdate",
-            "refresh"
+            "alert",
+            "lastSTupdate"
         ]
     )
 }
@@ -398,35 +422,21 @@ def refresh() {
     } else {
         log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
     }
-    // Sunrise / sunset
+    // Get Sunrise / sunset / Moon Age from Weather Underground
     def a = get("astronomy")?.moon_phase
     if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
-    /*
-        def today = localDate("GMT${obs.local_tz_offset}")
-        def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
-        ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-        def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-        utf.setTimeZone(TimeZone.getTimeZone("GMT"))
-        def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
-        def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
-        def tf = new java.text.SimpleDateFormat("h:mm a")
-        tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-        def localSunrise = "${tf.format(sunriseDate)}"
-        def localSunset = "${tf.format(sunsetDate)}"
-        send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
-        send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
-    */
+    
+    // Moon Age
+    send(name: "moonAge", value: "${a.ageOfMoon}", isStateChange: true)
+    
+	// Sunset, Sunrise
     def ltf = new java.text.SimpleDateFormat("HH:mm")
     def tf = new java.text.SimpleDateFormat("h:mm a")
     def sunriseTime = ltf.parse("${a.sunrise.hour}:${a.sunrise.minute}")
     def sunsetTime  = ltf.parse("${a.sunset.hour}:${a.sunset.minute}")
-    def moonTime    = ltf.parse("${a.current_time.hour}:${a.current_time.minute}") 
-
     def localSunrise   = "${tf.format(sunriseTime)}"
     def localSunset    = "${tf.format(sunsetTime)}"
-    def localMoonTime  = "${tf.format(moonTime)}"
     if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
-    
     send(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}")
     send(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}")
  
@@ -457,9 +467,12 @@ def refresh() {
     else {
         if(debugVerbose){log.warn "Error WU forecastday Forecast not found"}
     }
-
     // Alerts
+    def noneString = "No current weather alerts"
     def alerts = get("alerts")?.alerts
+    if (alerts==[]){
+        send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
+    }
     def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
     if(WUVerbose){log.info "WUSTATION: newKeys   -> ${newKeys}"}
     if(WUVerbose){log.info "WUSTATION: alertkeys -> ${alertKeys}"}
@@ -467,9 +480,6 @@ def refresh() {
     def oldKeys = device.currentState("alertKeys")?.jsonValue
     if(WUVerbose){log.info "WUSTATION: oldKeys   -> ${oldKeys}"}
 
-    def noneString = "No current weather alerts"
-    def moonInfo = sprintf("Moon Info\nIlluminated: %s%%\nAge: %s\nTime: %s", a.percentIlluminated, a.ageOfMoon, localMoonTime) 
-    send(name: "alert", value: moonInfo, isStateChange: true)
     if (!newKeys && oldKeys == null) {
         send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
         send(name: "alert", value: noneString, descriptionText: "No current weather alerts", isStateChange: true)
@@ -496,7 +506,6 @@ def refresh() {
         if(WUVerbose){log.info "No alert response from Weather Underground API for ${zipCode} zipCode"}
     }
 
-
     // Ambient Weather Station
     log.info "Ambient Weather STATION: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)}"        
     if (getAmbientStationData()) {
@@ -504,6 +513,11 @@ def refresh() {
         if(debugVerbose || infoVerbose) {
             state.ambientMap[0].each{ k, v -> 
                 log.info "${k} = ${v}"
+                if (k instanceof Map) {
+                    k.each { x, y ->
+                        log.info "${x} = ${y}"
+                    }
+                }
                 if (v instanceof Map) {
                     v.each { x, y ->
                         log.info "${x} = ${y}"
@@ -516,7 +530,7 @@ def refresh() {
             if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
             sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
         }    
-        sendEvent(name:"lastSTupdate", value: now)
+        sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now))
         sendEvent(name:"macAddress", value: state.ambientMap.macAddress)
 
         def waterState = state.ambientMap.lastData.hourlyrainin[0].toFloat()>0?'wet':'dry'
@@ -531,7 +545,11 @@ def refresh() {
         if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
         sendEvent(name:'winddirection', value: winddirectionState)
         sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
-        
+ 
+        state.ambientMap.info[0].each{ k, v -> 
+            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
+            sendEvent(name: k, value: v)
+        }
         state.ambientMap.lastData[0].each{ k, v -> 
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
@@ -548,9 +566,6 @@ def refresh() {
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             sendEvent(name: k, value: v)
         }
-        state.ambientMap.info[0].each{ k, v -> 
-            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: '${v})'"}
-        } 
     } else {
         if(debugVerbose){log.debug "getAmbientStationData() did not return any weather data"}
     }
@@ -566,13 +581,8 @@ def get(feature) {
     getWeatherFeature(feature, "${zipCode}")
 }
 
-private localDate(timeZone) {
-    def df = new java.text.SimpleDateFormat("yyyy-MM-dd")
-    df.setTimeZone(TimeZone.getTimeZone(timeZone))
-    df.format(new Date())
-}
-
 def getAmbientStationData() {
+	if(infoVerbose){log.info "Start: getAmbientStationData()"}
     if(apiString==null || apiString=="" || appString==null || appString=="") {
         log.error("Severre Error: API/APP keys are missing in device settings, exiting")
         return false
@@ -595,6 +605,7 @@ def getAmbientStationData() {
         log.warn("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
         return false
     }
+    if(infoVerbose){log.info "End: getAmbientStationData()"}
     return true
 }
 
