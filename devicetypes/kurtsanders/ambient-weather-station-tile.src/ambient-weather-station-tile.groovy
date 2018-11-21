@@ -23,7 +23,8 @@ def version() {
 //    return ["V1.02", "Added Moon Information, Fixed Refresh Error"]
 //    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
 //    return ["V1.04", "Tile Format Change, Extended Forecast, Error Handling for Zipcode/TimeZone"]
-    return ["V1.05", "Tile Format Change, Moon Icons"]
+//    return ["V1.05", "Tile Format Change, Moon Icons"]
+    return ["V1.06", "Added logic checks for missing weather station data"]
 }
 // End Version Information
 import groovy.time.*
@@ -422,8 +423,12 @@ def refresh() {
     if(WUVerbose){log.info "get('astronomy')?.moon_phase --> ${a}"}
     
     // Moon Age
-    send(name: "moonAge", value: "${a.ageOfMoon}", isStateChange: true)
-    
+    if (a) {
+        send(name: "moonAge", value: "${a.ageOfMoon}", isStateChange: true)
+    } else {
+        log.error "Severre error retrieving current age of the Moon Weather Underground API: get('astronomy')?.moon_phase --> ${a}" 
+    }
+
 	// Sunset, Sunrise
     def ltf = new java.text.SimpleDateFormat("HH:mm")
     def tf = new java.text.SimpleDateFormat("h:mm a")
@@ -485,11 +490,18 @@ def refresh() {
                 }
             }
         }
-        def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap.lastData.lastRain[0])
-        use (groovy.time.TimeCategory) {
-            if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
-            sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
-        }    
+        if(debugVerbose){log.debug "Checking Weather Station data array for 'Last Rain Date' information..."}
+        if (state.ambientMap[0].lastData.containsKey('lastRain')) {
+            if(debugVerbose){log.debug "Weather Station has 'Last Rain Date' information...Processing"}
+            def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap.lastData.lastRain[0])
+            use (groovy.time.TimeCategory) {
+                if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
+                sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
+            }
+        } else {
+            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}        
+            sendEvent(name:"lastRainDuration", value: "N/A")
+        }
         sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now))
         sendEvent(name:"macAddress", value: state.ambientMap.macAddress)
 
