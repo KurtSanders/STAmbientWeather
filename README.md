@@ -12,7 +12,7 @@ A custom SmartThings Device Handler (DTH) which connects to the data generated f
 2. SmartThings Hub
 3. Supported mobile device with ST Client:
 	* Apple iOS device or 
-	* Android mobile device.  *Know issue: The Android O/S ST client may not be able to display the custom weather tile, but Ambient weather API attributes are accessible from ST WebCore, etc*
+	* Android mobile device.  *Known issue: The Android O/S ST client may not be able to display the custom weather tile, but Ambient weather API attributes are accessible from ST WebCore, etc*
 4. A working knowledge of the SmartThings IDE
 	* Installing a DTH from a GitHub repository (see [WebCore Wiki](https://wiki.webcore.co/) for example instructions and use the repository Owner, Name and Branch from below)
 	* Creating a custom device
