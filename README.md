@@ -10,10 +10,13 @@ A custom SmartThings Device Handler (DTH) which connects to the data generated f
 ## Requirements:
 1. [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g. Model 2902A for example)
 2. SmartThings Hub
-3. A working knowledge of the SmartThings IDE
+3. Supported mobile device with ST Client:
+	* Apple iOS device or 
+	* Android mobile device.  *Know issue: The Android O/S ST client may not be able to display the custom weather tile, but Ambient weather API attributes are accessible from ST WebCore, etc*
+4. A working knowledge of the SmartThings IDE
 	* Installing a DTH from a GitHub repository (see [WebCore Wiki](https://wiki.webcore.co/) for example instructions and use the repository Owner, Name and Branch from below)
 	* Creating a custom device
-4. Ambient Weather Station API/APP Keys
+5. Ambient Weather Station API/APP Keys
 	* API Key
 	* Application Key
  
