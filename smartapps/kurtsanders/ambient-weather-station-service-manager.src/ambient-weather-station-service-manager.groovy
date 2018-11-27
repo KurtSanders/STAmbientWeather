@@ -26,6 +26,7 @@ def version() {
 // End Version Information
 String platform() { return "SmartThings" }
 String DTHName() { return "Ambient Weather Station" }
+String DTHDNI() { return "MyAmbientWeatherStation" }
 String appVersion()	 { return "1.0" }
 String appModified() { return "2018-11-22" } 
 String appAuthor()	 { return "Kurt Sanders" }
@@ -35,13 +36,13 @@ Map minVersions() { //These define the minimum versions of code this app will wo
     return [ambientDevice: 100]
 }
 definition(
-  name: "Ambient Weather Station Service Manager",
-  namespace: "kurtsanders",
-  author: "kurt@kurtsanders.com",
-  description: "Ambient Personal Weather Station Service Manager",
-  category: "My Apps",
-  iconUrl: getAppImg("blue-ball.jpg"),
-  iconX2Url: getAppImg("blue-ball.jpg"),
+    name: "Ambient Weather Station Service Manager",
+    namespace: "kurtsanders",
+    author: "kurt@kurtsanders.com",
+    description: "Ambient Personal Weather Station Service Manager",
+    category: "My Apps",
+    iconUrl:   getAppImg("blue-ball.jpg"),
+    iconX2Url: getAppImg("blue-ball.jpg"),
     iconX3Url: getAppImg("blue-ball.jpg"),
     singleInstance: true
 )
@@ -51,39 +52,32 @@ definition(
 }
 
 preferences {    
-        page(name: "mainPage")
-        page(name: "settingsPage")
+    page(name: "keysCheckPage")
+    page(name: "mainPage")
+    page(name: "settingsPage")
 }
 
-def mainPage() {
-    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:true, install:true) {
-        def apiappSetupCompleteBool = !((appSettings?.apiKey==null) && (apiSettings?.apiKey==null) && (state.ambientMap[0]?.info?.name==null))
-        def setupMessage = null
-        if (apiappSetupCompleteBool) {
-            setupMessage = state.ambientMap[0].info.name?"SUCCESS You have completed your Ambient API & APP Keys for the Ambient weather station named: '${state.ambientMap[0].info.name}'":"Error in API or API Keys"
-        } else if (getAmbientStationData()) {
-            setupMessage = state.ambientMap[0].info.name?"SUCCESS You have completed your Ambient API & APP Keys for the Ambient weather station named: '${state.ambientMap[0].info.name}'":"Error in API or API Keys"
-            apiappSetupCompleteBool = true
-        } else {
-            setupMessage = "Please complete the REQUIRED API and APP Keys setup in the SmartThings IDE (App Settings Section) for this application"
-        }
-        section("Weather Station Location for Local Weather") {
-            input "zipCode", type: "number",
-                title: "ZipCode for WU Weather API Forecast/Moon (Required)", 
-                required: true
-        }
-        section("Weather Station Refresh Update Frequency:") {
-            input name: "schedulerFreq", type: "enum",
-                title: "Run Weather Station Refresh Every (mins)?",
-                options: ['Off','1','2','3','4','5','10','15','30','60','180'],
-                required: true
-        }
+def keysCheckPage() {
+    def apiappSetupCompleteBool = !((appSettings?.apiKey==null) && (apiSettings?.apiKey==null))
+    def setupMessage = null
+    def setupTitle = "Ambient Weather Station API Check"
+    def nextPageName = "mainPage"
+    if (apiappSetupCompleteBool) {
+        setupMessage = "SUCCESS! You have completed your Ambient API & APP Keys for the Ambient weather station."
+        setupTitle = "Tap NEXT to Continue to Settings Page"
+    } else {
+        setupMessage = "Please complete the REQUIRED API and APP Keys setup in the SmartThings IDE (App Settings Section) for this application"
+        nextPageName = null
+    }
+    dynamicPage(name: "keysCheckPage", title: setupTitle, nextPage: nextPageName, uninstall:true, install:false) {
+        log.debug "appSettings.apiKey->${appSettings.apiKey}"
+        log.debug "appSettings.appKey->${appSettings.appKey}"
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-        paragraph "The API & APP string keys are used to securely connect your weather station to this application."
-            paragraph image: getAppImg("1453901679/blue-ball.jpg"),
+            paragraph "The API & APP string keys are used to securely connect your weather station to this application."
+            paragraph image: getAppImg("blue-ball.jpg"),
                 title: "Required API & APP Keys",
                 required: true,
-                "You must have both an API and APP key from your Ambient Dashboard.  You MUST enter both these keys in the ST browser IDE APP 'Settings' section for this SmartApp"
+                "You must have both an API and APP key from your Ambient Dashboard.  The actual api and app key values are set on the SmartThings IDE.  Edit the Ambient SmartApp, accessed by pressing the App Settings button. Scroll down the page, expand the Settings group, and set both key values."
             href(name: "hrefUSA",
                  title: "SmartThings IDE USA",
                  required: true,
@@ -96,6 +90,22 @@ def mainPage() {
                  style: "external",
                  url: "https://graph-eu01-euwest1.api.smartthings.com/",
                  description: "tap to view the Europe SmartThings IDE website in mobile browser")
+        }
+    }
+}
+
+def mainPage() {   
+    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:true, install:true) {
+        section("Weather Station Location for Local Weather") {
+            input "zipCode", type: "number",
+                title: "ZipCode for WU Weather API Forecast/Moon (Required)", 
+                required: true
+        }
+        section("Weather Station Refresh Update Frequency") {
+            input name: "schedulerFreq", type: "enum",
+                title: "Run Weather Station Refresh Every (mins)?",
+                options: ['Off','1','2','3','4','5','10','15','30','60','180'],
+                required: true
         }
         section("IDE Log Output Settings") {
             href(name: "settingsPageLink", title: "IDE Log Output Settings", description: "", page: "settingsPage")
@@ -129,39 +139,24 @@ def settingsPage() {
     }
 }
 
-def appPage() {
-    dynamicPage(name: "appPage", uninstall:false, install:false) {
-        section("Weather Station APPLICATION KEY Information:") {
-            input name: "appString", type: "text",
-                title: "Ambient APPLICATION Key (To request an Application Key, please email support@ambientweather.com, and include a description of your project and the MAC address of your weather station.)",
-                description: "Application Key",
-                required: true
-        }
-    }
-}
-
 def installed() {
-    if(infoVerbose){log.info "Section: Installed"}
-    state.deviceId = 'MyAmbientWeatherStation'
-    //    device.deviceNetworkId = "$"
-    if (!addAmbientChildDevice()) {
-		log.error "Error in addAmbientChildDevice()"
-        return false
-    }
+    log.info "Section: Installed"
+    state.deviceId = DTHDNI()
+    //    device.deviceNetworkId = NewDNI
+    addAmbientChildDevice()
     if(state.schedulerFreq!=schedulerFreq) {
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
         setScheduler(state.schedulerFreq)
         def d = getChildDevice(state.deviceId)
         d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
-
     }
+    main()
 }
 
 def uninstalled() {
-    if(infoVerbose){log.info "Section: Uninstalled"}
+    log.info "Section: Uninstalled"
     unschedule()
-    unsubscribe()
     removeAmbientChildDevice()
 }
 
@@ -170,10 +165,14 @@ def updated() {
     if(infoVerbose){log.info "Ambient API string-> ${appSettings?.apiKey}"}
     if(infoVerbose){log.info "Ambient APP string-> ${appSettings?.appKey}"}
     if(infoVerbose){log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"}
-    state.deviceId = 'MyAmbientWeatherStation'
-    log.info "ambientMap.macAddress -> ${state.ambientMap[0].macAddress}"
+    state.deviceId = DTHDNI()
+    try {
+        log.info "ambientMap.macAddress -> ${state.ambientMap[0].macAddress}"
+    } catch(NullPointerException e) {
+        // do something other
+    }
     getAllChildDevices().each {
-    	log.info "it -> ${it}"
+        log.info "it -> ${it}"
         log.info "AmbientWS device: ${it.deviceNetworkId}"
     }
     if(state.schedulerFreq!=schedulerFreq) {
@@ -190,13 +189,13 @@ private addAmbientChildDevice() {
     log.debug "Adding AmbientWS device: ${state.deviceId}"
     if (!getChildDevice(state.deviceId)) {
         try { 
-            addChildDevice("kurtsanders", DTHName(), state.deviceId, null, ["name": "Ambient Weather Station", label: "Ambient Weather Station", completedSetup: true])
+            addChildDevice("kurtsanders", DTHName(), DTHDNI(), null, ["name": DTHName(), label: DTHName(), completedSetup: true])
         } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
-            log.error "The Device Handler ${DTHName()} was not found, Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
+            log.error "The Device Handler '${DTHName()}' was not found in your devices, Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
             return false
         }
     } 
-    log.debug "Added ${DTHName()} with DNI: ${state.deviceId}"
+    log.debug "Added ${DTHName()} with DNI: ${DTHDNI()}"
 }
 private removeAmbientChildDevice() {
     getAllChildDevices().each { 
