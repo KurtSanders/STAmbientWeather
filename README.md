@@ -1,9 +1,9 @@
-# STAmbientWeather
+# STAmbientWeather V2
 *SmartThings Integration for Ambient Weather Stations*
 
 ## Description:
 
-A custom SmartThings Device Handler (DTH) which connects to the data generated from an [Ambient weather station](https://www.ambientweather.com/ambientnet.html).  This SmartThings device handler accesses the [Ambientweather.net](https://ambientweather.net/) weather data using the AmbientWeather API which is near realtime.  The user can set the refresh rate of the weather data from 1 min to 180 mins (3 hours).
+A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which connects to the data generated from an [Ambient weather station](https://www.ambientweather.com/ambientnet.html).  This SmartThings device handler accesses the [Ambientweather.net](https://ambientweather.net/) weather data using the AmbientWeather API which is near realtime.  The user can set the refresh rate of the weather data from 1 min to 180 mins (3 hours).
 
 ![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClient.PNG)
 
@@ -14,9 +14,8 @@ A custom SmartThings Device Handler (DTH) which connects to the data generated f
 	* Apple iOS device or 
 	* Android mobile device.  *Known issue: The Android O/S ST client may not be able to display the custom weather tile, but Ambient weather API attributes are accessible from ST WebCore, etc*
 4. A working knowledge of the SmartThings IDE
-	* Installing a DTH from a GitHub repository (see [WebCore Wiki](https://wiki.webcore.co/) for example instructions and use the repository Owner, Name and Branch from below)
-	* Creating a custom device
-5. Ambient Weather Station API/APP Keys
+	* Installing a SmartApp & DTH from a GitHub repository (see [WebCore Wiki](https://wiki.webcore.co/) for example instructions and use the repository Owner, Name and Branch from below)
+5. Ambient Weather Station API/APP Keys (Required)
 	* API Key
 	* Application Key
  
@@ -34,25 +33,19 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings':
 
 * Owner: 		KurtSanders
 * Name:		STAmbientWeather
-* Branch: 	Master
+* Branch: 	Beta
 
-1. Create a new device handler by installing the 'STAbientWeather' DTH into the SmartThings IDE "My Device Handlers".  Make sure to 'Save' and 'Publish' the new DTH
-2. Create a New Device in the SmartThings IDE 'My Devices'
-	*  Name: "My Ambient Weather Station Tile"
-	*  Type: "Ambient Weather Station Tile"
-	*  Device Network Id:	"Ambient123"
-	*  Preferences (you can edit your data here or the Tile Preferences 'Gear Icon')
-		* apiString (Your Ambient API Key)
-		* appString (Your Ambient App Key)
-		* debugVerbose	(Enter 'false')
-		* infoVerbose	bool	(Enter 'false')
-		* schedulerFreq	(# mins)
+1. Create a new SmartApp & device handler by installing the 'STAbientWeather' SmartApp & DTH into the SmartThings IDE "SmartApps" and "My Device Handlers".  Make sure to 'Save' and 'Publish' the new SmartApp and DTH
+2. **Required:** Edit the Ambient Weather Station Reporter SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key) and appString (Your Ambient App Key).  Update/Save
+2. Locate the Ambient Weather Station Reporter in the MarketPlace/SmartApps/My Apps and click to launch the smartapp:
+	* Preferences
 		* zipCode	(Your Zipcode for Weather Forecast Info)
+		* schedulerFreq	(# mins for the APP to update weather values from your weather station)
+		* IDE Logging
+			* debugVerbose	
+			* infoVerbose	bool	
+			* Weather Underground API Calls
 3. Display the new SmartThings Tile in your ST Mobile Client
-4. Verify the user data in the 'Gear' preferences section of the tile
-	* Enter API and APP key into the Device Handler either in the device IDE or Tile Gear.
-
-![STAmbientWeather Mobile Client Settings](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/STMobileClientSettings.png)
 
 
 
