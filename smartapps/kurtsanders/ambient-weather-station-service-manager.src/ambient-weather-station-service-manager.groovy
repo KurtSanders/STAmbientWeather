@@ -35,10 +35,10 @@ Map minVersions() { //These define the minimum versions of code this app will wo
     return [ambientDevice: 100]
 }
 definition(
-  name: "Ambient Weather Station Reporter (SM)",
+  name: "Ambient Weather Station Service Manager",
   namespace: "kurtsanders",
   author: "kurt@kurtsanders.com",
-  description: "Ambient Personal Weather Station Reporter (SM)",
+  description: "Ambient Personal Weather Station Service Manager",
   category: "My Apps",
   iconUrl: getAppImg("blue-ball.jpg"),
   iconX2Url: getAppImg("blue-ball.jpg"),
