@@ -36,7 +36,7 @@ Map minVersions() { //These define the minimum versions of code this app will wo
 }
 definition(
   name: "Ambient Weather Station Reporter (SM)",
-  namespace: "KurtSanders",
+  namespace: "kurtsanders",
   author: "kurt@kurtsanders.com",
   description: "Ambient Personal Weather Station Reporter (SM)",
   category: "My Apps",
