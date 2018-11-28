@@ -24,13 +24,14 @@ def version() {
 //    return ["V1.03", "Removed Sunrise and Sunset values for debugging"]
 //    return ["V1.04", "Tile Format Change, Extended Forecast, Error Handling for Zipcode/TimeZone"]
 //    return ["V1.05", "Tile Format Change, Moon Icons"]
-    return ["V1.06", "Added logic checks for missing weather station data"]
+//    return ["V1.06", "Added logic checks for missing weather station data"]
+    return ["V1.07", "V1 Tile ONLY for iOS devices - No SmartApp Req."]
 }
 // End Version Information
 import groovy.time.*
 import java.text.DecimalFormat
 metadata {
-    definition (name: "Ambient Weather Station Tile", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station ios-V1", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"

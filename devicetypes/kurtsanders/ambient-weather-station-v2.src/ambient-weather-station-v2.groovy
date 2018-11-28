@@ -18,13 +18,13 @@
 */
 // Start Version Information
 def version() {
-    return ["V1.0", "Original Code Base"]
+    return ["V2.0", "Original Code Base"]
 }
 // End Version Information
 import groovy.time.*
 import java.text.DecimalFormat
 metadata {
-    definition (name: "Ambient Weather Station", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station V2", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"

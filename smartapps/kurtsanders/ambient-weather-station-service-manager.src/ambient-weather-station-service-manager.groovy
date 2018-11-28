@@ -21,25 +21,25 @@ import java.text.DecimalFormat
 
 // Start Version Information
 def version() {
-    return ["V1.0", "Original Code Base"]
+    return ["V2.0", "Original Code Base"]
 }
 // End Version Information
 String platform() { return "SmartThings" }
 String DTHName() { return "Ambient Weather Station" }
 String DTHDNI() { return "MyAmbientWeatherStation" }
-String appVersion()	 { return "1.0" }
+String appVersion()	 { return "2.0" }
 String appModified() { return "2018-11-22" } 
 String appAuthor()	 { return "Kurt Sanders" }
 Boolean isST() { return (platform() == "SmartThings") }
 String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/$imgName" }
 Map minVersions() { //These define the minimum versions of code this app will work with.
-    return [ambientDevice: 100]
+    return [ambientDevice: 200]
 }
 definition(
-    name: "Ambient Weather Station Service Manager",
+    name: "Ambient Weather Station Service Manager V2",
     namespace: "kurtsanders",
     author: "kurt@kurtsanders.com",
-    description: "Ambient Personal Weather Station Service Manager",
+    description: "Ambient Personal Weather Station Service Manager V2",
     category: "My Apps",
     iconUrl:   getAppImg("blue-ball.jpg"),
     iconX2Url: getAppImg("blue-ball.jpg"),
