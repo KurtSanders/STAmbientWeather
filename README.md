@@ -4,8 +4,9 @@
 ## Description:
 
 A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which provides a connection to all the data generated from your personal [Ambient weather station](https://www.ambientweather.com/ambientnet.html).  This SmartThings application (V2) provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of the weather data from either manual or automatic (1 min to 180 mins (3 hours)).
-
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-Tile.PNG)
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-Tile.PNG" width="300">
+</p>
 
 ## Requirements:
 1. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g. Model 2902A for example)
@@ -38,19 +39,21 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 
 1. Add a new SmartApp & device handler ([See GitHub IDE integration](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github)) from  the STAmbientWeather(beta) respository.
 2. **Required Next Step:** You must edit the newly added Ambient Weather Station Reporter V2 SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key) and appString (Your Ambient App Key).  Update/Save your changes.
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-SmartApp-Page1.PNG)
-
-
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey1.jpg)
-
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey2.jpg)
-
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-SmartApp-Page1.PNG" width="300">
+</p>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey1.jpg" width="400">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey2.jpg" width="300">
+</p>
 3. Locate the Ambient Weather Station Reporter V2 app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
-
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-Ambient Weather Station.PNG)
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-Ambient Weather Station.PNG" width="300">
+</p>
 
 4. Update the following fields
-![STAmbientWeather logo](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-SmartApp-Page2.PNG)
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-SmartApp-Page2.PNG" width="300">
+</p>
 
 	* Preferences
 		* zipCode	(Your Zipcode for Weather Forecast Info)
@@ -61,8 +64,10 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 			* Weather Underground API Calls
 5. Display the new SmartThings Tile in your ST Mobile Client
 
-## Capabilities, Attributes & Commands (for WebCore Piston)
+## Capabilities, Attributes & Commands
+The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or an custom smartApp.
 
+        // Start of Ambient Weather capability 
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
@@ -72,7 +77,7 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
         capability "Water Sensor"
         capability "Ultraviolet Index"
 
-        // Start of Ambient Weather API Rest MAP
+        // Start of Ambient Weather Attributes
         attribute "baromabsin", "string"
         attribute "baromrelin", "string"
         attribute "city", "string"
@@ -113,8 +118,13 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
         attribute "alertMessage", "string"
         attribute "version", "string"
         
+        // Start of Ambient Weather Device Commands
         command "refresh"
 
+## Known Issues
+1. Units of measure are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA Imperials settings.
+2. Setting this application's Refresh rate to 1 minute may cause an occaisonal "excesssive http requests" debug error from ST.  ST rate limits their external calls to avoid blacklisting.
+3. This V2 application was re-developed to be a cooperative Service Manager SmartApp & Device Tile for compatibility with the Android ST clients.  If one prefers this apllication writen for V1 (device only tile with preferences in the device gear), V1 will only display on iOS devices. 
 
 
 
