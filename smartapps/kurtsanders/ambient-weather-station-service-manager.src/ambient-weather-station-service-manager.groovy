@@ -26,7 +26,7 @@ def version() {
 }
 // End Version Information
 String platform() { return "SmartThings" }
-String DTHName() { return "Ambient Weather Station" }
+String DTHName() { return "Ambient Weather Station V2" }
 String DTHDNI() { return "MyAmbientWeatherStation" }
 String appVersion()	 { return "2.0" }
 String appModified() { return "2018-11-29" } 
