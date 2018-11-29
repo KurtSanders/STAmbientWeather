@@ -21,14 +21,15 @@ import java.text.DecimalFormat
 
 // Start Version Information
 def version() {
-    return ["V2.0", "Original Code Base"]
+//    return ["V1.0", "Original Code Base"]
+    return ["V2.0", "Service Mgr App Implementation"]
 }
 // End Version Information
 String platform() { return "SmartThings" }
 String DTHName() { return "Ambient Weather Station" }
 String DTHDNI() { return "MyAmbientWeatherStation" }
 String appVersion()	 { return "2.0" }
-String appModified() { return "2018-11-22" } 
+String appModified() { return "2018-11-29" } 
 String appAuthor()	 { return "Kurt Sanders" }
 Boolean isST() { return (platform() == "SmartThings") }
 String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/$imgName" }
@@ -36,10 +37,10 @@ Map minVersions() { //These define the minimum versions of code this app will wo
     return [ambientDevice: 200]
 }
 definition(
-    name: "Ambient Weather Station Service Manager V2",
+    name: "Ambient Weather Station Service Manager",
     namespace: "kurtsanders",
     author: "kurt@kurtsanders.com",
-    description: "Ambient Personal Weather Station Service Manager V2",
+    description: "Ambient Personal Weather Station Service Manager",
     category: "My Apps",
     iconUrl:   getAppImg("blue-ball.jpg"),
     iconX2Url: getAppImg("blue-ball.jpg"),
@@ -236,7 +237,7 @@ def main() {
         log.info "ageOfMoon -> ${a.ageOfMoon}"
     }
     if (a) {
-        d.sendEvent(name: "moonAge", value: "${a.ageOfMoon}", isStateChange: true)
+        d.sendEvent(name: "moonAge", value: "${a.ageOfMoon}", displayed: false)
     } else {
         log.error "Severre error retrieving current age of the Moon Weather Underground API: get('astronomy')?.moon_phase --> ${a}" 
     }
@@ -249,8 +250,8 @@ def main() {
     def localSunrise   = "${tf.format(sunriseTime)}"
     def localSunset    = "${tf.format(sunsetTime)}"
     if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
-    d.sendEvent(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}")
-    d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}")
+    d.sendEvent(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}", displayed: false)
+    d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
  
     // Forecast
     def f = get("forecast")
@@ -313,10 +314,10 @@ def main() {
             }
         } else {
             if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}        
-            d.sendEvent(name:"lastRainDuration", value: "N/A")
+            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
-        d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now))
-        d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress)
+        d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now), displayed: false)
+        d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress, displayed: false)
 
         def waterState = state.ambientMap.lastData.hourlyrainin[0].toFloat()>0?'wet':'dry'
         if(debugVerbose){log.debug "water -> ${waterState}"}
@@ -570,8 +571,8 @@ def checkForSevereWeather() {
     if(WUVerbose){log.info "WUSTATION: alerts = ${alerts}"}
 
     if (alerts==[]){
-        d.sendEvent(name: "alertMessage", value: "", descriptionText: "")
-        d.sendEvent(name: "alertDescription", value: "${alertCountMsg}", descriptionText: "")
+        d.sendEvent(name: "alertMessage", value: "", displayed: false)
+        d.sendEvent(name: "alertDescription", value: "${alertCountMsg}", displayed: false)
     } else {
         def alertKeys = alerts?.collect{it.type + it.date_epoch} ?: []
         def alertMsg = ""
