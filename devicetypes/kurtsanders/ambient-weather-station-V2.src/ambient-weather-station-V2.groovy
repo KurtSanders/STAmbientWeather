@@ -24,7 +24,7 @@ def version() {
 import groovy.time.*
 import java.text.DecimalFormat
 metadata {
-    definition (name: "Ambient Weather Station", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station V2", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
