@@ -18,8 +18,7 @@
 */
 // Start Version Information
 def version() {
-//    return ["V1.0", "Original Code Base"]
-    return ["V2.0", "Requires Ambient WS Service Manager App"]
+    return ["V2.0", "Requires Ambient WS Service Manager App V2"]
 }
 // End Version Information
 import groovy.time.*
