@@ -77,17 +77,17 @@ def keysCheckPage() {
             paragraph "The API & APP string keys are used to securely connect your weather station to this application."
             paragraph image: getAppImg("blue-ball.jpg"),
                 title: "Required API & APP Keys",
-                required: true,
+                required: false,
                 "You must have both an API and APP key from your Ambient Dashboard.  The actual api and app key values are set on the SmartThings IDE.  Edit the Ambient SmartApp, accessed by pressing the App Settings button. Scroll down the page, expand the Settings group, and set both key values."
             href(name: "hrefUSA",
                  title: "SmartThings IDE USA",
-                 required: true,
+                 required: false,
                  style: "external",
                  url: "https://graph.api.smartthings.com/",
                  description: "tap to view the US SmartThings IDE website in mobile browser")
             href(name: "hrefEurope",
                  title: "SmartThings IDE Europe",
-                 required: true,
+                 required: false,
                  style: "external",
                  url: "https://graph-eu01-euwest1.api.smartthings.com/",
                  description: "tap to view the Europe SmartThings IDE website in mobile browser")
