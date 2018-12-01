@@ -343,8 +343,11 @@ def main() {
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
             if((k=='feelsLike') && (waterState=='wet')) {
-            	if(debugVerbose){log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${state.ambientMap.lastData.hourlyrainin[0].toFloat()}"}
-                d.sendEvent(name: k, value: state.ambientMap.lastData.hourlyrainin[0].toFloat().toString())
+                DecimalFormat df = new DecimalFormat("0.0");
+                def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
+                //                log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${numberForRainLevel}"
+            	if(debugVerbose){log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${numberForRainLevel}"}
+                d.sendEvent(name: k, value: numberForRainLevel )
                 return
             }            
             if(v.isNumber() && v > 0 && v <= 0.1) {
