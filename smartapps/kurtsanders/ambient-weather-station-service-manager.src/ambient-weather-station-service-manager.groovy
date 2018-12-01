@@ -230,29 +230,31 @@ def main() {
     } else {
         log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
     }
-    // Get Age of Lunar Moon from Weather Underground
-    def a = get("astronomy")?.moon_phase
-    if(WUVerbose){
-        log.info "get('astronomy')?.moon_phase --> ${a}"
-        log.info "ageOfMoon -> ${a.ageOfMoon}"
-    }
-    if (a) {
-        d.sendEvent(name: "moonAge", value: "${a.ageOfMoon}", displayed: false)
-    } else {
-        log.error "Severre error retrieving current age of the Moon Weather Underground API: get('astronomy')?.moon_phase --> ${a}" 
-    }
-
-	// Get Sunset, Sunrise from Weather Underground
+    // Get Age of Lunar Moon, Sunrise, Sunset info from Weather Underground
+    // Get Sunset, Sunrise from Weather Underground
     def ltf = new java.text.SimpleDateFormat("HH:mm")
     def tf = new java.text.SimpleDateFormat("h:mm a")
-    def sunriseTime = ltf.parse("${a.sunrise.hour}:${a.sunrise.minute}")
-    def sunsetTime  = ltf.parse("${a.sunset.hour}:${a.sunset.minute}")
-    def localSunrise   = "${tf.format(sunriseTime)}"
-    def localSunset    = "${tf.format(sunsetTime)}"
-    if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
-    d.sendEvent(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}", displayed: false)
-    d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
- 
+    def a
+    try {
+        a = get("astronomy")?.moon_phase
+        if(WUVerbose){
+            log.info "get('astronomy')?.moon_phase --> ${a}"
+            log.info "ageOfMoon -> ${a.ageOfMoon}"
+        }
+        if (a) {
+            d.sendEvent(name: "moonAge", value: "${a.ageOfMoon}", displayed: false)
+            def sunriseTime = ltf.parse("${a.sunrise.hour}:${a.sunrise.minute}")
+            def sunsetTime  = ltf.parse("${a.sunset.hour}:${a.sunset.minute}")
+            def localSunrise   = "${tf.format(sunriseTime)}"
+            def localSunset    = "${tf.format(sunsetTime)}"
+            if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
+            d.sendEvent(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}", displayed: false)
+            d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
+        }
+    } catch (e) {
+        log.error "Severre error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}" 
+    }
+
     // Forecast
     def f = get("forecast")
     if (f) {
@@ -340,6 +342,11 @@ def main() {
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
+            if((k=='feelsLike') && (waterState=='wet')) {
+            	if(debugVerbose){log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${state.ambientMap.lastData.hourlyrainin[0].toFloat()}"}
+                d.sendEvent(name: k, value: state.ambientMap.lastData.hourlyrainin[0].toFloat().toString())
+                return
+            }            
             if(v.isNumber() && v > 0 && v <= 0.1) {
                 v=(v.toFloat()+0.04).round(1)
             }
