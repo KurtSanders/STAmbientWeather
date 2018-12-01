@@ -21,8 +21,6 @@ def version() {
     return ["V2.0", "Requires Ambient WS Service Manager App V2"]
 }
 // End Version Information
-import groovy.time.*
-import java.text.DecimalFormat
 metadata {
     definition (name: "Ambient Weather Station - Android", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
@@ -78,9 +76,9 @@ metadata {
         command "refresh"
     }
     tiles(scale: 2) {
-        multiAttributeTile(name:"temperature", type:"generic", width:6, height:3, canChangeIcon: false) {
+        multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
-                attributeState("default",label:'${currentValue}º',
+                attributeState("default",label:'${currentValue}°',
                                backgroundColors:[
                                    [value: 32, color: "#153591"],
                                    [value: 44, color: "#1e9cbb"],
@@ -455,4 +453,3 @@ def updated() {
 def refresh() {	    
     parent.refresh()
 }
-
