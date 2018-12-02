@@ -116,7 +116,7 @@ metadata {
             required: false
      }
     tiles(scale: 2) {
-        multiAttributeTile(name:"temperature", type:"generic", width:6, height:3, canChangeIcon: false) {
+        multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
                 attributeState("default",label:'${currentValue}º',
                                backgroundColors:[
