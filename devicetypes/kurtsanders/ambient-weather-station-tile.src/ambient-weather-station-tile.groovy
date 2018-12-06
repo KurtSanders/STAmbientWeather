@@ -79,6 +79,7 @@ metadata {
         attribute "alertKeys", "string"
         attribute "alert", "string"
         attribute "version", "string"
+	attribute "scheduleFreqMin", "string"
         
         command "refresh"
     }
