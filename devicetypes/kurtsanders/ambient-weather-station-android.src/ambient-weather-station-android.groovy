@@ -344,7 +344,10 @@ metadata {
         state "24",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-24.png" 
         state "25",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-25.png" 
         state "26",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-26.png" 
-        state "27",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-27.png"         
+        state "27",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-27.png"
+        state "28",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-28.png"
+        state "29",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-29.png"
+         
     }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default",    label: '${currentValue}'
