@@ -105,7 +105,7 @@ def mainPage() {
         section("Weather Station Refresh Update Frequency") {
             input name: "schedulerFreq", type: "enum",
                 title: "Run Weather Station Refresh Every (mins)?",
-                options: ['Off','1','2','3','4','5','10','15','30','60','180'],
+                options: ['0','1','2','3','4','5','10','15','30','60','180'],
                 required: true
         }
         section("IDE Log Output Settings") {
@@ -417,7 +417,7 @@ def setScheduler(schedulerFreq) {
     unschedule()
     if(debugVerbose){log.debug "Refresh Rate is now -> ${schedulerFreq}"}
     switch(schedulerFreq) {
-        case 'Off':
+        case '0':
         unschedule()
         break
         case '1':
@@ -506,7 +506,7 @@ def TileBgColors(colorSetName) {
         break
         case 'scheduleFreqMin':
         return [
-            [value: 'Off',  color: "#FF0000"],
+            [value: '0',  color: "#FF0000"],
             [value: '1',    color: "#9400D3"],
             [value: '2',    color: "#00FF00"],
             [value: '3',    color: "#FFFF00"],
