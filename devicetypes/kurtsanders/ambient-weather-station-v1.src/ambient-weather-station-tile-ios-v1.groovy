@@ -684,17 +684,17 @@ def TileBgColors(colorSetName) {
         break
         case 'scheduleFreqMin':
         return [
-            [value: '0',    color: "#FF0000"],
-            [value: '1',    color: "#9400D3"],
-            [value: '2',    color: "#00FF00"],
-            [value: '3',    color: "#FFFF00"],
-            [value: '4',    color: "#FF7F00"],
-            [value: '5',    color: "#4B0082"],
-            [value: '10',   color: "#0000FF"],
-            [value: '15',   color: "#00FF00"],
-            [value: '30',   color: "#FFFF00"],
-            [value: '60',   color: "#FF7F00"],
-            [value: '180',  color: "#ff69b4"]
+            [value: 0,    color: "#FF0000"],
+            [value: 1,    color: "#9400D3"],
+            [value: 2,    color: "#00FF00"],
+            [value: 3,    color: "#FFFF00"],
+            [value: 4,    color: "#FF7F00"],
+            [value: 5,    color: "#4B0082"],
+            [value: 10,   color: "#0000FF"],
+            [value: 15,   color: "#00FF00"],
+            [value: 30,   color: "#FFFF00"],
+            [value: 60,   color: "#FF7F00"],
+            [value: 180,  color: "#ff69b4"]
         ]    
         break
         case 'default':
