@@ -62,7 +62,7 @@ metadata {
         attribute "windspeedmph", "string"   
         // End of Ambient Weather API Rest MAP
         attribute "moonAge", "number"
-        Attribute "lastSTupdate", "string"
+        attribute "lastSTupdate", "string"
         attribute "localSunrise", "string"
         attribute "localSunset", "string"
         attribute "weatherIcon", "string"
