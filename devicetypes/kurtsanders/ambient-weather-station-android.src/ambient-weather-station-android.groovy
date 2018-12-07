@@ -22,7 +22,7 @@ def version() {
 }
 // End Version Information
 metadata {
-    definition (name: "Ambient Weather Station Android", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station - Android", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
