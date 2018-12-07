@@ -319,6 +319,7 @@ metadata {
     }
     standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 2, height: 2, decoration: "flat", wordWrap: true) {
         state "default",    label: 'Age of Moon: ${currentValue}'
+        state "0",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-0.png" 
         state "1",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-1.png" 
         state "2",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-2.png" 
         state "3",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-3.png" 

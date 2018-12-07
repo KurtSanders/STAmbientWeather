@@ -236,6 +236,7 @@ metadata {
     }
     standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 2, height: 2, decoration: "flat", wordWrap: true) {
         state "default",    label: 'Age of Moon: ${currentValue}'
+        state "0",        	label: '${currentValue}', icon: getMoonIcon('0')
         state "1",        	label: '${currentValue}', icon: getMoonIcon('1')
         state "2",        	label: '${currentValue}', icon: getMoonIcon('2')
         state "3",        	label: '${currentValue}', icon: getMoonIcon('3')
@@ -263,6 +264,8 @@ metadata {
         state "25",        	label: '${currentValue}', icon: getMoonIcon('25')
         state "26",        	label: '${currentValue}', icon: getMoonIcon('26')
         state "27",        	label: '${currentValue}', icon: getMoonIcon('27')        
+        state "28",        	label: '${currentValue}', icon: getMoonIcon('28')        
+        state "29",        	label: '${currentValue}', icon: getMoonIcon('29')        
     }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default",    label: '${currentValue}'
