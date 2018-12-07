@@ -188,19 +188,19 @@ metadata {
         state "default", label:'Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
     }
     valueTile("eventrainin", "device.eventrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Event\n${currentValue} in/hr', backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain/Event\n${currentValue} in/hr', backgroundColors: TileBgColors('rain')
     }
     valueTile("hourlyrainin", "device.hourlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Hr\n${currentValue} in',  backgroundColors: TileBgColors('rain')
+        state "default", label:'RainFall/Hour\n${currentValue} in',  backgroundColors: TileBgColors('rain')
     }
     valueTile("dailyrainin", "device.dailyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Daily\n${currentValue} in', backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain Today\n${currentValue} in', backgroundColors: TileBgColors('rain')
     }
     valueTile("weeklyrainin", "device.weeklyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Weekly\n${currentValue} in', backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain/Week\n${currentValue} in', backgroundColors: TileBgColors('rain')
     }
     valueTile("monthlyrainin", "device.monthlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Monthly\n${currentValue} in'
+        state "default", label:'Rain/Month\n${currentValue} in'
     }
     valueTile("totalrainin", "device.totalrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain Total\n${currentValue} in'
