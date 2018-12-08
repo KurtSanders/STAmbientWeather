@@ -402,7 +402,7 @@ def TileBgColors(colorSetName) {
         break
         case 'humidity':
         return [ 
-            [value: 0, color: "#ffffff"],
+            [value: 0,  color: "#ffffff"],
             [value: 10, color: "#1e9cbb"],
             [value: 20, color: "#90d2a7"],
             [value: 30, color: "#44b621"],
@@ -429,7 +429,7 @@ def TileBgColors(colorSetName) {
         break
         case 'scheduleFreqMin':
         return [
-            [value: 0,  color: "#FF0000"],
+            [value: 0,    color: "#FF0000"],
             [value: 1,    color: "#9400D3"],
             [value: 2,    color: "#00FF00"],
             [value: 3,    color: "#458b74"],
