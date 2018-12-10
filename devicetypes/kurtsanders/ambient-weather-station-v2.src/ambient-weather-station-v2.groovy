@@ -376,7 +376,7 @@ def refresh() {
 }
 
 def getMoonIcon(imgNumber) { 
-    return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/moon-phase-symbol-${imgNumber}.png" 
+    return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-${imgNumber}.png" 
 }
 
 def TileBgColors(colorSetName) {

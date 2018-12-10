@@ -32,7 +32,7 @@ String appVersion()	 { return "2.0" }
 String appModified() { return "2018-11-29" } 
 String appAuthor()	 { return "Kurt Sanders" }
 Boolean isST() { return (platform() == "SmartThings") }
-String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/$imgName" }
+String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 Map minVersions() { //These define the minimum versions of code this app will work with.
     return [ambientDevice: 200]
 }

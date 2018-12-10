@@ -81,6 +81,7 @@ metadata {
         attribute "alertKeys", "string"
         attribute "alert", "string"
         attribute "version", "string"
+        Attribute "lastSTupdate", "string"
         
         command "refresh"
     }
@@ -271,22 +272,37 @@ metadata {
         state "default", label: 'Wind Direction\n${currentValue}'
     }
     standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 1, height: 1, decoration: "flat") {
-        state "default",    label: 'Age of Moon\n${currentValue}'
-        state "1",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-1.png'
-        state "2",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-2.png'
-        state "3",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-3.png'
-        state "4",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-4.png'
-        state "5",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-5.png'
-        state "6",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-6.png'
-        state "7",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-7.png'
-        state "8",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-8.png'
-        state "9",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-9.png'
-        state "10",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-10.png'
-        state "11",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-11.png'
-        state "12",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-12.png'
-        state "13",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-13.png'
-        state "14",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-14.png'
-        state "15",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-15.png'
+        state "default",    label: 'Age of Moon: ${currentValue}'
+        state "0",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-0.png" 
+        state "1",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-1.png" 
+        state "2",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-2.png" 
+        state "3",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-3.png" 
+        state "4",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-4.png" 
+        state "5",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-5.png" 
+        state "6",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-6.png" 
+        state "7",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-7.png" 
+        state "8",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-8.png" 
+        state "9",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-9.png" 
+        state "10",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-10.png" 
+        state "11",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-11.png" 
+        state "12",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-12.png" 
+        state "13",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-13.png" 
+        state "14",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-14.png" 
+        state "15",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-15.png" 
+        state "16",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-16.png" 
+        state "17",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-17.png" 
+        state "18",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-18.png" 
+        state "19",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-19.png" 
+        state "20",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-20.png" 
+        state "21",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-21.png" 
+        state "22",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-22.png" 
+        state "23",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-23.png" 
+        state "24",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-24.png" 
+        state "25",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-25.png" 
+        state "26",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-26.png" 
+        state "27",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-27.png"
+        state "28",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-28.png"
+        state "29",        	label: '${currentValue}', icon: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-29.png"
         
     }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
