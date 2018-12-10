@@ -141,7 +141,8 @@ The following device capabilities, attributes and commands are available for you
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTile-3.jpg" width=300">
 </p>
 
-* Add your new weather device to ActionTiles 
+* Add your new Ambient Weather Station device to ActionTiles 
+	* [ActionTiles Instructions](https://support.actiontiles.com/knowledge-bases/8/articles/2252-smartthings-weather-tile-device-and-weather-tile)
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTile-4.jpg" width=300">
