@@ -68,6 +68,7 @@ metadata {
         attribute "localSunrise", "string"
         attribute "localSunset", "string"
         attribute "weatherIcon", "string"
+        attribute "secondaryControl", "string"
         attribute "forecastIcon", "string"
         attribute "scheduleFreqMin", "string"
         attribute "sunriseDate", "string"
@@ -92,8 +93,8 @@ metadata {
                                    [value: 98, color: "#bc2323"]
                                ])
             }
-            tileAttribute("device.feelsLike", key: "SECONDARY_CONTROL") {
-                attributeState("feelsLike", label:'Feels Like ${currentValue}°')
+            tileAttribute("device.secondaryControl", key: "SECONDARY_CONTROL") {
+                attributeState("secondaryControl", label:'${currentValue}')
             }
         }
     }
@@ -154,7 +155,7 @@ metadata {
         state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
         state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
     }
-    valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
     valueTile("alertMessage", "device.alertMessage", inactiveLabel: false, width: 6, height: 3, decoration: "flat", wordWrap: true) {
@@ -171,6 +172,9 @@ metadata {
     }
     valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Inside Humidity\n${currentValue}%', backgroundColors: TileBgColors('humidity')
+    }
+    valueTile("feelsLike", "device.feelsLike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Feels Like\n${currentValue}º'
     }
     valueTile("baromrelin", "device.baromrelin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rel Pres \n${currentValue} in '
@@ -298,10 +302,10 @@ metadata {
     valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
-    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Run Every\n${currentValue} mins', backgroundColors: TileBgColors('scheduleFreqMin')
     }
-    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: '${currentValue}')
     }
     standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -313,11 +317,11 @@ metadata {
         [
             // Inside Sensors
             "temperature", 
-            "feelsLike", 
             "tempinf", 
             "humidityin" , 
             // Outside Sensors
             "weatherIcon", 
+            "feelsLike", 
             "water", 
             "eventrainin", 
             "hourlyrainin", 

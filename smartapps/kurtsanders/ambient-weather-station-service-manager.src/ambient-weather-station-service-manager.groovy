@@ -217,6 +217,7 @@ def main() {
     log.info "SmartApp Section: Refresh"
     def d = getChildDevice(state.deviceId)
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
+    def nowTime = new Date().format('h:mm a',location.timeZone).toLowerCase()
     def currentDT = new Date()
 
     // Weather Underground Station Forecast
@@ -226,7 +227,7 @@ def main() {
     if(WUVerbose){log.info "obs --> ${obs}"}
     if (obs) {
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
-        sendEvent(name: "weatherIcon", value: weatherIcon, displayed: false)
+        d.sendEvent(name: "weatherIcon", value: weatherIcon, displayed: false)
     } else {
         log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
     }
@@ -342,14 +343,16 @@ def main() {
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
-            if((k=='feelsLike') && (waterState=='wet')) {
-                DecimalFormat df = new DecimalFormat("0.0");
-                def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
-                //                log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${numberForRainLevel}"
-            	if(debugVerbose){log.debug "Rain Detected, Changing Feelslike value to hourlyrainin ${numberForRainLevel}"}
-                d.sendEvent(name: k, value: numberForRainLevel )
-                return
-            }            
+            if(k=='feelsLike') {
+                if(waterState=='wet') {
+                    DecimalFormat df = new DecimalFormat("0.0");
+                    def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
+                    if(debugVerbose){log.debug "Rain Detected, Changing secondary control value of Main Tile to display hourlyrainin ${numberForRainLevel}"}
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime) )
+                } else {
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
+                }
+            }
             if(v.isNumber() && v > 0 && v <= 0.1) {
                 v=(v.toFloat()+0.04).round(1)
             }
