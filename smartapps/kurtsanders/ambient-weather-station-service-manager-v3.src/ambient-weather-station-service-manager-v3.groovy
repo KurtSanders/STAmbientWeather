@@ -65,7 +65,8 @@ def keysCheckPage() {
     def nextPageName = "mainPage"
     def getAmbientStationDataRC = getAmbientStationData()
     if (apiappSetupCompleteBool && getAmbientStationDataRC) {
-        setupMessage = "SUCCESS! You have completed your Ambient API & APP Keys for your Ambient Weather Station named '${state.ambientMap.info.name[0]}' with ${state.countRemoteTempHumiditySensors} remote temperature sensors."
+        setupMessage = "SUCCESS! You have completed your Ambient API & APP Keys for your Ambient Weather Station named '${state.ambientMap.info.name[0]}'"
+		setupMessage += (state.countRemoteTempHumiditySensors.toInteger()>0)?" with ${state.countRemoteTempHumiditySensors} remote temperature/humidity sensor(s).":"."
         setupTitle = "Tap NEXT to Continue to Settings Page"
     } else {
         setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API and APP Keys setup in the SmartThings IDE (App Settings Section) for this application"
@@ -104,7 +105,7 @@ def keysCheckPage() {
 }
 
 def mainPage() {
-    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:true, install:true) {
+    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:false, install:true) {
         section("Weather Station Location for Local Weather") {
             input "zipCode", type: "number",
                 title: "Enter ZipCode for local Weather API Forecast/Moon (Required)", 
