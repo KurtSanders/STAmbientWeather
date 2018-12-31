@@ -32,7 +32,7 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 
 | Name | Value |
 |------|-------|
-|Owner | **kurtsanders** |
+|Owner | **KurtSanders** |
 |Name: | **STAmbientWeather**|
 |Branch| **master**|
 
