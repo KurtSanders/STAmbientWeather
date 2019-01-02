@@ -108,14 +108,25 @@ def mainPage() {
                 options: ['0','1','2','3','4','5','10','15','30','60','180'],
                 required: true
         }
+        section("Solar Radiation Tile Options") {
+            paragraph "Units of Measure"
+            paragraph image: getAppImg("blue-ball.jpg"),
+                title: "'W/m²' verses'lux'",
+                required: false,
+                "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
+                input name: "solarRadiationTileDisplayUnits", type: "enum",
+                title: "Select Solar Radiation ('Light' Tile) Units of Measure",
+                options: ['W/m²','lux'],
+                required: true
+                }
         section("IDE Log Output Settings") {
             href(name: "settingsPageLink", title: "IDE Log Output Settings", description: "", page: "settingsPage")
         }
 
         section("App Version Information") {
             input name: "VersionInfo", type: "text",
-                title: "Updates: " + version()[1], 
-                description: "Version: " + version()[0], 
+                title: "Updates: " + version()[1],
+                description: "Version: " + version()[0],
                 required: false
         }
     }
@@ -125,16 +136,16 @@ def settingsPage() {
     dynamicPage(name: "settingsPage", uninstall:false, install:false) {
         section("IDE Logging Messages Preferences") {
             input name: "debugVerbose", type: "bool",
-                title: "Show Debug Messages in IDE", 
-                description: "Verbose Mode", 
+                title: "Show Debug Messages in IDE",
+                description: "Verbose Mode",
                 required: false
             input name: "infoVerbose", type: "bool",
-                title: "Show Info Messages in IDE", 
-                description: "Verbose Mode", 
+                title: "Show Info Messages in IDE",
+                description: "Verbose Mode",
                 required: false
             input name: "WUVerbose", type: "bool",
-                title: "Show Weather Underground Info Messages in IDE", 
-                description: "Verbose Mode", 
+                title: "Show Weather Info Messages in IDE",
+                description: "Verbose Mode",
                 required: false
         }
     }
@@ -189,17 +200,17 @@ private addAmbientChildDevice() {
     // add Ambient Weather Reporter Station device
     log.debug "Adding AmbientWS device: ${state.deviceId}"
     if (!getChildDevice(state.deviceId)) {
-        try { 
+        try {
             addChildDevice("kurtsanders", DTHName(), DTHDNI(), null, ["name": DTHName(), label: DTHName(), completedSetup: true])
         } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
             log.error "The Device Handler '${DTHName()}' was not found in your devices, Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
             return false
         }
-    } 
+    }
     log.debug "Added ${DTHName()} with DNI: ${DTHDNI()}"
 }
 private removeAmbientChildDevice() {
-    getAllChildDevices().each { 
+    getAllChildDevices().each {
         log.debug "Deleting AmbientWS device: ${it.deviceNetworkId}"
         if (deleteChildDevice(it.deviceNetworkId)) {
             log.debug "Successly Deleted AmbientWS device: ${it.deviceNetworkId}"
@@ -213,7 +224,7 @@ def refresh() {
     main()
 }
 
-def main() {    
+def main() {
     log.info "SmartApp Section: Refresh"
     def d = getChildDevice(state.deviceId)
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
@@ -221,15 +232,17 @@ def main() {
     def currentDT = new Date()
 
     // Weather Underground Station Forecast
-    log.info "WUSTATION: Executing 'Weather Forecast, Sunrise, Sunset, Moon Info for zipCode: ${zipCode}"
+    log.info "Executing API Weather Forecast, Sunrise, Sunset Info for zipCode: ${zipCode}"
     // Current conditions
     def obs = get("conditions")?.current_observation
+//  def obs = getTwcConditions("${zipCode}")
+
     if(WUVerbose){log.info "obs --> ${obs}"}
     if (obs) {
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
         d.sendEvent(name: "weatherIcon", value: weatherIcon, displayed: false)
     } else {
-        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
+        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}"
     }
     // Get Age of Lunar Moon, Sunrise, Sunset info from Weather Underground
     // Get Sunset, Sunrise from Weather Underground
@@ -253,7 +266,7 @@ def main() {
             d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
         }
     } catch (e) {
-        log.error "Severre error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}" 
+        log.error "Severre error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}"
     }
 
     // Forecast
@@ -261,15 +274,15 @@ def main() {
     if (f) {
         if(WUVerbose){log.info "WU Forecast-> ${f}"}
     } else {
-        log.error "Severre error getting WU forecast: ${f}"    
+        log.error "Severre error getting WU forecast: ${f}"
     }
     def f1= f?.forecast?.simpleforecast?.forecastday
     //    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
     def f2= sprintf(
         "WU Forecast for zipcode: %s\n%s %s, %s",
-        zipCode, 
-        f?.forecast?.txt_forecast?.forecastday[0].fcttext, 
-        f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(), 
+        zipCode,
+        f?.forecast?.txt_forecast?.forecastday[0].fcttext,
+        f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(),
         f?.forecast?.txt_forecast?.forecastday[1].fcttext
     )
     d.sendEvent(name: "weather", value: f2, descriptionText: "")
@@ -288,12 +301,12 @@ def main() {
     checkForSevereWeather()
 
     // Ambient Weather Station
-    log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)"        
+    log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)"
     if (getAmbientStationData()) {
     if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
-            state.ambientMap[0].each{ k, v -> 
+            state.ambientMap[0].each{ k, v ->
                 log.info "${k} = ${v}"
                 if (k instanceof Map) {
                     k.each { x, y ->
@@ -316,7 +329,7 @@ def main() {
                 d.sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
             }
         } else {
-            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}        
+            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
             d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
         d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now), displayed: false)
@@ -334,12 +347,12 @@ def main() {
         if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
         d.sendEvent(name:'winddirection', value: winddirectionState)
         d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
- 
-        state.ambientMap.info[0].each{ k, v -> 
+
+        state.ambientMap.info[0].each{ k, v ->
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             d.sendEvent(name: k, value: v)
         }
-        state.ambientMap.lastData[0].each{ k, v -> 
+        state.ambientMap.lastData[0].each{ k, v ->
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
@@ -361,6 +374,15 @@ def main() {
             }
             if(k=='solarradiation') {
                 k='illuminance'
+                if (solarRadiationTileDisplayUnits=="lux") {
+                v = (v.toFloat())
+                    (v>0)?v=(v/0.0079).toInteger():0
+                }
+                d.sendEvent(name: k, value: v, units: (solarRadiationTileDisplayUnits==null)?'W/m²':solarRadiationTileDisplayUnits)
+            }
+            if (k=='windspeedmph') {
+                d.sendEvent(name: "power", value: v, "unit" : "mph")
+                d.sendEvent(name: "energy", value: v, , "unit" : "mph")
             }
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             d.sendEvent(name: k, value: v)
