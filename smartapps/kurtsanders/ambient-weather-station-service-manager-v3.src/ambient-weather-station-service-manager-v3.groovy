@@ -14,7 +14,7 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2018-12-30
+*  Date: 2018-12-31
 */
 import groovy.time.*
 import java.text.DecimalFormat
@@ -31,7 +31,7 @@ String DTHName() { return "Ambient Weather Station V3" }
 String DTHRemoteSensorName() { return "Ambient Weather Station Remote Sensor V3"}
 String DTHDNI() { return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appModified() { return  } 
+String appModified() { return  }
 String appAuthor()	 { return "SanderSoft" }
 Boolean isST() { return (platform() == "SmartThings") }
 String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
@@ -51,7 +51,7 @@ definition(
     appSetting "appKey"
 }
 
-preferences {    
+preferences {
     page(name: "keysCheckPage")
     page(name: "mainPage")
     page(name: "settingsPage")
@@ -108,7 +108,7 @@ def mainPage() {
     dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:false, install:true) {
         section("Weather Station Location for Local Weather") {
             input "zipCode", type: "number",
-                title: "Enter ZipCode for local Weather API Forecast/Moon (Required)", 
+                title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
                 required: true
         }
         section("Weather Station Refresh Update Frequency") {
@@ -117,12 +117,23 @@ def mainPage() {
                 options: ['0','1','2','3','4','5','10','15','30','60','180'],
                 required: true
         }
+        section("Solar Radiation Tile Options") {
+            paragraph "Units of Measure"
+            paragraph image: getAppImg("blue-ball.jpg"),
+                title: "'W/m²' verses'lux'",
+                required: false,
+                "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
+            input name: "solarRadiationTileDisplayUnits", type: "enum",
+                title: "Select Solar Radiation ('Light' Tile) Units of Measure",
+                options: ['W/m²','lux'],
+                required: true
+        }
         if (state.countRemoteTempHumiditySensors > 0) {
             section("Ambient Remote Temperature Sensors") {
-                href name: "remoteSensorsPageLink", 
-                    title: "Name ${state.countRemoteTempHumiditySensors} Ambient Remote Temperature Sensors (Required)", 
-                    description: "", 
-                    required: true, 
+                href name: "remoteSensorsPageLink",
+                    title: "Name ${state.countRemoteTempHumiditySensors} Ambient Remote Temperature Sensors (Required)",
+                    description: "",
+                    required: true,
                     page: "remoteSensorsPage"
             }
         }
@@ -142,17 +153,17 @@ def remoteSensorsPage() {
                 required: false,
                 "You MUST create short descriptive names for each remote sensor.\n\n" +
                 "If you wish to change the short name of the remote sensor, DO NOT change them in the IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
-                "Please note that remote sensors are dynamically indexed 1-8 based on Ambient Network API tempNf where N is an integer 1-8.  " +  
+                "Please note that remote sensors are dynamically indexed 1-8 based on Ambient Network API tempNf where N is an integer 1-8.  " +
                 "If a remote sensor is deleted or non responsive from your group of Ambient remote sensors, you may have to rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
         }
 
         section("Location names your ${state.countRemoteTempHumiditySensors} remote temperature Sensors") {
-            for (i; i <= state.countRemoteTempHumiditySensors; i++) {           
+            for (i; i <= state.countRemoteTempHumiditySensors; i++) {
                 input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                    title: "Provide a Short Descriptive Name for Ambient Remote Sensor #${i}", 
+                    title: "Provide a Short Descriptive Name for Ambient Remote Sensor #${i}",
                     required: true
             }
-        } 
+        }
     }
 }
 
@@ -160,16 +171,16 @@ def settingsPage() {
     dynamicPage(name: "settingsPage", uninstall:false, install:false) {
         section("IDE Live Logging Messages Preferences") {
             input name: "debugVerbose", type: "bool",
-                title: "Show Debug Messages in Live Logging IDE", 
-                description: "Verbose Mode", 
+                title: "Show Debug Messages in Live Logging IDE",
+                description: "Verbose Mode",
                 required: false
             input name: "infoVerbose", type: "bool",
-                title: "Show Info Messages in Live Logging IDE", 
-                description: "Verbose Mode", 
+                title: "Show Info Messages in Live Logging IDE",
+                description: "Verbose Mode",
                 required: false
             input name: "WUVerbose", type: "bool",
-                title: "Show Local Weather Info Messages in Live Logging IDE", 
-                description: "Verbose Mode", 
+                title: "Show Local Weather Info Messages in Live Logging IDE",
+                description: "Verbose Mode",
                 required: false
         }
     }
@@ -223,17 +234,17 @@ def updated() {
 //    getChildDevices().each {
 //        log.info "AmbientWS Name: '${it.displayName}' with a NetworkID: ${it.deviceNetworkId}"
 //        log.debug "Name: ${it.name} Label: ${it.label}"
-//    }     
+//    }
     log.info "Section Ended: Updated"
 }
 
 def addAmbientChildDevice() {
-    // add Ambient Weather Reporter Station device 
+    // add Ambient Weather Reporter Station device
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         def AWSName = state.ambientMap.info.name[0]?:DTHName()
         log.info "Adding AmbientWS Device: ${AWSName} with DNI: ${state.deviceId}"
-        try { 
+        try {
             addChildDevice("kurtsanders", DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
         } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
             log.error "The Ambient Weather Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
@@ -248,7 +259,7 @@ def addAmbientChildDevice() {
     def remoteSensorNamePref
     def remoteSensorNameDNI
     def remoteSensorNumber
-    settings.each { key, value -> 
+    settings.each { key, value ->
         if ( key.startsWith(DTHDNIRemoteSensorName()) ) {
             remoteSensorNamePref = "Ambient - ${value}"
             remoteSensorNameDNI = getChildDevice(key)
@@ -272,7 +283,7 @@ def addAmbientChildDevice() {
                         remoteSensorNameDNI.label = remoteSensorNamePref
                         remoteSensorNameDNI.name  = remoteSensorNamePref
                         log.info "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
-                    } 
+                    }
                 }
             } else {
                 log.warn "Device ${remoteSensorNumber} DNI: ${key} '${remoteSensorNameDNI.name}' exceeds # of remote sensors (${state.countRemoteTempHumiditySensors}) reporting from Ambient -> ACTION REQUIRED"
@@ -283,9 +294,9 @@ def addAmbientChildDevice() {
 }
 
 private removeAmbientChildDevice() {
-    getAllChildDevices().each { 
+    getAllChildDevices().each {
         log.debug "Deleting AmbientWS device: ${it.deviceNetworkId}"
-        deleteChildDevice(it.deviceNetworkId) 
+        deleteChildDevice(it.deviceNetworkId)
     }
 }
 
@@ -293,7 +304,7 @@ def refresh() {
     main()
 }
 
-def main() {    
+def main() {
     log.info "SmartApp Section: Refresh"
     def d = getChildDevice(state.deviceId)
     def remoteSensorDNI = ""
@@ -305,14 +316,16 @@ def main() {
     log.info "Executing API Weather Forecast, Sunrise, Sunset Info for zipCode: ${zipCode}"
     // Current conditions
     def obs = get("conditions")?.current_observation
-//  def obs = getTwcConditions("${zipCode}")
+//  def obsTWC = getTwcConditions("${zipCode}")
+//	log.debug "WU: ${obs}"
+//	log.debug "TWC: ${obsTWC}"
 
     if(WUVerbose){log.info "obs --> ${obs}"}
     if (obs) {
         def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
         d.sendEvent(name: "weatherIcon", value: weatherIcon, displayed: false)
     } else {
-        log.error "Severre error retrieving current Weather Underground API: get(conditions)?.current_observation zipCode-> ${zipCode}" 
+        log.error "Severre error retrieving current Weather API"
     }
     // Get Age of Lunar Moon, Sunrise, Sunset info from Weather Underground
     // Get Sunset, Sunrise from Weather Underground
@@ -336,7 +349,7 @@ def main() {
             d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
         }
     } catch (e) {
-        log.error "Severre error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}" 
+        log.error "Severre error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}"
     }
 
     // Forecast
@@ -344,15 +357,15 @@ def main() {
     if (f) {
         if(WUVerbose){log.info "WU Forecast-> ${f}"}
     } else {
-        log.error "Severre error getting WU forecast: ${f}"    
+        log.error "Severre error getting WU forecast: ${f}"
     }
     def f1= f?.forecast?.simpleforecast?.forecastday
     //    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
     def f2= sprintf(
         "WU Forecast for zipcode: %s\n%s %s, %s",
-        zipCode, 
-        f?.forecast?.txt_forecast?.forecastday[0].fcttext, 
-        f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(), 
+        zipCode,
+        f?.forecast?.txt_forecast?.forecastday[0].fcttext,
+        f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(),
         f?.forecast?.txt_forecast?.forecastday[1].fcttext
     )
     d.sendEvent(name: "weather", value: f2, descriptionText: "")
@@ -371,12 +384,12 @@ def main() {
     checkForSevereWeather()
 
     // Ambient Weather Station
-    log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)"        
+    log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)"
     if (getAmbientStationData()) {
     if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         if(debugVerbose || infoVerbose) {
-            state.ambientMap[0].each{ k, v -> 
+            state.ambientMap[0].each{ k, v ->
                 log.info "${k} = ${v}"
                 if (k instanceof Map) {
                     k.each { x, y ->
@@ -399,7 +412,7 @@ def main() {
                 d.sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
             }
         } else {
-            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}        
+            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
             d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
         d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now), displayed: false)
@@ -417,12 +430,12 @@ def main() {
         if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
         d.sendEvent(name:'winddirection', value: winddirectionState)
         d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
- 
-        state.ambientMap.info[0].each{ k, v -> 
+
+        state.ambientMap.info[0].each{ k, v ->
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             d.sendEvent(name: k, value: v)
         }
-        state.ambientMap.lastData[0].each{ k, v -> 
+        state.ambientMap.lastData[0].each{ k, v ->
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
@@ -444,6 +457,15 @@ def main() {
             }
             if(k=='solarradiation') {
                 k='illuminance'
+                if (solarRadiationTileDisplayUnits=="lux") {
+                    v = (v.toFloat())
+                    (v>0)?v=(v/0.0079).toInteger():0
+                }
+                d.sendEvent(name: k, value: v, units: (solarRadiationTileDisplayUnits==null)?'W/m²':solarRadiationTileDisplayUnits)
+            }
+            if (k=='windspeedmph') {
+                d.sendEvent(name: "power", value: v, "unit" : "mph")
+                d.sendEvent(name: "energy", value: v, , "unit" : "mph")
             }
             if (k.matches('temp[0-9]f')) {
                 remoteSensorDNI = getChildDevice("remoteTempfHumiditySensorName${k[4..4]}")
@@ -552,122 +574,6 @@ def setScheduler(schedulerFreq) {
         if(debugVerbose){log.error "Unknown Schedule Frequency Value ${schedulerFreq}"}
         unschedule()
     }
-}
-
-def TileBgColors(colorSetName) {
-    switch(colorSetName) {
-        case 'rain':
-        return [ 
-            [value: 0,   color: "#ffffff"],
-            [value: 1,   color: "#0000ff"],
-            [value: 10,  color: "#ff0000"]
-        ]
-        break
-        case 'wind':
-        return [ 
-            [value: 0,  color: "#ffffff"],
-            [value: 5,  color: "#153591"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 15, color: "#90d2a7"],
-            [value: 20, color: "#44b621"],
-            [value: 25, color: "#f1d801"],
-            [value: 30, color: "#d04e00"],
-            [value: 50, color: "#bc2323"]
-        ]
-        break
-        case 'humidity':
-        return [ 
-            [value: 0, color: "#ffffff"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 20, color: "#90d2a7"],
-            [value: 30, color: "#44b621"],
-            [value: 40, color: "#f1d801"],
-            [value: 50, color: "#d04e00"],
-            [value: 60, color: "#d04e00"],
-            [value: 70, color: "#d04e00"],
-            [value: 80, color: "#d04e00"],
-            [value: 90, color: "#d04e00"],
-            [value: 99, color: "#ff0000"]
-        ]
-        break
-        case 'solar':
-        return [        
-            [value: 0,    color: "#000000"],
-            [value: 550,  color: "#ffffff"]
-        ] 
-        break
-        case 'uvi':
-        return [        
-            [value: 0,    color: "#000000"],
-            [value: 12,   color: "#ffffff"]
-        ] 
-        break
-        case 'scheduleFreqMin':
-        return [
-            [value: '0',  color: "#FF0000"],
-            [value: '1',    color: "#9400D3"],
-            [value: '2',    color: "#00FF00"],
-            [value: '3',    color: "#FFFF00"],
-            [value: '4',    color: "#FF7F00"],
-            [value: '5',    color: "#4B0082"],
-            [value: '10',   color: "#0000FF"],
-            [value: '15',   color: "#00FF00"],
-            [value: '30',   color: "#FFFF00"],
-            [value: '60',   color: "#FF7F00"],
-            [value: '180',  color: "#ff69b4"]
-        ]    
-        break
-        case 'default':
-        return [                
-            [value: '0',  color: "#ffffff"]
-        ]
-    }
-}
-
-private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
-    def lux = 0
-    def now = new Date().time
-    if (now > sunriseDate.time && now < sunsetDate.time) {
-        //day
-        switch(weatherIcon) {
-            case 'tstorms':
-            lux = 200
-            break
-            case ['cloudy', 'fog', 'rain', 'sleet', 'snow', 'flurries',
-                  'chanceflurries', 'chancerain', 'chancesleet',
-                  'chancesnow', 'chancetstorms']:
-            lux = 1000
-            break
-            case 'mostlycloudy':
-            lux = 2500
-            break
-            case ['partlysunny', 'partlycloudy', 'hazy']:
-            lux = 7500
-            break
-            default:
-                //sunny, clear
-                lux = 10000
-        }
-
-        //adjust for dusk/dawn
-        def afterSunrise = now - sunriseDate.time
-        def beforeSunset = sunsetDate.time - now
-        def oneHour = 1000 * 60 * 60
-
-        if(afterSunrise < oneHour) {
-            //dawn
-            lux = (long)(lux * (afterSunrise/oneHour))
-        } else if (beforeSunset < oneHour) {
-            //dusk
-            lux = (long)(lux * (beforeSunset/oneHour))
-        }
-    }
-    else {
-        //night - always set to 10 for now
-        //could do calculations for dusk/dawn too
-        lux = 10
-    }
-    lux
 }
 
 def checkForSevereWeather() {
