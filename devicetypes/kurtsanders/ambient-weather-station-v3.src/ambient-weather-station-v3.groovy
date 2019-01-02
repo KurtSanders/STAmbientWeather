@@ -30,9 +30,14 @@ metadata {
         capability "Relative Humidity Measurement"
         capability "Sensor"
         capability "Refresh"
-        capability "Motion Sensor"
         capability "Water Sensor"
         capability "Ultraviolet Index"
+
+        // Wind Motion Detection
+        capability "Motion Sensor"
+        // Wind Speed Psuedo Capability
+        capability "Power Meter"
+        capability "Energy Meter"
 
         // Start of Ambient Weather API Rest MAP
         attribute "baromabsin", "string"
@@ -61,7 +66,7 @@ metadata {
         attribute "winddir", "string"
         attribute "winddirection", "string"
         attribute "windgustmph", "string"
-        attribute "windspeedmph", "string"   
+        attribute "windspeedmph", "string"
         // End of Ambient Weather API Rest MAP
         attribute "moonAge", "number"
         attribute "lastSTupdate", "string"
@@ -76,7 +81,7 @@ metadata {
         attribute "alertDescription", "string"
         attribute "alertMessage", "string"
         attribute "version", "string"
-        
+
         command "refresh"
     }
     tiles(scale: 2) {
@@ -99,7 +104,7 @@ metadata {
         }
     }
     valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside Temp\n${currentValue}°', 
+        state "default", label: 'Inside Temp\n${currentValue}°',
             backgroundColors:[
                 [value: 60, color: "#153591"],
                 [value: 65, color: "#1e9cbb"],
@@ -109,7 +114,7 @@ metadata {
                 [value: 75, color: "#d04e00"],
                 [value: 80, color: "#bc2323"]
             ]
-    }    
+    }
     standardTile("weatherIcon", "device.weatherIcon", width: 2, height: 2, decoration: "flat") {
         state "chanceflurries", icon:"st.custom.wu1.chanceflurries", label: ""
         state "chancerain", icon:"st.custom.wu1.chancerain", label: ""
@@ -267,9 +272,9 @@ metadata {
         state "24",        	label: '${currentValue}', icon: getMoonIcon('24')
         state "25",        	label: '${currentValue}', icon: getMoonIcon('25')
         state "26",        	label: '${currentValue}', icon: getMoonIcon('26')
-        state "27",        	label: '${currentValue}', icon: getMoonIcon('27')        
-        state "28",        	label: '${currentValue}', icon: getMoonIcon('28')        
-        state "29",        	label: '${currentValue}', icon: getMoonIcon('29')        
+        state "27",        	label: '${currentValue}', icon: getMoonIcon('27')
+        state "28",        	label: '${currentValue}', icon: getMoonIcon('28')
+        state "29",        	label: '${currentValue}', icon: getMoonIcon('29')
     }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default",    label: '${currentValue}'
@@ -316,36 +321,36 @@ metadata {
     details(
         [
             // Inside Sensors
-            "temperature", 
-            "tempinf", 
-            "humidityin" , 
+            "temperature",
+            "tempinf",
+            "humidityin" ,
             // Outside Sensors
-            "weatherIcon", 
-            "feelsLike", 
-            "water", 
-            "eventrainin", 
-            "hourlyrainin", 
-            "dailyrainin", 
-            "weeklyrainin", 
-            "monthlyrainin", 
+            "weatherIcon",
+            "feelsLike",
+            "water",
+            "eventrainin",
+            "hourlyrainin",
+            "dailyrainin",
+            "weeklyrainin",
+            "monthlyrainin",
             "lastRain",
             "lastRainDuration",
             "totalrainin",
             "winddir2",
             "winddirection",
-            "windspeedmph", 
+            "windspeedmph",
             "motion",
             "windgustmph",
-            "baromrelin", 
-            "baromabsin", 
-            "humidity", 
-            "dewPoint", 
-            "solarradiation", 
-            "ultravioletIndex", 
-            "rise", 
+            "baromrelin",
+            "baromabsin",
+            "humidity",
+            "dewPoint",
+            "solarradiation",
+            "ultravioletIndex",
+            "rise",
             "set",
             "moonAge",
-            "name", 
+            "name",
             "location",
             "scheduleFreqMin",
             "lastSTupdate",
@@ -375,25 +380,25 @@ def updated() {
     log.info "DTH Section: Updated"
 }
 
-def refresh() {	    
+def refresh() {
     parent.refresh()
 }
 
-def getMoonIcon(imgNumber) { 
-    return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-${imgNumber}.png" 
+def getMoonIcon(imgNumber) {
+    return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-${imgNumber}.png"
 }
 
 def TileBgColors(colorSetName) {
     switch(colorSetName) {
         case 'rain':
-        return [ 
+        return [
             [value: 0,   color: "#ffffff"],
             [value: 1,   color: "#0000ff"],
             [value: 10,  color: "#ff0000"]
         ]
         break
         case 'wind':
-        return [ 
+        return [
             [value: 0,  color: "#ffffff"],
             [value: 5,  color: "#153591"],
             [value: 10, color: "#1e9cbb"],
@@ -405,7 +410,7 @@ def TileBgColors(colorSetName) {
         ]
         break
         case 'humidity':
-        return [ 
+        return [
             [value: 0,  color: "#ffffff"],
             [value: 10, color: "#1e9cbb"],
             [value: 20, color: "#90d2a7"],
@@ -420,9 +425,10 @@ def TileBgColors(colorSetName) {
         ]
         break
         case 'solar':
-        return [        
-            [value: 0,    color: "#000000"],
-            [value: 550,  color: "#ffffff"]
+        return [
+            [value: 0,    	color: "#000000"],
+            [value: 1,   	color: "#CCCC00"],
+            [value: 100000, color: "#FFFF00"]
         ] 
         break
         case 'uvi':
