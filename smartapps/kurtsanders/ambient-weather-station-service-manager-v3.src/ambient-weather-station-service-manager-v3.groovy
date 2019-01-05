@@ -516,12 +516,13 @@ def main() {
                 }
             }
             try {
-                if( (v.isNumber()) && (v.toFloat() > 0) && (v.toFloat() < 0.5) ) {
-                    v = 0.05
+                if( (v.isNumber()) && (v>0) && (v<0.1) ) {
+                    if(debugVerbose){log.debug "${k}: Converting number '${v}'<0.1 -> 0.1}"}
+                    v = 0.1
                 }
             }
             catch (e) {
-                log.error("caught exception assigning ${k} : ${v} to a value of 0.05", e)
+                log.error("caught exception assigning ${k} : ${v} to a value of 0.1", e)
             }
             if(k=='uv') {
                 k='ultravioletIndex'
