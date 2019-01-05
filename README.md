@@ -28,6 +28,11 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 	* Installing a SmartApp & DTH from a GitHub repository (see [SmartThings GitHub IDE integration documentation](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github) for example instructions and use the Repository Owner, Name and Branch from installation instructions below)
 5. Ambient Weather Station API Key (Required)
 	* An Ambient Weather Station API Key CAN BE SELF GENERATED FROM YOUR [AMBIENT DASHBOARD ACCOUNT VIEW](https://dashboard.ambientweather.net/account) and is used to securely connect this application to your Ambient weather station data. 
+
+	<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey2.jpg" width="300">
+</p>
+
 		 
 ## Installation & Configuration of the SmartThings DTH
 
