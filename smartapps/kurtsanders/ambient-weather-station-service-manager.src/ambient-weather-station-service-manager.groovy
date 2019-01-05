@@ -29,7 +29,8 @@ String platform() { return "SmartThings" }
 String DTHName() { return "Ambient Weather Station V2" }
 String DTHDNI() { return "MyAmbientWeatherStation" }
 String appVersion()	 { return "2.0" }
-String appModified() { return "2018-11-29" } 
+String appKey() {return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
+String appModified() { return "2019-01-04" }
 String appAuthor()	 { return "Kurt Sanders" }
 Boolean isST() { return (platform() == "SmartThings") }
 String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
@@ -49,10 +50,9 @@ definition(
 )
 {
     appSetting "apiKey"
-    appSetting "appKey"
 }
 
-preferences {    
+preferences {
     page(name: "keysCheckPage")
     page(name: "mainPage")
     page(name: "settingsPage")
@@ -72,13 +72,13 @@ def keysCheckPage() {
     }
     dynamicPage(name: "keysCheckPage", title: setupTitle, nextPage: nextPageName, uninstall:true, install:false) {
         log.debug "appSettings.apiKey->${appSettings.apiKey}"
-        log.debug "appSettings.appKey->${appSettings.appKey}"
+        log.debug "appKey()->${appKey()}"
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-            paragraph "The API & APP string keys are used to securely connect your weather station to this application."
+            paragraph "The API string key is used to securely connect your weather station to this application."
             paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Required API & APP Keys",
+                title: "Required API Key",
                 required: false,
-                "You must have both an API and APP key from your Ambient Dashboard.  The actual api and app key values are set on the SmartThings IDE.  Edit the Ambient SmartApp, accessed by pressing the App Settings button. Scroll down the page, expand the Settings group, and set both key values."
+                "You must have an API key from your Ambient Dashboard.  The actual api key value is entered in the SmartThings IDE.  Edit the Ambient SmartApp, accessed by pressing the App Settings button. Scroll down the page, expand the Settings group, and set the API key value."
             href(name: "hrefUSA",
                  title: "SmartThings IDE USA",
                  required: false,
@@ -95,11 +95,11 @@ def keysCheckPage() {
     }
 }
 
-def mainPage() {   
+def mainPage() {
     dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:true, install:true) {
         section("Weather Station Location for Local Weather") {
             input "zipCode", type: "number",
-                title: "ZipCode for WU Weather API Forecast/Moon (Required)", 
+                title: "ZipCode for WU Weather API Forecast/Moon (Required)",
                 required: true
         }
         section("Weather Station Refresh Update Frequency") {
@@ -114,11 +114,11 @@ def mainPage() {
                 title: "'W/m²' verses'lux'",
                 required: false,
                 "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
-                input name: "solarRadiationTileDisplayUnits", type: "enum",
+            input name: "solarRadiationTileDisplayUnits", type: "enum",
                 title: "Select Solar Radiation ('Light' Tile) Units of Measure",
-                options: ['W/m²','lux'],
+                options: ['W/m²','k/lux'],
                 required: true
-                }
+        }
         section("IDE Log Output Settings") {
             href(name: "settingsPageLink", title: "IDE Log Output Settings", description: "", page: "settingsPage")
         }
@@ -175,7 +175,7 @@ def uninstalled() {
 def updated() {
     log.info "Section: Updated"
     if(infoVerbose){log.info "Ambient API string-> ${appSettings?.apiKey}"}
-    if(infoVerbose){log.info "Ambient APP string-> ${appSettings?.appKey}"}
+    if(infoVerbose){log.info "Ambient APP string-> ${appKey()}"}
     if(infoVerbose){log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"}
     state.deviceId = DTHDNI()
     try {
@@ -358,7 +358,7 @@ def main() {
             if((k=='tempf') | (k=='tempf')){k='temperature'}
             if(k=='feelsLike') {
                 if(waterState=='wet') {
-                    DecimalFormat df = new DecimalFormat("0.0");
+                    DecimalFormat df = new DecimalFormat("0.00");
                     def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
                     if(debugVerbose){log.debug "Rain Detected, Changing secondary control value of Main Tile to display hourlyrainin ${numberForRainLevel}"}
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime) )
@@ -366,15 +366,15 @@ def main() {
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
                 }
             }
-            if(v.isNumber() && v > 0 && v <= 0.1) {
-                v=(v.toFloat()+0.04).round(1)
+            if(v.isNumber() && v > 0 && v < 0.05) {
+                v=toFloat(0.05)
             }
             if(k=='uv') {
                 k='ultravioletIndex'
             }
             if(k=='solarradiation') {
                 k='illuminance'
-                if (solarRadiationTileDisplayUnits=="lux") {
+                if (solarRadiationTileDisplayUnits=="k/lux") {
                 v = (v.toFloat())
                     (v>0)?v=(v/0.0079).toInteger():0
                 }
@@ -404,13 +404,13 @@ def get(feature) {
 
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if(appSettings.apiKey==null || appSettings.apiKey=="" || appSettings.appKey==null || appSettings.appKey=="") {
-        log.error("Severre Error: API/APP keys are missing in device settings, exiting")
+    if(appSettings.apiKey==null || appSettings.apiKey=="") {
+        log.error("Severre Error: API key is missing in device settings, exiting")
         return false
     }
 
     def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appSettings.appKey}&apiKey=${appSettings.apiKey}"
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
     ]
     try {
         httpGet(params) { resp ->

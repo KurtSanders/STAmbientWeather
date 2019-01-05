@@ -14,25 +14,48 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2018-12-31
+*  Date: 2019-01-04
 */
 import groovy.time.*
 import java.text.DecimalFormat
 
-// Start Version Information
-def version() {
-//    return ["V1.0", "Original Code Base"]
-//    return ["V2.0", "Service Mgr App Implementation"]
-    return ["V3.0", "2018-12-30", "Added the ability to view up to 8 Ambient Remote Sensor(s)"]
+// News Information Map
+def news() {
+    return [
+        "version" : "V3.0",
+        "date"    : "2019-01-04",
+        "updates" : [
+            "Beta Testing - More Updates to come each week.",
+            "Recognizes up to 8  Ambient (WH31B) Remote Sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events",
+            "Adds multiple Units of Measure for Solar Radiation (Illuminance)"
+        ]
+    ]
 }
-// End Version Information
-String platform() { return "SmartThings" }
+def apiHelp() {
+    return  [
+        "You MUST enter your Ambient Weather API key in the ${appName()} SmartApp Settings section.",
+        "Visit your Ambient Weather Dasboard page.",
+        "Copt your API key from the 'devices' link in your Ambient Weather Dashboard page.",
+        "Return to your SmartThings IDE 'My SmartApps' browser page.",
+        "EDIT the ${appName()} SmartApp.",
+        "Press the App Settings button at the top right of the page.",
+        "Scroll down the page, expand the 'Settings' section.",
+        "Enter or paste your API key in the value input box.",
+        "Press Update on bottom of page to save.",
+        "Exit the SmartApp and Start Setup again."
+    ]
+}
+
 String DTHName() { return "Ambient Weather Station V3" }
 String DTHRemoteSensorName() { return "Ambient Weather Station Remote Sensor V3"}
 String DTHDNI() { return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appModified() { return  }
+String appName() { return "Ambient Weather Station Service Manager V3" }
 String appAuthor()	 { return "SanderSoft" }
+// ========================================================================================
+// This APP key is ONLY for this application - Do not copy or use elsewhere
+String appKey() {return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
+// ========================================================================================
 Boolean isST() { return (platform() == "SmartThings") }
 String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 definition(
@@ -47,8 +70,8 @@ definition(
     singleInstance: true
 )
 {
+// The following API Key is to be entered in this SmartApp's settings in the SmartThings IDE App Setting.
     appSetting "apiKey"
-    appSetting "appKey"
 }
 
 preferences {
@@ -56,31 +79,46 @@ preferences {
     page(name: "mainPage")
     page(name: "settingsPage")
     page(name: "remoteSensorsPage")
+    page(name: "tileDisplayOptionsPage")
 }
 
 def keysCheckPage() {
     def apiappSetupCompleteBool = !((appSettings?.apiKey==null) && (apiSettings?.apiKey==null))
     def setupMessage = null
-    def setupTitle = "Ambient Weather Station API Check"
+    def setupTitle = "${appName()} API Check"
     def nextPageName = "mainPage"
     def getAmbientStationDataRC = getAmbientStationData()
     if (apiappSetupCompleteBool && getAmbientStationDataRC) {
-        setupMessage = "SUCCESS! You have completed your Ambient API & APP Keys for your Ambient Weather Station named '${state.ambientMap.info.name[0]}'"
-		setupMessage += (state.countRemoteTempHumiditySensors.toInteger()>0)?" with ${state.countRemoteTempHumiditySensors} remote temperature/humidity sensor(s).":"."
-        setupTitle = "Tap NEXT to Continue to Settings Page"
+        setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for a ${appName()}"
+        setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
-        setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API and APP Keys setup in the SmartThings IDE (App Settings Section) for this application"
+        setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API key setup in the SmartThings IDE (App Settings Section) for ${appName()}"
         nextPageName = null
     }
+
     dynamicPage(name: "keysCheckPage", title: setupTitle, nextPage: nextPageName, uninstall:true, install:false) {
-//        log.debug "appSettings.apiKey->${appSettings.apiKey}"
-//        log.debug "appSettings.appKey->${appSettings.appKey}"
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-            paragraph "The API & APP string keys are used to securely connect your weather station to this application."
+            def apiHelpText = ""
+            apiHelp().eachWithIndex { item, index ->
+                apiHelpText += "${index+1}. ${item}\n"
+            }
+            paragraph "The API string key is used to securely connect your weather station to ${appName()}."
             paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Required API & APP Keys",
+                title: "Required API Key",
                 required: false,
-                "You must have both an API and APP key from your Ambient Dashboard.  The actual api and app key values are set on the SmartThings IDE.  Edit the Ambient SmartApp, accessed by pressing the App Settings button. Scroll down the page, expand the Settings group, and set both key values."
+                "${apiHelpText}"
+            href(name: "hrefReadme",
+                 title: "${appName()} Setup/Read Me Page",
+                 required: false,
+                 style: "external",
+                 url: "https://github.com/KurtSanders/STAmbientWeather",
+                 description: "tap to view the Setup/Read Me page")
+            href(name: "hrefAmbient",
+                 title: "Ambient Weather Dashboard",
+                 required: false,
+                 style: "external",
+                 url: "https://dashboard.ambientweather.net/dashboard",
+                 description: "tap to login and view your Ambient Weather's dashboard")
             href(name: "hrefUSA",
                  title: "SmartThings IDE USA",
                  required: false,
@@ -94,39 +132,42 @@ def keysCheckPage() {
                  url: "https://graph-eu01-euwest1.api.smartthings.com/",
                  description: "tap to view the Europe SmartThings IDE website in mobile browser")
         }
-        section {
-            paragraph "App Version Information - ${appAuthor()}"
-            paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Version: ${version()[0]}",
+        section ("Ambient Weather Station Information") {
+            if (apiappSetupCompleteBool && getAmbientStationDataRC) {
+                paragraph "Location: ${state.ambientMap.info.location[0]}"
+                paragraph image: getAppImg("blue-ball.jpg"),
+                    title: "${state.ambientMap.info.name[0]}",
+                    required: false,
+                    "Mac Address: ${state.ambientMap[0].macAddress}\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}"
+            }
+        }
+        section ("App Version Information") {
+            def newsUpdates = ""
+            news().updates.eachWithIndex { item, index ->
+                newsUpdates += "${index+1}. ${item}\n"
+            }
+            paragraph "STAmbientWeather - ${appAuthor()}"
+            paragraph image: getAppImg("wi-direction-right.png"),
+                title: "Version: ${news().version} : ${news().date}",
                 required: false,
-                "${version()[1]}: ${version()[2]}"
+                "${newsUpdates}"
         }
     }
 }
 
 def mainPage() {
-    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:false, install:true) {
+    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
         section("Weather Station Location for Local Weather") {
             input "zipCode", type: "number",
                 title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
                 required: true
         }
-        section("Weather Station Refresh Update Frequency") {
-            input name: "schedulerFreq", type: "enum",
-                title: "Run Weather Station Refresh Every (mins)?",
-                options: ['0','1','2','3','4','5','10','15','30','60','180'],
-                required: true
-        }
-        section("Solar Radiation Tile Options") {
-            paragraph "Units of Measure"
-            paragraph image: getAppImg("blue-ball.jpg"),
-                title: "'W/m²' verses'lux'",
-                required: false,
-                "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
-            input name: "solarRadiationTileDisplayUnits", type: "enum",
-                title: "Select Solar Radiation ('Light' Tile) Units of Measure",
-                options: ['W/m²','lux'],
-                required: true
+        section("Tile Display Options") {
+            href name: "tileDisplayOptionsPageLink",
+                title: "Tile Display Options",
+                description: "",
+                required: true,
+                page: "tileDisplayOptionsPage"
         }
         if (state.countRemoteTempHumiditySensors > 0) {
             section("Ambient Remote Temperature Sensors") {
@@ -138,7 +179,11 @@ def mainPage() {
             }
         }
         section("IDE Live Logging Output Settings") {
-            href(name: "settingsPageLink", title: "IDE Live Logging Output Settings", description: "", page: "settingsPage")
+            href(name: "settingsPageLink",
+                 title: "IDE Live Logging Output Settings",
+                 description: "",
+                 required: false,
+                 page: "settingsPage")
         }
     }
 }
@@ -151,18 +196,46 @@ def remoteSensorsPage() {
             paragraph image: getAppImg("blue-ball.jpg"),
                 title: "Information, Issues and Instructions",
                 required: false,
-                "You MUST create short descriptive names for each remote sensor.\n\n" +
+                "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
                 "If you wish to change the short name of the remote sensor, DO NOT change them in the IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
-                "Please note that remote sensors are dynamically indexed 1-8 based on Ambient Network API tempNf where N is an integer 1-8.  " +
-                "If a remote sensor is deleted or non responsive from your group of Ambient remote sensors, you may have to rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
+                "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
+                "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
         }
-
-        section("Location names your ${state.countRemoteTempHumiditySensors} remote temperature Sensors") {
+        section("Provide Location names for your ${state.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
             for (i; i <= state.countRemoteTempHumiditySensors; i++) {
                 input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                    title: "Provide a Short Descriptive Name for Ambient Remote Sensor #${i}",
+                    title: "Ambient Remote Sensor #${i}",
                     required: true
             }
+        }
+    }
+}
+
+def tileDisplayOptionsPage() {
+    dynamicPage(name: "tileDisplayOptionsPage", uninstall:false, install:false) {
+        section("Tile Refresh Update Frequency") {
+            input name: "schedulerFreq", type: "enum",
+                title: "Run Weather Station Refresh Every (mins)?",
+                options: ['0','1','2','3','4','5','10','15','30','60','180'],
+                required: true
+        }
+        /*
+        section ("Tile Background Colors Option") {
+            input name: "removeColorTiles", type: "bool",
+                title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
+                required: false
+        }
+        */
+        section ("Solar Radiation Units of Measure Options") {
+            paragraph "Solar Radiation Units of Measure"
+            paragraph image: getAppImg("blue-ball.jpg"),
+                title: "'W/m²' verses'lux' Units of Measure",
+                required: false,
+                "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
+            input name: "solarRadiationTileDisplayUnits", type: "enum",
+                title: "Select Solar Radiation ('Light' Tile) Units of Measure",
+                options: ['W/m²','k/lux'],
+                required: true
         }
     }
 }
@@ -172,49 +245,21 @@ def settingsPage() {
         section("IDE Live Logging Messages Preferences") {
             input name: "debugVerbose", type: "bool",
                 title: "Show Debug Messages in Live Logging IDE",
-                description: "Verbose Mode",
                 required: false
             input name: "infoVerbose", type: "bool",
                 title: "Show Info Messages in Live Logging IDE",
-                description: "Verbose Mode",
                 required: false
             input name: "WUVerbose", type: "bool",
                 title: "Show Local Weather Info Messages in Live Logging IDE",
-                description: "Verbose Mode",
                 required: false
         }
     }
 }
 
-def installed() {
-    log.info "Section: Installed"
-    state.deviceId = DTHDNI()
-    //    device.deviceNetworkId = NewDNI
-    addAmbientChildDevice()
-    if(state.schedulerFreq!=schedulerFreq) {
-        state.schedulerFreq = schedulerFreq
-        if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
-        setScheduler(state.schedulerFreq)
-        def d = getChildDevice(state.deviceId)
-        d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
-    }
-    main()
-}
-
-def uninstalled() {
-    log.info "Section Started: Uninstalled"
-    unschedule()
-    removeAmbientChildDevice()
-    log.info "Section Ended: Uninstalled"
-}
-
-def updated() {
-    log.info "Section Started: Updated"
-    state.deviceId = DTHDNI()
-    addAmbientChildDevice()
+def initialize() {
+    log.info "initialize Section: Start"
     if(infoVerbose){
         log.info "Ambient API string-> ${appSettings?.apiKey}"
-        log.info "Ambient APP string-> ${appSettings?.appKey}"
         log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"
     }
     if(debugVerbose){
@@ -224,19 +269,44 @@ def updated() {
             // do something other
         }
     }
+    // Check for all devices needed to run this app
+    addAmbientChildDevice()
+	// Set user defined refresh rate
     if(state.schedulerFreq!=schedulerFreq) {
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
-        setScheduler(schedulerFreq)
+        setScheduler(state.schedulerFreq)
         def d = getChildDevice(state.deviceId)
-        d.sendEvent(name: "scheduleFreqMin", value: schedulerFreq)
+        d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
     }
-//    getChildDevices().each {
-//        log.info "AmbientWS Name: '${it.displayName}' with a NetworkID: ${it.deviceNetworkId}"
-//        log.debug "Name: ${it.name} Label: ${it.label}"
-//    }
-    log.info "Section Ended: Updated"
+    log.info "initialize Section: End"
 }
+
+def installed() {
+    log.info "Installed Section: Start"
+    state.deviceId = DTHDNI()
+    initialize()
+    runIn(10, main)
+    log.info "Installed Section: End"
+}
+
+def updated() {
+    log.info "Updated Section: Start"
+	initialize()
+    log.info "Updated Section: End"
+}
+
+def uninstalled() {
+    log.info "Section Started: Uninstalled"
+    unschedule()
+    // Remove all devices
+    getAllChildDevices().each {
+        log.debug "Deleting AmbientWS device: ${it.label}"
+        deleteChildDevice(it.deviceNetworkId)
+    }
+    log.info "Section Ended: Uninstalled"
+}
+
 
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station device
@@ -290,13 +360,6 @@ def addAmbientChildDevice() {
                 log.warn "Please verify that all Ambient Remote Sensors are online and reporting to Ambient Network.  If so, please manual delete the device in the SmartThings 'My Devices' view"
             }
         }
-    }
-}
-
-private removeAmbientChildDevice() {
-    getAllChildDevices().each {
-        log.debug "Deleting AmbientWS device: ${it.deviceNetworkId}"
-        deleteChildDevice(it.deviceNetworkId)
     }
 }
 
@@ -415,7 +478,10 @@ def main() {
             if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
             d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
-        d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s",version()[0], now), displayed: false)
+        if ((state.ambientMap[0].lastData.containsKey('totalrainin')==false) || (state.ambientMap[0].lastData.containsKey('yearlyrainin')==false)) {
+            d.sendEvent(name:"totalrainin", value: "N/A", displayed: false)
+        }
+        d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s","${news().version}", now), displayed: false)
         d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress, displayed: false)
 
         def waterState = state.ambientMap.lastData.hourlyrainin[0].toFloat()>0?'wet':'dry'
@@ -441,7 +507,7 @@ def main() {
             if((k=='tempf') | (k=='tempf')){k='temperature'}
             if(k=='feelsLike') {
                 if(waterState=='wet') {
-                    DecimalFormat df = new DecimalFormat("0.0");
+                    DecimalFormat df = new DecimalFormat("0.00");
                     def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
                     if(debugVerbose){log.debug "Rain Detected, Changing secondary control value of Main Tile to display hourlyrainin ${numberForRainLevel}"}
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime) )
@@ -449,16 +515,24 @@ def main() {
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
                 }
             }
-            if(v.isNumber() && v > 0 && v <= 0.1) {
-                v=(v.toFloat()+0.04).round(1)
+            try {
+                if( (v.isNumber()) && (v.toFloat() > 0) && (v.toFloat() < 0.5) ) {
+                    v=toFloat(0.05)
+                }
+            }
+            catch (e) {
+                log.error("caught exception coverting ${k} : ${v} to float: ", e)
             }
             if(k=='uv') {
                 k='ultravioletIndex'
             }
+            if(k=='yearlyrainin') {
+                k='totalrainin'
+            }
             if(k=='solarradiation') {
                 k='illuminance'
-                if (solarRadiationTileDisplayUnits=="lux") {
-                    v = (v.toFloat())
+                if (solarRadiationTileDisplayUnits=="k/lux") {
+                v = (v.toFloat())
                     (v>0)?v=(v/0.0079).toInteger():0
                 }
                 d.sendEvent(name: k, value: v, units: (solarRadiationTileDisplayUnits==null)?'W/m²':solarRadiationTileDisplayUnits)
@@ -470,7 +544,7 @@ def main() {
             if (k.matches('temp[0-9]f')) {
                 remoteSensorDNI = getChildDevice("remoteTempfHumiditySensorName${k[4..4]}")
                 remoteSensorDNI.sendEvent(name: "temperature", value: v)
-                remoteSensorDNI.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Last Updated at:\n%s",version()[0], now), displayed: false)
+                remoteSensorDNI.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Last Updated at:\n%s","${news().version}", now), displayed: false)
                 return
             }
             if (k.matches('humidity[0-9]')) {
@@ -498,13 +572,13 @@ def get(feature) {
 
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if(appSettings.apiKey==null || appSettings.apiKey=="" || appSettings.appKey==null || appSettings.appKey=="") {
-        log.error("Severre Error: API/APP keys are missing in device settings, exiting")
+    if( (appSettings.apiKey==null) || (appSettings.apiKey=="") ) {
+        log.error("Severre Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
         return false
     }
 
     def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appSettings.appKey}&apiKey=${appSettings.apiKey}"
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
     ]
     try {
         httpGet(params) { resp ->
@@ -578,7 +652,7 @@ def setScheduler(schedulerFreq) {
 
 def checkForSevereWeather() {
     if(infoVerbose){log.info "Section: checkForSevereWeather()"}
-    def alerts = get("alerts")?.alerts    
+    def alerts = get("alerts")?.alerts
     def alertCountMsg = "${alerts?.size()} current weather alert(s) for ${zipCode}"
     if(debugVerbose){log.debug "WUSTATION:  ${alertCountMsg}"}
     def d = getChildDevice(state.deviceId)

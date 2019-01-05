@@ -362,22 +362,16 @@ metadata {
     )
 }
 
-def initialize() {
-    // initialize API's
-    log.info "DTH Section: Initialize"
-}
-
 def installed() {
-    log.info "DTH Section: Installed"
+//    log.info "DTH Section: Installed"
 }
 
 def uninstalled() {
-    log.info "DTH Section: Uninstalled"
-    unschedule()
+//    log.info "DTH Section: Uninstalled"
 }
 
 def updated() {
-    log.info "DTH Section: Updated"
+//    log.info "DTH Section: Updated"
 }
 
 def refresh() {

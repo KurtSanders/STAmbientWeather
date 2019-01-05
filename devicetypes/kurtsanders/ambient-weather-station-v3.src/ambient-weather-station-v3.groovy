@@ -84,6 +84,14 @@ metadata {
 
         command "refresh"
     }
+    /*
+    preferences {
+        input name: "removeColorTiles", type: "bool",
+            title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
+            description: "On = No Background Color",
+            required: false
+    }
+    */
     tiles(scale: 2) {
         multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
@@ -104,16 +112,7 @@ metadata {
         }
     }
     valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside Temp\n${currentValue}°',
-            backgroundColors:[
-                [value: 60, color: "#153591"],
-                [value: 65, color: "#1e9cbb"],
-                [value: 69, color: "#90d2a7"],
-                [value: 71, color: "#44b621"],
-                [value: 73, color: "#f1d801"],
-                [value: 75, color: "#d04e00"],
-                [value: 80, color: "#bc2323"]
-            ]
+        state "default", label: 'Inside Temp\n${currentValue}°', backgroundColors: TileBgColors('tempinf')
     }
     standardTile("weatherIcon", "device.weatherIcon", width: 2, height: 2, decoration: "flat") {
         state "chanceflurries", icon:"st.custom.wu1.chanceflurries", label: ""
@@ -362,22 +361,16 @@ metadata {
     )
 }
 
-def initialize() {
-    // initialize API's
-    log.info "DTH Section: Initialize"
-}
-
 def installed() {
-    log.info "DTH Section: Installed"
-}
-
-def uninstalled() {
-    log.info "DTH Section: Uninstalled"
-    unschedule()
+//    log.info "DTH Section: Installed"
 }
 
 def updated() {
-    log.info "DTH Section: Updated"
+//    log.info "DTH Section: Updated"
+}
+
+def uninstalled() {
+//    log.info "DTH Section: Uninstalled"
 }
 
 def refresh() {
@@ -390,6 +383,17 @@ def getMoonIcon(imgNumber) {
 
 def TileBgColors(colorSetName) {
     switch(colorSetName) {
+        case 'tempinf':
+        return [
+            [value: 60, color: "#153591"],
+            [value: 65, color: "#1e9cbb"],
+            [value: 69, color: "#90d2a7"],
+            [value: 71, color: "#44b621"],
+            [value: 73, color: "#f1d801"],
+            [value: 75, color: "#d04e00"],
+            [value: 80, color: "#bc2323"]
+        ]
+        break
         case 'rain':
         return [
             [value: 0,   color: "#ffffff"],

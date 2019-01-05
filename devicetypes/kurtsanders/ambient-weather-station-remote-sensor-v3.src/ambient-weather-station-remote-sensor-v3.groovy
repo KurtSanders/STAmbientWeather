@@ -35,6 +35,13 @@ metadata {
         
         command "refresh"
     }
+    /*
+    preferences {
+        input name: "removeColorTiles", type: "bool",
+            title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
+            required: false
+    }
+    */
     tiles(scale: 2) {
         multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
@@ -66,32 +73,22 @@ metadata {
     details(
         [
             // Inside Sensors
-            "temperature", 
+            "temperature",
             "humidity",
             "lastSTupdate",
             "refresh"
         ]
     )
 }
-
-def initialize() {
-    // initialize API's
-    log.info "DTH Section: Initialize"
-}
-
-def installed() {
-    log.info "DTH Section: Installed"
-}
-
-def uninstalled() {
-    log.info "DTH Section: Uninstalled"
-    unschedule()
-}
-
-def updated() {
-    log.info "DTH Section: Updated"
-}
-
-def refresh() {	    
+def refresh() {
     parent.refresh()
+}
+def installed() {
+//    log.info "DTH Section: Installed"
+}
+def updated() {
+//    log.info "DTH Section: Updated"
+}
+def uninstalled() {
+//    log.info "DTH Section: Uninstalled"
 }
