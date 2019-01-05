@@ -517,11 +517,11 @@ def main() {
             }
             try {
                 if( (v.isNumber()) && (v.toFloat() > 0) && (v.toFloat() < 0.5) ) {
-                    v=toFloat(0.05)
+                    v = 0.05
                 }
             }
             catch (e) {
-                log.error("caught exception coverting ${k} : ${v} to float: ", e)
+                log.error("caught exception assigning ${k} : ${v} to a value of 0.05", e)
             }
             if(k=='uv') {
                 k='ultravioletIndex'

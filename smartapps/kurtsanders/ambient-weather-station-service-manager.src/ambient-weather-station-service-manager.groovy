@@ -366,8 +366,13 @@ def main() {
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
                 }
             }
-            if(v.isNumber() && v > 0 && v < 0.05) {
-                v=toFloat(0.05)
+            try {
+                if( (v.isNumber()) && (v.toFloat() > 0) && (v.toFloat() < 0.5) ) {
+                    v = 0.05
+                }
+            }
+            catch (e) {
+                log.error("caught exception assigning ${k} : ${v} to a value of 0.05", e)
             }
             if(k=='uv') {
                 k='ultravioletIndex'
@@ -479,122 +484,6 @@ def setScheduler(schedulerFreq) {
         if(debugVerbose){log.error "Unknown Schedule Frequency Value ${schedulerFreq}"}
         unschedule()
     }
-}
-
-def TileBgColors(colorSetName) {
-    switch(colorSetName) {
-        case 'rain':
-        return [ 
-            [value: 0,   color: "#ffffff"],
-            [value: 1,   color: "#0000ff"],
-            [value: 10,  color: "#ff0000"]
-        ]
-        break
-        case 'wind':
-        return [ 
-            [value: 0,  color: "#ffffff"],
-            [value: 5,  color: "#153591"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 15, color: "#90d2a7"],
-            [value: 20, color: "#44b621"],
-            [value: 25, color: "#f1d801"],
-            [value: 30, color: "#d04e00"],
-            [value: 50, color: "#bc2323"]
-        ]
-        break
-        case 'humidity':
-        return [ 
-            [value: 0, color: "#ffffff"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 20, color: "#90d2a7"],
-            [value: 30, color: "#44b621"],
-            [value: 40, color: "#f1d801"],
-            [value: 50, color: "#d04e00"],
-            [value: 60, color: "#d04e00"],
-            [value: 70, color: "#d04e00"],
-            [value: 80, color: "#d04e00"],
-            [value: 90, color: "#d04e00"],
-            [value: 99, color: "#ff0000"]
-        ]
-        break
-        case 'solar':
-        return [        
-            [value: 0,    color: "#000000"],
-            [value: 550,  color: "#ffffff"]
-        ] 
-        break
-        case 'uvi':
-        return [        
-            [value: 0,    color: "#000000"],
-            [value: 12,   color: "#ffffff"]
-        ] 
-        break
-        case 'scheduleFreqMin':
-        return [
-            [value: '0',  color: "#FF0000"],
-            [value: '1',    color: "#9400D3"],
-            [value: '2',    color: "#00FF00"],
-            [value: '3',    color: "#FFFF00"],
-            [value: '4',    color: "#FF7F00"],
-            [value: '5',    color: "#4B0082"],
-            [value: '10',   color: "#0000FF"],
-            [value: '15',   color: "#00FF00"],
-            [value: '30',   color: "#FFFF00"],
-            [value: '60',   color: "#FF7F00"],
-            [value: '180',  color: "#ff69b4"]
-        ]    
-        break
-        case 'default':
-        return [                
-            [value: '0',  color: "#ffffff"]
-        ]
-    }
-}
-
-private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
-    def lux = 0
-    def now = new Date().time
-    if (now > sunriseDate.time && now < sunsetDate.time) {
-        //day
-        switch(weatherIcon) {
-            case 'tstorms':
-            lux = 200
-            break
-            case ['cloudy', 'fog', 'rain', 'sleet', 'snow', 'flurries',
-                  'chanceflurries', 'chancerain', 'chancesleet',
-                  'chancesnow', 'chancetstorms']:
-            lux = 1000
-            break
-            case 'mostlycloudy':
-            lux = 2500
-            break
-            case ['partlysunny', 'partlycloudy', 'hazy']:
-            lux = 7500
-            break
-            default:
-                //sunny, clear
-                lux = 10000
-        }
-
-        //adjust for dusk/dawn
-        def afterSunrise = now - sunriseDate.time
-        def beforeSunset = sunsetDate.time - now
-        def oneHour = 1000 * 60 * 60
-
-        if(afterSunrise < oneHour) {
-            //dawn
-            lux = (long)(lux * (afterSunrise/oneHour))
-        } else if (beforeSunset < oneHour) {
-            //dusk
-            lux = (long)(lux * (beforeSunset/oneHour))
-        }
-    }
-    else {
-        //night - always set to 10 for now
-        //could do calculations for dusk/dawn too
-        lux = 10
-    }
-    lux
 }
 
 def checkForSevereWeather() {
