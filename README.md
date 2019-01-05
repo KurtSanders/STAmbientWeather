@@ -29,6 +29,8 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 5. Ambient Weather Station API Key (Required)
 	* An Ambient Weather Station API Key CAN BE SELF GENERATED FROM YOUR [AMBIENT DASHBOARD ACCOUNT VIEW](https://dashboard.ambientweather.net/account) and is used to securely connect this application to your Ambient weather station data. 
 
+	Here is where to enter your API key in the ST IDE Editor for the SmartApp
+
 	<p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey2.jpg" width="300">
 </p>
