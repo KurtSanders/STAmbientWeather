@@ -14,7 +14,7 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2019-01-04
+*  Date: 2019-01-05
 */
 import groovy.time.*
 import java.text.DecimalFormat
@@ -22,90 +22,90 @@ import java.text.DecimalFormat
 // News Information Map
 def news() {
     return [
-        "version" : "V3.0",
-        "date"    : "2019-01-04",
+        "version" : "V3.0.1",
+        "date"    : "2019-01-06",
         "updates" : [
-            "Beta Testing - More Updates to come each week.",
-            "Recognizes up to 8  Ambient (WH31B) Remote Sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events",
-            "Adds multiple Units of Measure for Solar Radiation (Illuminance)"
+	        "Eliminated the need for end users to obtain an APP key from Ambient, ONLY a API key is required",
+            "Reduced Nested Menu Trees to fix Android o/s install issues",
+            "Added a NO COLOR option preference during install to accomodate Android background color issues",
+            "App now recognizes up to 8  Ambient (WH31B or similar) remote temperature/hyro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events",
+            "Added lux preference display option for an additional Units of Measure for displaying Solar Radiation (Illuminance)",
+            "Added dynamic secondary control banner to the main temperature tile based on Feel Like, Rain, Wind or Humidity conditions",
+            "Added additional error handling for inconsistencies in API returned data"
         ]
     ]
 }
+// Help Text for API Key
 def apiHelp() {
-    return  [
+    def apiHelpText = ""
+     [
         "You MUST enter your Ambient Weather API key in the ${appName()} SmartApp Settings section.",
-        "Visit your Ambient Weather Dasboard page.",
-        "Copt your API key from the 'devices' link in your Ambient Weather Dashboard page.",
+        "Visit your Ambient Weather Dashboards's Account page.",
+        "Create/Copy your API key from the bottom of the page",
         "Return to your SmartThings IDE 'My SmartApps' browser page.",
         "EDIT the ${appName()} SmartApp.",
         "Press the App Settings button at the top right of the page.",
         "Scroll down the page, expand the 'Settings' section.",
-        "Enter or paste your API key in the value input box.",
+        "Enter or paste your Ambient API key in the API value input box.",
         "Press Update on bottom of page to save.",
-        "Exit the SmartApp and Start Setup again."
-    ]
+        "Exit the SmartApp and Start ${appName()} Setup again on your mobile phone."
+    ].eachWithIndex { item, index ->
+        apiHelpText += "${index+1}. ${item}\n"
+    }
+    return apiHelpText
 }
-String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 NoColorTiles":"Ambient Weather Station V3" }
-String DTHRemoteSensorName() { return "Ambient Weather Station Remote Sensor V3"}
-String DTHDNI() { return "MyAmbientWeatherStationV3" }
+String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
+String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
+String DTHDNI() 				{ return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appName() { return "Ambient Weather Station Service Manager V3" }
-String appAuthor()	 { return "SanderSoft" }
+String appName() 				{ return "Ambient Weather Station Service Manager V3" }
+String appAuthor()	 			{ return "SanderSoft" }
+String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 // ========================================================================================
 // This APP key is ONLY for this application - Do not copy or use elsewhere
 String appKey() {return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
 // ========================================================================================
-Boolean isST() { return (platform() == "SmartThings") }
-String getAppImg(imgName) { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 definition(
-    name: "Ambient Weather Station Service Manager V3",
-    namespace: "kurtsanders",
-    author: "kurt@kurtsanders.com",
-    description: "Ambient Personal Weather Station Service Manager V3",
-    category: "My Apps",
-    iconUrl:   getAppImg("blue-ball.jpg"),
-    iconX2Url: getAppImg("blue-ball.jpg"),
-    iconX3Url: getAppImg("blue-ball.jpg"),
+    name: 			"Ambient Weather Station Service Manager V3",
+    namespace: 		"kurtsanders",
+    author: 		"kurt@kurtsanders.com",
+    description: 	"Ambient Personal Weather Station Service Manager V3",
+    category: 		"My Apps",
+    iconUrl:   		getAppImg("blue-ball.jpg"),
+    iconX2Url: 		getAppImg("blue-ball.jpg"),
+    iconX3Url: 		getAppImg("blue-ball.jpg"),
     singleInstance: true
 )
 {
 // The following API Key is to be entered in this SmartApp's settings in the SmartThings IDE App Setting.
-    appSetting "apiKey"
+    appSetting 		"apiKey"
 }
-
 preferences {
-    page(name: "keysCheckPage")
     page(name: "mainPage")
-    page(name: "settingsPage")
-    page(name: "remoteSensorsPage")
-    page(name: "tileDisplayOptionsPage")
+    page(name: "optionsPage")
+    page(name: "remoteSensorPage")
 }
 
-def keysCheckPage() {
-    def apiappSetupCompleteBool = !((appSettings?.apiKey==null) && (apiSettings?.apiKey==null))
-    def setupMessage = null
+def mainPage() {
+    def apiappSetupCompleteBool = !( (appSettings.apiKey==null) && (appSettings.apiKey=="") )
+    def setupMessage = ""
     def setupTitle = "${appName()} API Check"
-    def nextPageName = "mainPage"
+    def nextPageName = "optionsPage"
     def getAmbientStationDataRC = getAmbientStationData()
-    if (apiappSetupCompleteBool && getAmbientStationDataRC) {
+    if ( (apiappSetupCompleteBool) && (getAmbientStationDataRC) ) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for a ${appName()}"
         setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
         setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API key setup in the SmartThings IDE (App Settings Section) for ${appName()}"
         nextPageName = null
     }
-
-    dynamicPage(name: "keysCheckPage", title: setupTitle, nextPage: nextPageName, uninstall:true, install:false) {
+    dynamicPage(name: "mainPage", title: setupTitle, nextPage: nextPageName, uninstall:true, install:false) {
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-            def apiHelpText = ""
-            apiHelp().eachWithIndex { item, index ->
-                apiHelpText += "${index+1}. ${item}\n"
-            }
             paragraph "The API string key is used to securely connect your weather station to ${appName()}."
             paragraph image: getAppImg("blue-ball.jpg"),
                 title: "Required API Key",
                 required: false,
-                "${apiHelpText}"
+                "${apiHelp()}"
             href(name: "hrefReadme",
                  title: "${appName()} Setup/Read Me Page",
                  required: false,
@@ -113,10 +113,10 @@ def keysCheckPage() {
                  url: "https://github.com/KurtSanders/STAmbientWeather",
                  description: "tap to view the Setup/Read Me page")
             href(name: "hrefAmbient",
-                 title: "Ambient Weather Dashboard",
+                 title: "Ambient Weather Dashboard Account Page for API Key",
                  required: false,
                  style: "external",
-                 url: "https://dashboard.ambientweather.net/dashboard",
+                 url: "https://dashboard.ambientweather.net/account",
                  description: "tap to login and view your Ambient Weather's dashboard")
             href(name: "hrefUSA",
                  title: "SmartThings IDE USA",
@@ -131,13 +131,13 @@ def keysCheckPage() {
                  url: "https://graph-eu01-euwest1.api.smartthings.com/",
                  description: "tap to view the Europe SmartThings IDE website in mobile browser")
         }
-        section ("Ambient Weather Station Information") {
-            if (apiappSetupCompleteBool && getAmbientStationDataRC) {
+        if (apiappSetupCompleteBool && getAmbientStationDataRC) {
+            section ("Ambient Weather Station Information") {
                 paragraph "Location: ${state.ambientMap.info.location[0]}"
                 paragraph image: getAppImg("blue-ball.jpg"),
                     title: "${state.ambientMap.info.name[0]}",
                     required: false,
-                    "Mac Address: ${state.ambientMap[0].macAddress}\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}"
+                    "Mac Address: ${state.ambientMap[0].macAddress}\nRemote Temp/Hydro Sensors: ${state?.countRemoteTempHumiditySensors}"
             }
         }
         section ("App Version Information") {
@@ -154,76 +154,26 @@ def keysCheckPage() {
     }
 }
 
-def mainPage() {
-    dynamicPage(name: "mainPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
-        section("Weather Station Location for Local Weather") {
+def optionsPage () {
+    def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
+    def lastPageName = remoteSensorsExist?"remoteSensorPage":""
+    dynamicPage(name: "optionsPage", title: "Ambient Tile Settings", nextPage: lastPageName, uninstall:false, install : !remoteSensorsExist ) {
+        section("Weather Station Options") {
             input "zipCode", type: "number",
                 title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
                 required: true
-        }
-        section("Tile Display Options") {
-            href name: "tileDisplayOptionsPageLink",
-                title: "Tile Display Options",
-                description: "",
-                required: true,
-                page: "tileDisplayOptionsPage"
-        }
-        if (state.countRemoteTempHumiditySensors > 0) {
-            section("Ambient Remote Temperature Sensors") {
-                href name: "remoteSensorsPageLink",
-                    title: "Name ${state.countRemoteTempHumiditySensors} Ambient Remote Temperature Sensors (Required)",
-                    description: "",
-                    required: true,
-                    page: "remoteSensorsPage"
-            }
-        }
-        section("IDE Live Logging Output Settings") {
-            href(name: "settingsPageLink",
-                 title: "IDE Live Logging Output Settings",
-                 description: "",
-                 required: false,
-                 page: "settingsPage")
-        }
-    }
-}
-
-def remoteSensorsPage() {
-    def i = 1
-    dynamicPage(name: "remoteSensorsPage", uninstall:false, install:false) {
-        section (hideable: true, hidden: true, "<== Please click to READ Remote Sensor Issues") {
-            paragraph "Information Regarding Ambient Remote Sensors"
-            paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Information, Issues and Instructions",
-                required: false,
-                "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
-                "If you wish to change the short name of the remote sensor, DO NOT change them in the IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
-                "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
-                "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
-        }
-        section("Provide Location names for your ${state.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
-            for (i; i <= state.countRemoteTempHumiditySensors; i++) {
-                input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                    title: "Ambient Remote Sensor #${i}",
-                    required: true
-            }
-        }
-    }
-}
-
-def tileDisplayOptionsPage() {
-    dynamicPage(name: "tileDisplayOptionsPage", uninstall:false, install:false) {
-        section("Tile Refresh Update Frequency") {
             input name: "schedulerFreq", type: "enum",
                 title: "Run Weather Station Refresh Every (mins)?",
                 options: ['0','1','2','3','4','5','10','15','30','60','180'],
                 required: true
-        }
-        section ("Tile Background Colors Option") {
+            paragraph "Background Color Option for Displaying Values"
+            paragraph image: getAppImg("No-Color-Option.jpg"),
+                title: "Initial Install Setup Choice, NOT functinoal after initial install",
+                required: false,
+                "This NO COLOR option is highly recommended to set ON for Android devices that cannot render color backgrounds on value tiles.  This option selects a different DTH for install, whereas afterwards the end user must manually switch the 'DTH type' in the IDE's My Devices"
             input name: "noColorTiles", type: "bool",
-                title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
+                title: "Remove Color Backgrounds in Tiles (Recommended ON for Android Users)",
                 required: false
-        }
-        section ("Solar Radiation Units of Measure Options") {
             paragraph "Solar Radiation Units of Measure"
             paragraph image: getAppImg("blue-ball.jpg"),
                 title: "'W/m²' verses'lux' Units of Measure",
@@ -234,12 +184,7 @@ def tileDisplayOptionsPage() {
                 options: ['W/m²','lux'],
                 required: true
         }
-    }
-}
-
-def settingsPage() {
-    dynamicPage(name: "settingsPage", uninstall:false, install:false) {
-        section("IDE Live Logging Messages Preferences") {
+        section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
             input name: "debugVerbose", type: "bool",
                 title: "Show Debug Messages in Live Logging IDE",
                 required: false
@@ -249,6 +194,27 @@ def settingsPage() {
             input name: "WUVerbose", type: "bool",
                 title: "Show Local Weather Info Messages in Live Logging IDE",
                 required: false
+        }
+    }
+}
+
+def remoteSensorPage() {
+    dynamicPage(name: "remoteSensorPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
+        def i = 1
+        section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
+            paragraph "Information Regarding Ambient Remote Sensors"
+            paragraph image: getAppImg("blue-ball.jpg"),
+                title: "Information, Issues and Instructions",
+                required: false,
+                "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
+                "If you wish to change the short name of the remote sensor, DO NOT change them in the IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
+                "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
+                "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
+            for (i; i <= state?.countRemoteTempHumiditySensors; i++) {
+                input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                    title: "Ambient Remote Sensor #${i}",
+                    required: true
+            }
         }
     }
 }
@@ -320,7 +286,6 @@ def addAmbientChildDevice() {
     } else {
         log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"
     }
-
     // add Ambient Weather Remote Sensor Device(s)
     def remoteSensorNamePref
     def remoteSensorNameDNI
