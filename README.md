@@ -1,21 +1,29 @@
 # STAmbientWeather V3 (2019)
 *SmartThings Integration for Ambient Weather Stations*
 
-## Previous Versions
-* V2 Depreciated 12/01/2018
-* V1 Depreciated 06/01/2018
+### Description:
 
-## Description:
+A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which provides a connection to the weather data generated from your personal [Ambient weather station](https://www.ambientweather.com/ambientnet.html).  
 
-A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which provides a connection to the weather data generated from your personal [Ambient weather station](https://www.ambientweather.com/ambientnet.html).  This SmartThings application (V3) provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of the weather data from either manual or automatic (1 min to 180 mins (3 hours)).
+This SmartThings application (V3) provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of the weather data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
 
-## Weather Station Tile and Details
+### Features Added in V3
+
+* Eliminated the need for end users to obtain a developers APP key from Ambient.  End users ONLY need their weather stations' API key.
+* Reduced complex nested menu trees during install to fix Android o/s install issues
+* Added a 'NO COLOR' option preference **during install** to accomodate Android background color display issues.
+ * Recognizes up to 8  Ambient (WH31B or similar) remote temperature/hyro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events.  It is recommended to create a 'Room' called weather to group the weather station and remote sensors for ease of display.
+* Added lux preference display option for an additional Units of Measure for displaying Solar Radiation (Illuminance).
+* Added dynamic secondary control banner to the main temperature tile based on Feel Like, Rain, Wind or Humidity conditions.
+* Added additional error handling logic for inconsistencies in the weather API returned data.
+
+### Weather Station Tile and Details
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient1.PNG" width="300">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient2.PNG" width="300">
 </p>
 
-## Remote Sensor Detail Tile
+### Remote Sensor Detail Tile
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient3.PNG" width="300">
 </p>
@@ -23,7 +31,7 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 ## Requirements:
 1. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g. Model 2902A for example) and optionally  up to 8 Ambient remote temperature/hydro sensor(s).
 2. SmartThings Hub
-3. Supported mobile device with ST Legacy Client.  Installation **MUST** be completed on an Apple iOS device as the Android ST Client causes severe errors.  Android ST Client can view installed tiles after the Apple ST Client install. 
+3. Supported mobile device with ST Legacy Client.  Android based ST Clients are encouraged to select the NO COLOR option during install to view value tiles without color. 
 4. A working knowledge of the SmartThings IDE
 	* Installing a SmartApp & DTH from a GitHub repository (see [SmartThings GitHub IDE integration documentation](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github) for example instructions and use the Repository Owner, Name and Branch from installation instructions below)
 5. Ambient Weather Station API Key (Required)
@@ -36,7 +44,7 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 </p>
 
 		 
-## Installation & Configuration of the SmartThings DTH
+## Installation & Configuration
 
 **GitHub Repository Integration**
 
@@ -44,12 +52,21 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 
 | Name | Value |
 |------|-------|
-|Owner | **KurtSanders** |
+|Owner | **kurtsanders** |
 |Name: | **STAmbientWeather**|
 |Branch| **master**|
 
-1. Add a new SmartApp & device handler ([See GitHub IDE integration](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github)) from  the STAmbientWeather(master) repository.
-2. **Required Next Step:** You must edit the newly added Ambient Weather Station Reporter V3 SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.
+**Required Files in your SmartThings IDE Repository**
+
+| IDE Repository    | Filename |
+|-------------------|----------|
+| My SmartApps      | kurtsanders : Ambient Weather Station Service Manager V3   |
+| My Device Handler | kurtsanders : Ambient Weather Station V3<br>kurtsanders : Ambient Weather Station V3 No Color Tiles<br>kurtsanders : Ambient Weather Station Remote Sensor V3|
+
+**Instructions**
+
+1. Using the 'Update from REPO' button in the SmartThings IDE, Check the Ambient Weather Station Service Manager V3 SmartApp and publish & save.  Do the same from the "My Device Handlers" for the three (3) Ambient Weather device handlers ([See GitHub IDE integration](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github)) from this STAmbientWeather(master) repository to your SmartThings IDE.
+2. **Required Next Step before setup on mobile client:** You must edit the newly added Ambient Weather Station Reporter V3 SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.
 3. Locate the Ambient Weather Station Reporter V3 app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-Ambient Weather Station.PNG" width="300">
@@ -63,6 +80,8 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 	* Preferences
 		* zipCode	(Your Zipcode for Weather Forecast Info)
 		* schedulerFreq	(# mins for the APP to update weather values from your weather station)
+		* Remove Color Background in Tiles for Displaying Values *(Only functions during initial installation/setup)*
+		* Select Solar Radiation Units of Measure
 		* IDE Logging (Optional)
 			* debugVerbose	
 			* infoVerbose	bool	
@@ -78,11 +97,17 @@ The following device capabilities, attributes and commands are available for you
         capability "Relative Humidity Measurement"
         capability "Sensor"
         capability "Refresh"
-        capability "Motion Sensor"
         capability "Water Sensor"
         capability "Ultraviolet Index"
+    
+        // Wind Motion Detection
+        capability "Motion Sensor"
+        // Wind Speed Pseudo Capability
+        capability "Power Meter"
+        capability "Energy Meter"
 
-        // Start of Ambient Weather Attributes
+
+        // Start of Ambient Weather API Rest MAP
         attribute "baromabsin", "string"
         attribute "baromrelin", "string"
         attribute "city", "string"
@@ -109,12 +134,14 @@ The following device capabilities, attributes and commands are available for you
         attribute "winddir", "string"
         attribute "winddirection", "string"
         attribute "windgustmph", "string"
-        attribute "windspeedmph", "string"   
+        attribute "windspeedmph", "string"
         // End of Ambient Weather API Rest MAP
         attribute "moonAge", "number"
+        attribute "lastSTupdate", "string"
         attribute "localSunrise", "string"
         attribute "localSunset", "string"
         attribute "weatherIcon", "string"
+        attribute "secondaryControl", "string"
         attribute "forecastIcon", "string"
         attribute "scheduleFreqMin", "string"
         attribute "sunriseDate", "string"
@@ -122,17 +149,41 @@ The following device capabilities, attributes and commands are available for you
         attribute "alertDescription", "string"
         attribute "alertMessage", "string"
         attribute "version", "string"
-        attribute "lastSTupdate", "string"
-        
-        // Start of Ambient Weather Device Commands
-        command "refresh"
 
+        command "refresh"
+        
+## Action Tiles
+Only a subset of Ambient weather data can be viewed from Action Tiles. This is due to a limitation of Action Tiles software to support additional SmartThings published device capabilities.  
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesColorTiles.jpg" width="300">
+</p>
+
+| Name of Action Tile Thing (Checkmark) | Ambient Weather Attribute |
+|------------|-------------------|
+| Energy<p>Power | Wind Speed |
+| Illuminance Measurement | Solar Radiation <br>Light |
+| Motion Sensor | Wind Speed > 0 Detected |
+| Relative Humidity Measurement | Outside Rel Humidity |
+| Temperature Measurement | Outside Temperature |
+| Ultraviolet Index | Ultraviolet Index |
+| Water Sensor | Rain Detected |
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="300">
+</p>
 
 ## Known Issues
 1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather API http request when it encounters a ST rate limiting error.
 3. The V3 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
-4. The V2 application was developed to be a cooperative SmartThings Service Manager SmartApp & Device Tile.  If one prefers a DTH Only, this Ambient Weather Station application written for V1 (device handler (DTH) only tile with preferences set in the device gear), V1 is available in the Github repository and can be installed to the IDE's 'My Device Handlers'.  One must manually create a new device in the IDE's 'My Devices' and refer to this DTH.
+4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V3 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
+
+## Previous Old Versions
+*(Available in 'Depreciated Versions' GitHub Branch)*
+
+	- V2 Depreciated 12/01/2018 
+	- V1 Depreciated 06/01/2018
+
 
 
 
