@@ -52,7 +52,7 @@ def apiHelp() {
     }
     return apiHelpText
 }
-String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 NoColorTiles":"Ambient Weather Station V3" }
+String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
 String DTHDNI() 				{ return "MyAmbientWeatherStationV31" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
