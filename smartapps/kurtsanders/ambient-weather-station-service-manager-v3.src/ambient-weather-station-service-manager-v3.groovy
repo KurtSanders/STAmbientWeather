@@ -480,7 +480,7 @@ def main() {
                     break
                     case { (motionState == 'active') } :
                     if(debugVerbose){log.debug "secondaryControl Wind"}
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind Speed is %s mph at %s", state.ambientMap.lastData.windspeedmph[0], nowTime) )
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind is %s mph %s at %s", state.ambientMap.lastData.windspeedmph[0], winddirectionState, nowTime) )
                     break
                     default :
                     if(debugVerbose){log.debug "secondaryControl Default Humidity"}
