@@ -88,6 +88,40 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 			* Weather Underground API Calls
 5. Display the new SmartThings Tile in your ST Mobile Client
 
+## ActionTiles™ and STAmbientWeather V3
+* Only a subset of Ambient weather attributes can be viewed from [ActionTiles™](https://www.actiontiles.com/). Per ActionTiles™ website, ActionTiles™ **only** [supports Things](https://support.actiontiles.com/knowledge-bases/8/articles/3556-compatible-smartthings-capabilities-device-type-abstractions) that are fully compliant with a standard Capability (device type abstraction) as defined by SmartThings Capabilities. 
+* SmartThings publishes a [partial list](https://www.smartthings.com/products) of "WWST" (Works with SmartThings) Certified Devices but not all of those are compatible with ActionTiles, because some of them claim a "Capability" that ActionTiles™ has not built a Tile Type for.
+* Units of measure on ActionTiles™ cannot be modified
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesColorTiles.jpg" width="600">
+</p>
+
+| Name of Action Tile Thing (Checkmark) | Ambient Weather Attribute |
+|------------|-------------------|
+| Energy<p>Power | Wind Speed, mph |
+| Illuminance Measurement | Solar Radiation, lux or w/m²<br>Light, lux or w/m² |
+| Motion Sensor | Wind Speed > 0 Detected, active |
+| Relative Humidity Measurement | Outside Rel Humidity, % |
+| Temperature Measurement | Outside Temperature, °F |
+| Ultraviolet Index | Ultraviolet Index, uv |
+| Water Sensor | Rain Detected, wet/dry |
+
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
+</p>
+
+## Known Issues
+1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
+2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather API http request when it encounters a ST rate limiting error.
+3. The V3 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
+4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V3 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
+
+## Previous Old Versions
+*(Available in 'Depreciated Versions' GitHub Branch)*
+
+	- V2 Depreciated 12/01/2018 
+	- V1 Depreciated 06/01/2018
+
 ## Capabilities, Attributes & Commands
 The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or a custom smartApp.
 
@@ -152,37 +186,6 @@ The following device capabilities, attributes and commands are available for you
 
         command "refresh"
         
-## Action Tiles
-Only a subset of Ambient weather data can be viewed from Action Tiles. This is due to a limitation of Action Tiles software to support additional SmartThings published device capabilities.  
-<p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesColorTiles.jpg" width="300">
-</p>
-
-| Name of Action Tile Thing (Checkmark) | Ambient Weather Attribute |
-|------------|-------------------|
-| Energy<p>Power | Wind Speed |
-| Illuminance Measurement | Solar Radiation <br>Light |
-| Motion Sensor | Wind Speed > 0 Detected |
-| Relative Humidity Measurement | Outside Rel Humidity |
-| Temperature Measurement | Outside Temperature |
-| Ultraviolet Index | Ultraviolet Index |
-| Water Sensor | Rain Detected |
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="300">
-</p>
-
-## Known Issues
-1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
-2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather API http request when it encounters a ST rate limiting error.
-3. The V3 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
-4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V3 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
-
-## Previous Old Versions
-*(Available in 'Depreciated Versions' GitHub Branch)*
-
-	- V2 Depreciated 12/01/2018 
-	- V1 Depreciated 06/01/2018
 
 
 
