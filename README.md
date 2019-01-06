@@ -12,7 +12,7 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 * Eliminated the need for end users to obtain a developers APP key from Ambient.  End users ONLY need their weather stations' API key.
 * Reduced complex nested menu trees during install to fix Android o/s install issues
 * Added a 'NO COLOR' option preference **during install** to accomodate Android background color display issues.
- * Recognizes up to 8  Ambient (WH31B or similar) remote temperature/hyro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events.  It is recommended to create a 'Room' called weather to group the weather station and remote sensors for ease of display.
+ * Recognizes up to 8  Ambient (WH31B or similar) remote temperature/hydro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events.  It is recommended to create a 'Room' called weather to group the weather station and remote sensors for ease of display.
 * Added lux preference display option for an additional Units of Measure for displaying Solar Radiation (Illuminance).
 * Added dynamic secondary control banner to the main temperature tile based on Feel Like, Rain, Wind or Humidity conditions.
 * Added additional error handling logic for inconsistencies in the weather API returned data.
@@ -29,7 +29,7 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 </p>
 
 ## Requirements:
-1. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g. Model 2902A for example) and optionally  up to 8 Ambient remote temperature/hydro sensor(s).
+1. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g., Model 2902A for example) and optionally  up to 8 Ambient remote temperature/hydro sensor(s).
 2. SmartThings Hub
 3. Supported mobile device with ST Legacy Client.  Android based ST Clients are encouraged to select the NO COLOR option during install to view value tiles without color. 
 4. A working knowledge of the SmartThings IDE
@@ -87,7 +87,8 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 		- debugVerbose	
 		- infoVerbose	bool	
 		-  Weather Underground API Calls
-5. Display the new SmartThings Tile in your ST Mobile Client
+5. If you have Ambient remote temperature/hydro sensors attached to your ambient weather network station, you will be presented with a "remote sensor" screen in which you **must provide** a short descriptive name for each using only alpha or numeric characters.  The remote sensors will be numbered on the screen according to their dip switch setting.
+6. Display the new SmartThings Tile in your ST Mobile Client
 
 ## ActionTiles™ and STAmbientWeather V3
 * Only a subset of Ambient weather attributes can be viewed from [ActionTiles™](https://www.actiontiles.com/). Per ActionTiles™ website, ActionTiles™ **only** [supports Things](https://support.actiontiles.com/knowledge-bases/8/articles/3556-compatible-smartthings-capabilities-device-type-abstractions) that are fully compliant with a standard Capability (device type abstraction) as defined by SmartThings Capabilities. 
@@ -103,7 +104,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 | Energy<p>Power | Wind Speed, mph |
 | Illuminance Measurement | Solar Radiation, lux or w/m²<br>Light, lux or w/m² |
 | Motion Sensor | Wind Speed > 0 Detected, active |
-| Relative Humidity Measurement | Outside Rel Humidity, % |
+| Relative Humidity Measurement | Outside Relative Humidity, % |
 | Temperature Measurement | Outside Temperature, °F |
 | Ultraviolet Index | Ultraviolet Index, uv |
 | Water Sensor | Rain Detected, wet/dry |
