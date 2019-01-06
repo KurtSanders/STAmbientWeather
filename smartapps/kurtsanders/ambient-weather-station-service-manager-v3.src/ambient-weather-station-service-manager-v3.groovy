@@ -45,8 +45,7 @@ def apiHelp() {
         "Exit the SmartApp and Start Setup again."
     ]
 }
-
-String DTHName() { return "Ambient Weather Station V3" }
+String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 NoColorTiles":"Ambient Weather Station V3" }
 String DTHRemoteSensorName() { return "Ambient Weather Station Remote Sensor V3"}
 String DTHDNI() { return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
@@ -219,13 +218,11 @@ def tileDisplayOptionsPage() {
                 options: ['0','1','2','3','4','5','10','15','30','60','180'],
                 required: true
         }
-        /*
         section ("Tile Background Colors Option") {
-            input name: "removeColorTiles", type: "bool",
+            input name: "noColorTiles", type: "bool",
                 title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
                 required: false
         }
-        */
         section ("Solar Radiation Units of Measure Options") {
             paragraph "Solar Radiation Units of Measure"
             paragraph image: getAppImg("blue-ball.jpg"),
@@ -234,7 +231,7 @@ def tileDisplayOptionsPage() {
                 "The default unit of measure obtained from the Ambient weather station for Solar Radiation (Light) is 'W/m²'.  There is no simple conversion from Solar Radiation measued in 'W/m²' to Illuminance measured in 'lux' as it depends on the wavelength or color of the light being measured. However, for weather stations measuring the the light intensity of the SUN, there is an approximate conversion of 0.0079 W/m2 per lux."
             input name: "solarRadiationTileDisplayUnits", type: "enum",
                 title: "Select Solar Radiation ('Light' Tile) Units of Measure",
-                options: ['W/m²','k/lux'],
+                options: ['W/m²','lux'],
                 required: true
         }
     }
@@ -306,7 +303,6 @@ def uninstalled() {
     }
     log.info "Section Ended: Uninstalled"
 }
-
 
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station device
@@ -418,14 +414,14 @@ def main() {
     // Forecast
     def f = get("forecast")
     if (f) {
-        if(WUVerbose){log.info "WU Forecast-> ${f}"}
+        if(WUVerbose){log.info "Forecast-> ${f}"}
     } else {
         log.error "Severre error getting WU forecast: ${f}"
     }
     def f1= f?.forecast?.simpleforecast?.forecastday
     //    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
     def f2= sprintf(
-        "WU Forecast for zipcode: %s\n%s %s, %s",
+        "Forecast for : %s\n%s %s, %s",
         zipCode,
         f?.forecast?.txt_forecast?.forecastday[0].fcttext,
         f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(),
@@ -434,7 +430,7 @@ def main() {
     d.sendEvent(name: "weather", value: f2, descriptionText: "")
 
     if (f1) {
-        if(WUVerbose){log.info "WU Forecastday-> ${f1}"}
+        if(WUVerbose){log.info "Forecastday-> ${f1}"}
         def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
         def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
         d.sendEvent(name: "forecastIcon", value: icon, displayed: false)
@@ -484,15 +480,15 @@ def main() {
         d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s","${news().version}", now), displayed: false)
         d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress, displayed: false)
 
-        def waterState = state.ambientMap.lastData.hourlyrainin[0].toFloat()>0?'wet':'dry'
+        def waterState = state.ambientMap.lastData.hourlyrainin[0]?.toFloat()>0?'wet':'dry'
         if(debugVerbose){log.debug "water -> ${waterState}"}
         d.sendEvent(name:'water', value: waterState)
 
-        def motionState = state.ambientMap.lastData.windspeedmph[0].toFloat()>0?'active':'inactive'
+        def motionState = state.ambientMap.lastData.windspeedmph[0]?.toFloat()>0?'active':'inactive'
         if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
         d.sendEvent(name:'motion', value: motionState)
 
-        def winddirectionState = degToCompass(state.ambientMap.lastData.winddir[0])
+        def winddirectionState = degToCompass(state.ambientMap.lastData?.winddir[0])
         if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
         d.sendEvent(name:'winddirection', value: winddirectionState)
         d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
@@ -506,13 +502,25 @@ def main() {
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
             if((k=='tempf') | (k=='tempf')){k='temperature'}
             if(k=='feelsLike') {
-                if(waterState=='wet') {
-                    DecimalFormat df = new DecimalFormat("0.00");
+                switch(true) {
+                    case {waterState=='wet'} :
+                    if(debugVerbose){log.debug "secondaryControl Wet"}
+                    DecimalFormat df = new DecimalFormat("0.00")
                     def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
-                    if(debugVerbose){log.debug "Rain Detected, Changing secondary control value of Main Tile to display hourlyrainin ${numberForRainLevel}"}
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime) )
-                } else {
+                    break
+                    case { (v > state.ambientMap.lastData.tempf[0]) } :
+                    if(debugVerbose){log.debug "secondaryControl FeelsLike"}
                     d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
+                    break
+                    case { (motionState == 'active') } :
+                    if(debugVerbose){log.debug "secondaryControl Wind"}
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind Speed is %smph at %s", state.ambientMap.lastData.windspeedmph[0], nowTime) )
+                    break
+                    default :
+                    if(debugVerbose){log.debug "secondaryControl Default Humidity"}
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Humidity is %s%% at %s", state.ambientMap.lastData.humidity[0], nowTime) )
+                    break
                 }
             }
             try {
@@ -532,7 +540,7 @@ def main() {
             }
             if(k=='solarradiation') {
                 k='illuminance'
-                if (solarRadiationTileDisplayUnits=="k/lux") {
+                if (solarRadiationTileDisplayUnits=="lux") {
                 v = (v.toFloat())
                     (v>0)?v=(v/0.0079).toInteger():0
                 }
