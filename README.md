@@ -48,7 +48,7 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 
 **GitHub Repository Integration**
 
-Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with the following:
+Create a new SmartThings Repository entry in your SmartThings IDE under 'Settings' with the following values:
 
 | Name | Value |
 |------|-------|
@@ -77,15 +77,16 @@ Create a new SmartThings Repository in the SmartThings IDE under 'Settings' with
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-SmartApp-Page2.PNG" width="300">
 </p>
 
-	* Preferences
-		* zipCode	(Your Zipcode for Weather Forecast Info)
-		* schedulerFreq	(# mins for the APP to update weather values from your weather station)
-		* Remove Color Background in Tiles for Displaying Values *(Only functions during initial installation/setup)*
-		* Select Solar Radiation Units of Measure
-		* IDE Logging (Optional)
-			* debugVerbose	
-			* infoVerbose	bool	
-			* Weather Underground API Calls
+* Preferences
+	- zipCode	(Your Zipcode for Weather Forecast Info)
+	- Run Weather Station Refresh ('0' is 'Off/Manual Refresh')
+	- 	(# mins for the APP to update weather values from your weather station)
+	- Remove Color Background in Tiles for Displaying Values *(Only functions during initial installation/setup)*
+	- Select Solar Radiation Units of Measure
+	- IDE Logging (Optional)
+		- debugVerbose	
+		- infoVerbose	bool	
+		-  Weather Underground API Calls
 5. Display the new SmartThings Tile in your ST Mobile Client
 
 ## ActionTiles™ and STAmbientWeather V3
