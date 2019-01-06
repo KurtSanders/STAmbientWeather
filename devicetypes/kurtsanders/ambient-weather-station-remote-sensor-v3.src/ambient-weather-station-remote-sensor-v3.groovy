@@ -21,8 +21,6 @@ def version() {
     return ["V3.0", "Requires Ambient WS Service Manager App V3"]
 }
 // End Version Information
-import groovy.time.*
-import java.text.DecimalFormat
 metadata {
     definition (name: "Ambient Weather Station Remote Sensor V3", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Temperature Measurement"
@@ -35,13 +33,6 @@ metadata {
         
         command "refresh"
     }
-    /*
-    preferences {
-        input name: "removeColorTiles", type: "bool",
-            title: "Remove Color Backgrounds in Tiles (Recommended for Android Users)",
-            required: false
-    }
-    */
     tiles(scale: 2) {
         multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
@@ -84,7 +75,6 @@ def refresh() {
     parent.refresh()
 }
 def installed() {
-//    log.info "DTH Section: Installed"
 }
 def updated() {
 //    log.info "DTH Section: Updated"
