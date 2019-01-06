@@ -23,7 +23,7 @@ import java.text.DecimalFormat
 def news() {
     return [
         "version" : "V3.0.1",
-        "date"    : "2019-01-06",
+        "date"    : "Jan-06-2019",
         "updates" : [
 	        "Eliminated the need for end users to obtain an APP key from Ambient, ONLY a API key is required",
             "Reduced Nested Menu Trees to fix Android o/s install issues",
@@ -480,7 +480,7 @@ def main() {
                     break
                     case { (motionState == 'active') } :
                     if(debugVerbose){log.debug "secondaryControl Wind"}
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind Speed is %smph at %s", state.ambientMap.lastData.windspeedmph[0], nowTime) )
+                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind Speed is %s mph at %s", state.ambientMap.lastData.windspeedmph[0], nowTime) )
                     break
                     default :
                     if(debugVerbose){log.debug "secondaryControl Default Humidity"}
