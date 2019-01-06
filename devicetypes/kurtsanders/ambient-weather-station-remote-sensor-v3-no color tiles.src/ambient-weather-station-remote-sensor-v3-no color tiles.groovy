@@ -14,17 +14,15 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2018-12-30
+*  Date: 2019-01-05
 */
 // Start Version Information
 def version() {
     return ["V3.0", "Requires Ambient WS Service Manager App V3"]
 }
 // End Version Information
-// import groovy.time.*
-// import java.text.DecimalFormat
 metadata {
-    definition (name: "Ambient Weather Station V3 NoColorTiles", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station V3 No Color Tiles", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
