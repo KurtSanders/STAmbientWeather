@@ -465,7 +465,7 @@ def main() {
         state.ambientMap.lastData[0].each{ k, v ->
             if(k=='dateutc' || k=='date'){return}
             if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
-            if((k=='tempf') | (k=='tempf')){k='temperature'}
+            if(k=='tempf'){k='temperature'}
             if(k=='feelsLike') {
                 switch(true) {
                     case {waterState=='wet'} :

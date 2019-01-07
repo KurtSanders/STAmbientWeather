@@ -7,26 +7,37 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 
 This SmartThings application (V3) provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of the weather data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
 
-### Features Added in V3
-
-* Eliminated the need for end users to obtain a developers APP key from Ambient.  End users ONLY need their weather stations' API key.
-* Reduced complex nested menu trees during install to fix Android o/s install issues
-* Added a 'NO COLOR' option preference **during install** to accomodate Android background color display issues.
- * Recognizes up to 8  Ambient (WH31B or similar) remote temperature/hydro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events.  It is recommended to create a 'Room' called weather to group the weather station and remote sensors for ease of display.
-* Added lux preference display option for an additional Units of Measure for displaying Solar Radiation (Illuminance).
-* Added dynamic secondary control banner to the main temperature tile based on Feel Like, Rain, Wind or Humidity conditions.
-* Added additional error handling logic for inconsistencies in the weather API returned data.
-
-### Weather Station Tile and Details
+### Weather Station Tile and Details View
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient1.PNG" width="300">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient2.PNG" width="300">
 </p>
 
-### Remote Sensor Detail Tile
+### Remote Sensor Tile and Details View
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient3.PNG" width="300">
 </p>
+
+### Features by Version 
+
+V3.0 - Jan 1, 2019
+
+* Eliminated the need for end users to obtain a developers APP key from Ambient.  End users ONLY need their weather stations' API key.
+ * Recognizes up to 8  Ambient (WH31B or similar) remote temperature/hydro sensor(s) as new child devices (separate SmartThing devices) for viewing and handling temperature and humidity events.  It is recommended to create a 'Room' called weather to group the weather station and remote sensors for ease of display.
+* Added lux preference display option for an additional Units of Measure for displaying Solar Radiation (Illuminance).
+* Added additional error handling logic for inconsistencies in the weather API returned data.
+
+V3.01 - Jan 6, 2019
+
+* Reduced complex nested menu trees during install to fix Android o/s install issues
+* Added a 'NO COLOR' option preference **during install** to accomodate Android background color display issues.
+* Added dynamic secondary control banner to the main temperature tile based on Feel Like, Rain, Wind or Humidity conditions.
+
+V3.02 - Jan 7, 2019
+
+* Added more informative input titles for App setup and configuration
+* Added a NEW separate SmartThings remote sensor device to report the internal temperature and humidity values originating from the Ambient's Weather Station console.  This new SmartThings device will appear as a remote sensor DTH tile. 
+* Additional error handling from local weather forecast API (converted from WU to TWC)
 
 ## Requirements:
 1. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g., Model 2902A for example) and optionally  up to 8 Ambient remote temperature/hydro sensor(s).
