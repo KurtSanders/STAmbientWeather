@@ -21,8 +21,7 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 </p>
 
 ## Requirements:
-<p align="left">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">**You DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**</p> 
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**</p> 
 1. Your Ambient Weather Station **API Key** (Required)
 	* An Ambient Weather Station **API Key** CAN BE SELF GENERATED FROM YOUR [AMBIENT DASHBOARD ACCOUNT VIEW](https://dashboard.ambientweather.net/account). The API key is used to securely connect this SmartThings application to your personal Ambient weather station data. Just locate your Ambient API key from your Ambient weather station account.
 
