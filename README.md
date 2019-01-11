@@ -10,14 +10,16 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 [Read Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ### Weather Station Tile and Details View
+## Screenshots of Device Attributes
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient1.PNG" width="300">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient2.PNG" width="300">
-</p>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient1.PNG" >
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient2.PNG" >
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient3.PNG" >
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient4.PNG" >
 
-### Remote Sensor Tile and Details View
-<p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V3-MobileClient3.PNG" width="300">
+## Ambient Weather Station with multiple report sensors
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V3-MobileClient1.PNG" >
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" >
 </p>
 
 ## Requirements:
