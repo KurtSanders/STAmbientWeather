@@ -9,22 +9,26 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 
 [Read Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
-### Weather Station Tile and Details View
-## Screenshots of Device Attributes
-<p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient1.PNG" >
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient2.PNG" >
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient3.PNG" >
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient4.PNG" >
+## Weather Station Tile and Details View
+### Screenshots of Device Attributes
 
-## Ambient Weather Station with multiple report sensors
-<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V3-MobileClient1.PNG" >
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" >
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient1.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient2.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient3.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient4.PNG" width=200></p>
+
+### Ambient Weather Station with multiple report sensors
+
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V3-MobileClient1.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
 </p>
 
-## Requirements:
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**</p> 
-1. Your Ambient Weather Station **API Key** (Required)
+### Requirements:
+
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**
+
+* Your Ambient Weather Station **API Key** (Required)
 	* An Ambient Weather Station **API Key** CAN BE SELF GENERATED FROM YOUR [AMBIENT DASHBOARD ACCOUNT VIEW](https://dashboard.ambientweather.net/account). The API key is used to securely connect this SmartThings application to your personal Ambient weather station data. Just locate your Ambient API key from your Ambient weather station account.
 
 ### Enter your Ambient API key in the ST IDE Editor for the SmartApp in the Settings section.
@@ -33,6 +37,7 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey1.jpg" width="500"><br><br>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey2.jpg" width="400">
 </p>
+
 2. A personal [Ambient Weather Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather Network: (e.g., Model 2902A for example) and optionally  up to 8 Ambient remote temperature/hydro sensor(s).
 3. SmartThings Hub
 4. Supported mobile device with ST Legacy Client.  Android based ST Clients are encouraged to select the NO COLOR option during install to view value tiles without color. 
