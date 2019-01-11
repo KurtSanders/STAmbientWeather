@@ -10,20 +10,23 @@
 *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
 *  for the specific language governing permissions and limitations under the License.
 *
-*  Ambient Weather Station V3.02
+*  Ambient Weather Station V3.03
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2019-01-07
+*  Date: 2019-01-09
 */
 import groovy.time.*
 import java.text.DecimalFormat
 
-String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
-String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
 String DTHDNI() 				{ return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appName() 				{ return "Ambient Weather Station Service Manager V3" }
+String appName() 				{ return "Ambient Weather Station Service Manager V3.03" }
+String version()				{ return "V3.0.3" }
+String appModified()			{ return "Jan-09-2019"}
+
+String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
+String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
 String appAuthor()	 			{ return "SanderSoft" }
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
@@ -36,7 +39,7 @@ definition(
     name: 			"Ambient Weather Station Service Manager V3",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"Ambient Personal Weather Station Service Manager V3",
+    description: 	"Ambient Personal Weather Station Service Manager V303",
     category: 		"My Apps",
     iconUrl:   		getAppImg("blue-ball.jpg"),
     iconX2Url: 		getAppImg("blue-ball.jpg"),
@@ -111,7 +114,7 @@ def mainPage() {
         section ("STAmbientWeather™ - ${appAuthor()}") {
             href(name: "hrefVersions",
                  image: getAppImg("wi-direction-right.png"),
-                 title: "${informationList('version')} : ${informationList('date')}",
+                 title: "${version()} : ${appModified()}",
                  required: false,
                  style:"embedded",
                  url: wikiURL("Features-by-Version")
@@ -189,7 +192,7 @@ def remoteSensorPage() {
 }
 
 def initialize() {
-    log.info "initialize Section: Start"
+    if(infoVerbose){log.info "initialize Section: Start"}
     if(infoVerbose){
         log.info "Ambient API string-> ${appSettings?.apiKey}"
         log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"
@@ -211,32 +214,372 @@ def initialize() {
         def d = getChildDevice(state.deviceId)
         d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
     }
-    log.info "initialize Section: End"
+    if(infoVerbose){log.info "initialize Section: End"}
 }
 
 def installed() {
-    log.info "Installed Section: Start"
+    if(infoVerbose){log.info "Installed Section: Start"}
     state.deviceId = DTHDNI()
     initialize()
     runIn(10, main)
-    log.info "Installed Section: End"
+    if(infoVerbose){log.info "Installed Section: End"}
 }
 
 def updated() {
-    log.info "Updated Section: Start"
+    if(infoVerbose){ log.info "Updated Section: Start" }
 	initialize()
-    log.info "Updated Section: End"
+    if(infoVerbose){ log.info "Updated Section: End" }
 }
 
 def uninstalled() {
-    log.info "Section Started: Uninstalled"
+    if(infoVerbose){log.info "Section Started: Uninstalled"}
     unschedule()
     // Remove all devices
     getAllChildDevices().each {
-        log.debug "Deleting AmbientWS device: ${it.label}"
+        log.info "Deleting AmbientWS device: ${it.label}"
         deleteChildDevice(it.deviceNetworkId)
     }
-    log.info "Section Ended: Uninstalled"
+    if(infoVerbose){log.info "Section Ended: Uninstalled"}
+}
+
+def refresh() {
+    main()
+}
+
+def main() {
+    log.info "SmartApp Section: Refresh"
+
+    // Ambient Weather Station API
+    ambientWeatherStation()
+
+    // TWC Local Weather
+    localWeatherInfo()
+
+    // TWC Local Weather Alerts
+    checkForSevereWeather()
+
+}
+
+def localWeatherInfo() {
+
+    if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
+    def d = getChildDevice(state.deviceId)
+    d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+
+    if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
+    def obs = getTwcConditions(zipCode)
+    if (obs) {
+        d.sendEvent(name: "weatherIcon", value: obs.iconCode as String, displayed: false)
+    }
+
+    if(infoVerbose){log.info "Getting TWC Location Info for ${zipCode}"}
+    def loc = getTwcLocation(zipCode)?.location
+    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode}"
+    state.latitude = "${loc?.latitude}"
+    state.longitude = "${loc?.longitude}"
+
+    //Getting Sunrise & Sunset
+    def dtf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+    def sunriseDate = dtf.parse(obs.sunriseTimeLocal)
+    def sunsetDate = dtf.parse(obs.sunsetTimeLocal)
+
+    def tf = new java.text.SimpleDateFormat("h:mm a")
+    tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
+
+    def localSunrise = "${tf.format(sunriseDate)}"
+    def localSunset = "${tf.format(sunsetDate)}"
+
+    d.sendEvent(name: "localSunrise", value: localSunrise , displayed: false)
+    d.sendEvent(name: "localSunset" , value: localSunset  , displayed: false)
+
+    // Get the Weather Forecast
+    if(infoVerbose){log.info "Getting TWC Forecast for ${state.cityValue}"}
+    def f = getTwcForecast(zipCode)
+    if (f) {
+        def icon = f.daypart[0].iconCode[0] ?: f.daypart[0].iconCode[1]
+        def value = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
+        def rainType = f.daypart[0].precipType[0] ?: f.daypart[0].precipType[1]
+        def windPhrase = f.daypart[0].windPhrase[0] ?: f.daypart[0].windPhrase[1]
+        d.sendEvent(name: "moonPhase", value: "Lunar Day: ${f.moonPhaseDay[0]}\n${f.moonPhase[0]}", displayed: false)
+        d.sendEvent(name: "moonAge", value: "${f.moonPhaseDay[0]}", displayed: false)
+        d.sendEvent(name: "rainForecast", value: "${rainType.capitalize()}\n${value}%", displayed: false)
+        d.sendEvent(name: "windPhrase", value: "${windPhrase}", displayed: false)
+
+        def narrative = f.daypart[0].narrative
+        def daypartName = f.daypart[0].daypartName
+        def f2= sprintf(
+            "%s forecast for %s\n%s %s %s %s %s %s",
+            f.dayOfWeek[0],
+            state.cityValue,
+            daypartName[0]?:"",
+            narrative[0]?narrative[0].uncapitalize():"",
+            daypartName[1]?:"",
+            narrative[1]?narrative[1].uncapitalize():"",
+            daypartName[2]?:"",
+            narrative[2]?narrative[2].uncapitalize():"",
+        )
+        d.sendEvent(name: "weather", value: f2, displayed: false)
+    }
+    else {
+        log.warn "TWC Forecast Data not provided by API"
+    }
+}
+
+def checkForSevereWeather() {
+    if(infoVerbose){log.info "Getting TWC Alerts"}
+    def d = getChildDevice(state.deviceId)
+    def alertMsg = []
+    def alertDescription = []
+    def alerts = getTwcAlerts()
+    def msg = ""
+    if (alerts) {
+        alerts.eachWithIndex {alert, i ->
+            msg += "${alert.headlineText}"
+            if (alert.effectiveTimeLocal && !msg.contains(" from ")) {
+                msg += " from ${parseAlertTime(alert.effectiveTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.effectiveTimeLocalTimeZone))}"
+            }
+            if (alert.expireTimeLocal && !msg.contains(" until ")) {
+                msg += " until ${parseAlertTime(alert.expireTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.expireTimeLocalTimeZone))}"
+            }
+            alertMsg << msg
+            def detailKey = alert.detailKey
+            def TwcAlertDetail = getTwcAlertDetail(detailKey)
+            alertDescription << TwcAlertDetail.alertDetail.texts.description.join(",").replaceAll("[\\t\\n\\r&]+"," ")
+        }
+    } else {
+        // Time Stamp
+        def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+        alertMsg = "No current weather alerts for ${state.cityValue} at ${timeStamp}\nlatitude = ${state.latitude}º\nlongitude = ${state.longitude}º"
+    }
+    if(infoVerbose){log.info "Alert msg: ${alertMsg}"}
+    if(infoVerbose){log.info "Alert description: ${alertDescription}"}
+    d.sendEvent(name: "alertMessage", value: informationList(alertMsg), displayed: false)
+    d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
+}
+
+def ambientWeatherStation() {
+    // Ambient Weather Station
+    if(infoVerbose){log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' auto every: ${schedulerFreq} min(s)"}
+    def d = getChildDevice(state.deviceId)
+    def okTOSendEvent = true
+    def remoteSensorDNI = ""
+    def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
+    def nowTime = new Date().format('h:mm a',location.timeZone).toLowerCase()
+    def currentDT = new Date()
+    if (getAmbientStationData()) {
+        if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
+        if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
+        if(debugVerbose || infoVerbose) {
+            state.ambientMap[0].each{ k, v ->
+                log.info "${k} = ${v}"
+                if (k instanceof Map) {
+                    k.each { x, y ->
+                        log.info "${x} = ${y}"
+                    }
+                }
+                if (v instanceof Map) {
+                    v.each { x, y ->
+                        log.info "${x} = ${y}"
+                    }
+                }
+            }
+        }
+        if(debugVerbose){log.debug "Checking Weather Station data array for 'Last Rain Date' information..."}
+        if (state.ambientMap[0].lastData.containsKey('lastRain')) {
+            if(debugVerbose){log.debug "Weather Station has 'Last Rain Date' information...Processing"}
+            def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap.lastData.lastRain[0])
+            use (groovy.time.TimeCategory) {
+                if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
+                d.sendEvent(name:"lastRainDuration", value: currentDT - dateRain, displayed: false)
+            }
+        } else {
+            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
+            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
+        }
+        if ((state.ambientMap[0].lastData.containsKey('totalrainin')==false) || (state.ambientMap[0].lastData.containsKey('yearlyrainin')==false)) {
+            d.sendEvent(name:"totalrainin", value: "N/A", displayed: false)
+        }
+        d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+        d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress, displayed: false)
+
+        state.ambientMap.info[0].each{ k, v ->
+            if(k=='name'){k='pwsName'}
+            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
+            d.sendEvent(name: k, value: v, displayed: false)
+        }
+        state.ambientMap.lastData[0].each{ k, v ->
+            okTOSendEvent = true
+            try {
+                if( (v.isNumber()) && (v>0) && (v<0.1) ) {
+                    if(debugVerbose){log.debug "${k}: Converting number '${v}'<0.1 -> 0.1}"}
+                    v = 0.1
+                }
+            }
+            catch (e) {
+                log.error("caught exception assigning ${k} : ${v} to a value of 0.1", e)
+            }
+            switch (k) {
+                case ~/^date.*/:
+                okTOSendEvent = false
+                break
+                case 'lastRain':
+                v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)
+                break
+                case 'tempf':
+                k='temperature'
+                break
+                case 'feelsLike':
+                def scText
+                switch(true) {
+                    case {waterState=='wet'} :
+                        DecimalFormat df = new DecimalFormat("0.00")
+                    def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
+                    scText = sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime)
+                    break
+                    case { (v > state.ambientMap.lastData.tempf[0]) } :
+                        scText = sprintf("Feels like %sº at %s", v, nowTime)
+                    break
+                    case { (motionState == 'active') } :
+                        scText = sprintf("Wind is %s mph %s at %s", state.ambientMap.lastData.windspeedmph[0], winddirectionState, nowTime)
+                    break
+                    default :
+                    scText = sprintf("Humidity is %s%% at %s", state.ambientMap.lastData.humidity[0], nowTime)
+                    break
+                }
+                d.sendEvent(name: 'secondaryControl', value: scText, displayed: false )
+                break
+                case 'hourlyrainin':
+                def waterState = state.ambientMap.lastData.hourlyrainin[0]?.toFloat()>0?'wet':'dry'
+                if(debugVerbose){log.debug "water -> ${waterState}"}
+                d.sendEvent(name:'water', value: waterState)
+                break
+                case 'windspeedmph':
+                def motionState = state.ambientMap.lastData.windspeedmph[0]?.toFloat()>0?'active':'inactive'
+                if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
+                d.sendEvent(name:'motion', value: motionState)
+                break
+                case 'winddir':
+                def winddirectionState = degToCompass(state.ambientMap.lastData?.winddir[0])
+                if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
+                d.sendEvent(name:'winddirection', value: winddirectionState, displayed: false)
+                d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
+                break
+                case 'uv':
+                k='ultravioletIndex'
+                break
+                case 'yearlyrainin':
+                k='totalrainin'
+                break
+                case 'solarradiation':
+                k='illuminance'
+                v = v.toInteger()
+                if(v > 0) {
+                    switch(solarRadiationTileDisplayUnits) {
+                        case ('lux'):
+                        v = (v * 683)
+                        break
+                        case ('fc'):
+                        v = (v * 683 * 0.0929).toInteger()
+                        break
+                        default:
+                            break
+                    }
+                    d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
+                }
+                break
+                case 'windspeedmph':
+                d.sendEvent(name: "power", value: v, "unit" : "mph", displayed: false)
+                d.sendEvent(name: "energy", value: v, , "unit" : "mph", displayed: false)
+                break
+                // Weather Console Sensors
+                case 'tempinf':
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
+                if (remoteSensorDNI !=null) {
+                    if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v)
+                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+                } else {
+                    log.error "Missing ${DTHDNIRemoteSensorName()}0"
+                }
+                break
+                case 'humidityin':
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
+                if (remoteSensorDNI !=null) {
+                    if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v)
+                } else {
+                    log.error "Missing ${DTHDNIRemoteSensorName()}0"
+                }
+                break
+                // Remote Temperature & Humidity Sensors
+                case ~/^temp[0-9]f$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[4..4]}")
+                if (remoteSensorDNI !=null) {
+                    if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v)
+                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+                } else {
+                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[4..4]}}"
+                }
+                okTOSendEvent = false
+                break
+                case ~/^humidity[0-9]$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
+                if (remoteSensorDNI !=null) {
+                    if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v)
+                } else {
+                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
+                }
+                okTOSendEvent = false
+                break
+                default:
+                    break
+            }
+            if(debugVerbose){
+                if (okTOSendEvent) {
+                    log.debug "Posted ${k} with value ${v} -> ${d}"
+                } else {
+                    log.debug "SKIPPED ${k} with value ${v}"
+                }
+            }
+            if (okTOSendEvent) {
+                d.sendEvent(name: k, value: v)
+            }
+        }
+    } else {
+        if(debugVerbose){log.debug "getAmbientStationData() did not return any weather data"}
+    }
+}
+
+def getAmbientStationData() {
+	if(infoVerbose){log.info "Start: getAmbientStationData()"}
+    if( (appSettings.apiKey==null) || (appSettings.apiKey=="") ) {
+        log.error("Severre Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
+        return false
+    }
+
+    def params = [
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
+    ]
+    try {
+        httpGet(params) { resp ->
+            // get the data from the response body
+            state.ambientMap = resp.data
+            state.respStatus = resp.status
+            if (resp.status != 200) {
+                log.error "AmbientWeather.Net: response status code: ${resp.status}"
+                log.error "AmbientWeather.Net: response: ${resp.data}"
+                return false
+            }
+            state.countRemoteTempHumiditySensors =  state.ambientMap.lastData[0].keySet().count { it.matches('temp[0-9]f') }
+        }
+    } catch (e) {
+        log.warn("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
+        return false
+    }
+    if(infoVerbose){log.info "End: getAmbientStationData()"}
+    return true
 }
 
 def addAmbientChildDevice() {
@@ -293,295 +636,6 @@ def addAmbientChildDevice() {
     }
 }
 
-def refresh() {
-    main()
-}
-
-def main() {
-    log.info "SmartApp Section: Refresh"
-    def d = getChildDevice(state.deviceId)
-    def remoteSensorDNI = ""
-    def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
-    def nowTime = new Date().format('h:mm a',location.timeZone).toLowerCase()
-    def currentDT = new Date()
-
-    // Weather Underground Station Forecast
-    log.info "Executing API Weather Forecast, Sunrise, Sunset Info for zipCode: ${zipCode}"
-    // Current conditions
-    try {
-        def obs = get("conditions")?.current_observation
-        if(WUVerbose){log.info "obs --> ${obs}"}
-        if (obs) {
-            def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
-            d.sendEvent(name: "weatherIcon", value: weatherIcon, displayed: false)
-        } else {
-            log.error "Severre error retrieving current Weather API"
-        }
-    } catch (e) {
-        log.error "Error '${e}' retrieving current weather conditions"
-    }
-    // Get Age of Lunar Moon, Sunrise, Sunset info from Weather Underground
-    // Get Sunset, Sunrise from Weather Underground
-    def ltf = new java.text.SimpleDateFormat("HH:mm")
-    def tf = new java.text.SimpleDateFormat("h:mm a")
-    def a
-    try {
-        a = get("astronomy")?.moon_phase
-        if(WUVerbose){
-            log.info "get('astronomy')?.moon_phase --> ${a}"
-            log.info "ageOfMoon -> ${a.ageOfMoon}"
-        }
-        if (a) {
-            d.sendEvent(name: "moonAge", value: "${a.ageOfMoon}", displayed: false)
-            def sunriseTime = ltf.parse("${a.sunrise.hour}:${a.sunrise.minute}")
-            def sunsetTime  = ltf.parse("${a.sunset.hour}:${a.sunset.minute}")
-            def localSunrise   = "${tf.format(sunriseTime)}"
-            def localSunset    = "${tf.format(sunsetTime)}"
-            if(WUVerbose){log.info "localSunrise->${localSunrise}, localSunset-> ${localSunset}"}
-            d.sendEvent(name: "localSunrise", value: localSunrise , descriptionText: "Sunrise today is at ${localSunrise}", displayed: false)
-            d.sendEvent(name: "localSunset" , value: localSunset  , descriptionText: "Sunset today is at ${localSunset}", displayed: false)
-        }
-    } catch (e) {
-        log.error "Error '${e}' retrieving current age of the Astronomy Info Underground API: get('astronomy')?.moon_phase --> ${a}"
-    }
-
-    try {
-        // Forecast
-        def f = get("forecast")
-        if (f) {
-            if(WUVerbose){log.info "Forecast-> ${f}"}
-        } else {
-            log.error "Severre error getting WU forecast: ${f}"
-        }
-        def f1= f?.forecast?.simpleforecast?.forecastday
-        //    def f2= f?.forecast?.txt_forecast?.forecastday[0].fcttext
-        def f2= sprintf(
-            "Forecast for : %s\n%s %s, %s",
-            zipCode,
-            f?.forecast?.txt_forecast?.forecastday[0].fcttext,
-            f?.forecast?.txt_forecast?.forecastday[1].title.toLowerCase().capitalize(),
-            f?.forecast?.txt_forecast?.forecastday[1].fcttext
-        )
-        d.sendEvent(name: "weather", value: f2, descriptionText: "")
-        if (f1) {
-            if(WUVerbose){log.info "Forecastday-> ${f1}"}
-            def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
-            def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
-            d.sendEvent(name: "forecastIcon", value: icon, displayed: false)
-        }
-        else {
-            if(debugVerbose){log.warn "Error WU forecastday Forecast not found"}
-        }
-    } catch(e) {
-        log.error "Error '${e}' retrieving current forecast"
-    }
-
-    // Weather Alerts
-    checkForSevereWeather()
-
-    // Ambient Weather Station
-    log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' every: ${schedulerFreq} min(s)"
-    if (getAmbientStationData()) {
-    if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
-        if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
-        if(debugVerbose || infoVerbose) {
-            state.ambientMap[0].each{ k, v ->
-                log.info "${k} = ${v}"
-                if (k instanceof Map) {
-                    k.each { x, y ->
-                        log.info "${x} = ${y}"
-                    }
-                }
-                if (v instanceof Map) {
-                    v.each { x, y ->
-                        log.info "${x} = ${y}"
-                    }
-                }
-            }
-        }
-        if(debugVerbose){log.debug "Checking Weather Station data array for 'Last Rain Date' information..."}
-        if (state.ambientMap[0].lastData.containsKey('lastRain')) {
-            if(debugVerbose){log.debug "Weather Station has 'Last Rain Date' information...Processing"}
-            def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap.lastData.lastRain[0])
-            use (groovy.time.TimeCategory) {
-                if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
-                d.sendEvent(name:"lastRainDuration", value: currentDT - dateRain)
-            }
-        } else {
-            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
-            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
-        }
-        if ((state.ambientMap[0].lastData.containsKey('totalrainin')==false) || (state.ambientMap[0].lastData.containsKey('yearlyrainin')==false)) {
-            d.sendEvent(name:"totalrainin", value: "N/A", displayed: false)
-        }
-        d.sendEvent(name:"lastSTupdate", value: sprintf("%s Tile Updated at:\n%s","${informationList('version')}", now), displayed: false)
-        d.sendEvent(name:"macAddress", value: state.ambientMap.macAddress, displayed: false)
-
-        def waterState = state.ambientMap.lastData.hourlyrainin[0]?.toFloat()>0?'wet':'dry'
-        if(debugVerbose){log.debug "water -> ${waterState}"}
-        d.sendEvent(name:'water', value: waterState)
-
-        def motionState = state.ambientMap.lastData.windspeedmph[0]?.toFloat()>0?'active':'inactive'
-        if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
-        d.sendEvent(name:'motion', value: motionState)
-
-        def winddirectionState = degToCompass(state.ambientMap.lastData?.winddir[0])
-        if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
-        d.sendEvent(name:'winddirection', value: winddirectionState)
-        d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap.lastData.winddir[0] + "º)")
-
-        state.ambientMap.info[0].each{ k, v ->
-            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
-            d.sendEvent(name: k, value: v)
-        }
-        state.ambientMap.lastData[0].each{ k, v ->
-            if(k=='dateutc' || k=='date'){return}
-            if(k=='lastRain'){v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)}
-            if(k=='tempf'){k='temperature'}
-            if(k=='feelsLike') {
-                switch(true) {
-                    case {waterState=='wet'} :
-                    if(debugVerbose){log.debug "secondaryControl Wet"}
-                    DecimalFormat df = new DecimalFormat("0.00")
-                    def numberForRainLevel = df.format(state.ambientMap.lastData.hourlyrainin[0])
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime) )
-                    break
-                    case { (v > state.ambientMap.lastData.tempf[0]) } :
-                    if(debugVerbose){log.debug "secondaryControl FeelsLike"}
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Feels like %sº at %s", v, nowTime) )
-                    break
-                    case { (motionState == 'active') } :
-                    if(debugVerbose){log.debug "secondaryControl Wind"}
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Wind is %s mph %s at %s", state.ambientMap.lastData.windspeedmph[0], winddirectionState, nowTime) )
-                    break
-                    default :
-                    if(debugVerbose){log.debug "secondaryControl Default Humidity"}
-                    d.sendEvent(name: 'secondaryControl', value: sprintf("Humidity is %s%% at %s", state.ambientMap.lastData.humidity[0], nowTime) )
-                    break
-                }
-            }
-            try {
-                if( (v.isNumber()) && (v>0) && (v<0.1) ) {
-                    if(debugVerbose){log.debug "${k}: Converting number '${v}'<0.1 -> 0.1}"}
-                    v = 0.1
-                }
-            }
-            catch (e) {
-                log.error("caught exception assigning ${k} : ${v} to a value of 0.1", e)
-            }
-            if(k=='uv') {
-                k='ultravioletIndex'
-            }
-            if(k=='yearlyrainin') {
-                k='totalrainin'
-            }
-            if(k=='solarradiation') {
-                k='illuminance'
-                v = v.toInteger()
-                if(v > 0) {
-                    switch(solarRadiationTileDisplayUnits) {
-                        case ('lux'):
-                        v = (v * 683)
-                        break
-                        case ('fc'):
-                        v = (v * 683 * 0.0929).toInteger()
-                        break
-                        default:
-                            break
-                    }
-                    d.sendEvent(name: k, value: v, units: (solarRadiationTileDisplayUnits==null)?'W/m²':solarRadiationTileDisplayUnits)
-                }
-            }
-            if (k=='windspeedmph') {
-                d.sendEvent(name: "power", value: v, "unit" : "mph")
-                d.sendEvent(name: "energy", value: v, , "unit" : "mph")
-            }
-            // Weather Console Sensors
-            if (k=='tempinf') {
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
-                if (remoteSensorDNI !=null) {
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v)
-                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-                } else {
-                    log.error "Missing ${DTHDNIRemoteSensorName()}0"
-                }
-            }
-            if (k=='humidityin') {
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
-                if (remoteSensorDNI !=null) {
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v)
-                } else {
-                    log.error "Missing ${DTHDNIRemoteSensorName()}0"
-                }
-            }
-            // Remote Temperature & Humidity Sensors
-            if (k.matches('temp[0-9]f')) {
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[4..4]}")
-                if (remoteSensorDNI !=null) {
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v)
-                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-                } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[4..4]}}"
-                }
-                return
-            }
-            if (k.matches('humidity[0-9]')) {
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
-                if (remoteSensorDNI !=null) {
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v)
-                } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
-                }
-                return
-            }
-            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
-            d.sendEvent(name: k, value: v)
-        }
-    } else {
-        if(debugVerbose){log.debug "getAmbientStationData() did not return any weather data"}
-    }
-}
-
-def logdata(name) {
-    log.debug "${name}"
-    return
-}
-
-def get(feature) {
-    if(debugVerbose){log.debug "get feature->${feature}, zipCode->${zipCode}"}
-    getWeatherFeature(feature, "${zipCode}")
-}
-
-def getAmbientStationData() {
-	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if( (appSettings.apiKey==null) || (appSettings.apiKey=="") ) {
-        log.error("Severre Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
-        return false
-    }
-
-    def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
-    ]
-    try {
-        httpGet(params) { resp ->
-            // get the data from the response body
-            state.ambientMap = resp.data
-            state.respStatus = resp.status
-            if (resp.status != 200) {
-                log.error "AmbientWeather.Net: response status code: ${resp.status}"
-                log.error "AmbientWeather.Net: response: ${resp.data}"
-                return false
-            }
-            state.countRemoteTempHumiditySensors =  state.ambientMap.lastData[0].keySet().count { it.matches('temp[0-9]f') }
-        }
-    } catch (e) {
-        log.warn("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
-        return false
-    }
-    if(infoVerbose){log.info "End: getAmbientStationData()"}
-    return true
-}
-
 def degToCompass(num) {
     def val = Math.floor((num.toFloat() / 22.5) + 0.5).toInteger()
     def arr = ["N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"]
@@ -632,51 +686,15 @@ def setScheduler(schedulerFreq) {
     }
 }
 
-def checkForSevereWeather() {
-    if(infoVerbose){log.info "Section: checkForSevereWeather()"}
-    def alerts = get("alerts")?.alerts
-    def alertCountMsg = "${alerts?.size()} current weather alert(s) for ${zipCode}"
-    if(debugVerbose){log.debug "WUSTATION:  ${alertCountMsg}"}
-    def d = getChildDevice(state.deviceId)
-    if(WUVerbose){log.info "WUSTATION: alerts = ${alerts}"}
-
-    if (alerts==[]){
-        d.sendEvent(name: "alertMessage", value: "", displayed: false)
-        d.sendEvent(name: "alertDescription", value: "${alertCountMsg}", displayed: false)
-    } else {
-        def alertKeys = alerts?.collect{it.type + it.date_epoch} ?: []
-        def alertMsg = ""
-        def alertDesc = []
-        def alertNL = ""
-        alerts.each {alert ->
-            alertDesc << "${alert.description}"
-            alertMsg += "${alert.message.replaceAll("[\n\r]", "")}${alertNL}"
-            alertNL=",\n"
-        }
-        if(debugVerbose){
-            log.debug "WUSTATION: alertMsg = ${alertMsg}"
-            log.debug "WUSTATION: alertDesc = ${alertDesc}"
-        }
-        d.sendEvent(name: "alertDescription", value: alertDesc, descriptionText: "")
-        d.sendEvent(name: "alertMessage", value: alertMsg, descriptionText: "")
-    }
-}
-
 def tileLastUpdated() {
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
-    return sprintf("%s Tile Last Updated at:\n%s","${informationList('version')}", now)
+    return sprintf("%s Tile Last Updated at:\n%s","${version()}", now)
 }
-def informationList(listName) {
-    def textList = []
-    switch(listName) {
-        case ("version"):
-        return "V3.0.2"
-        case ('date'):
-        return  "Jan-07-2019"
-        break
+def informationList(variable) {
+    switch(variable) {
         case ("apiHelp") :
         // Help Text for API Key
-        textList =  [
+        variable =  [
             "You MUST enter your Ambient Weather API key in the ${appName()} SmartApp Settings section.",
             "Visit your Ambient Weather Dashboards's Account page.",
             "Create/Copy your API key from the bottom of the page",
@@ -690,13 +708,21 @@ def informationList(listName) {
         ]
         break
         default:
-            return
-        break
+            break
     }
-    def numberedText = ""
-    textList.eachWithIndex { item, index ->
-        numberedText += "${index+1}. ${item}"
-        numberedText += (index<textList.size()-1)?"\n":''
+    if (variable instanceof List) {
+        def numberedText = ""
+        variable.eachWithIndex { item, index ->
+            numberedText += "${index+1}. ${item}"
+            numberedText += (index<variable.size()-1)?"\n":''
+        }
+        return numberedText
     }
-    return numberedText
+    return variable
+}
+
+def parseAlertTime(s) {
+    def dtf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+    def s2 = s.replaceAll(/([0-9][0-9]):([0-9][0-9])$/,'$1$2')
+    dtf.parse(s2)
 }

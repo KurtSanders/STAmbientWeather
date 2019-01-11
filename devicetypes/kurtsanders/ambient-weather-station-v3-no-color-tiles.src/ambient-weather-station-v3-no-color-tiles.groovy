@@ -14,12 +14,10 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2019-01-05
+*  Date: 2018-12-30
 */
 // Start Version Information
-def version() {
-    return ["V3.0", "Requires Ambient WS Service Manager App V3"]
-}
+def version() { return ["V3.0", "Requires Ambient WS Service Manager App V3"] }
 // End Version Information
 metadata {
     definition (name: "Ambient Weather Station V3 No Color Tiles", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
@@ -56,7 +54,7 @@ metadata {
         attribute "macAddress", "string"
         attribute "maxdailygust", "string"
         attribute "monthlyrainin", "string"
-        attribute "name", "string"
+        attribute "pwsName", "string"
         attribute "temperature", "string"
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
@@ -66,7 +64,11 @@ metadata {
         attribute "windgustmph", "string"
         attribute "windspeedmph", "string"
         // End of Ambient Weather API Rest MAP
+
+        // Weather Forecast & Misc attributes
         attribute "moonAge", "number"
+        attribute "rainForecast", "string"
+        attribute "windPhrase", "string"
         attribute "lastSTupdate", "string"
         attribute "localSunrise", "string"
         attribute "localSunset", "string"
@@ -104,55 +106,61 @@ metadata {
     valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Inside Temp\n${currentValue}°'
     }
-    standardTile("weatherIcon", "device.weatherIcon", width: 2, height: 2, decoration: "flat") {
-        state "chanceflurries", icon:"st.custom.wu1.chanceflurries", label: ""
-        state "chancerain", icon:"st.custom.wu1.chancerain", label: ""
-        state "chancesleet", icon:"st.custom.wu1.chancesleet", label: ""
-        state "chancesnow", icon:"st.custom.wu1.chancesnow", label: ""
-        state "chancetstorms", icon:"st.custom.wu1.chancetstorms", label: ""
-        state "clear", icon:"st.custom.wu1.clear", label: ""
-        state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
-        state "flurries", icon:"st.custom.wu1.flurries", label: ""
-        state "fog", icon:"st.custom.wu1.fog", label: ""
-        state "hazy", icon:"st.custom.wu1.hazy", label: ""
-        state "mostlycloudy", icon:"st.custom.wu1.mostlycloudy", label: ""
-        state "mostlysunny", icon:"st.custom.wu1.mostlysunny", label: ""
-        state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
-        state "partlysunny", icon:"st.custom.wu1.partlysunny", label: ""
-        state "rain", icon:"st.custom.wu1.rain", label: ""
-        state "sleet", icon:"st.custom.wu1.sleet", label: ""
-        state "snow", icon:"st.custom.wu1.snow", label: ""
-        state "sunny", icon:"st.custom.wu1.sunny", label: ""
-        state "tstorms", icon:"st.custom.wu1.tstorms", label: ""
-        state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
-        state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
-        state "nt_chanceflurries", icon:"st.custom.wu1.nt_chanceflurries", label: ""
-        state "nt_chancerain", icon:"st.custom.wu1.nt_chancerain", label: ""
-        state "nt_chancesleet", icon:"st.custom.wu1.nt_chancesleet", label: ""
-        state "nt_chancesnow", icon:"st.custom.wu1.nt_chancesnow", label: ""
-        state "nt_chancetstorms", icon:"st.custom.wu1.nt_chancetstorms", label: ""
-        state "nt_clear", icon:"st.custom.wu1.nt_clear", label: ""
-        state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
-        state "nt_flurries", icon:"st.custom.wu1.nt_flurries", label: ""
-        state "nt_fog", icon:"st.custom.wu1.nt_fog", label: ""
-        state "nt_hazy", icon:"st.custom.wu1.nt_hazy", label: ""
-        state "nt_mostlycloudy", icon:"st.custom.wu1.nt_mostlycloudy", label: ""
-        state "nt_mostlysunny", icon:"st.custom.wu1.nt_mostlysunny", label: ""
-        state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
-        state "nt_partlysunny", icon:"st.custom.wu1.nt_partlysunny", label: ""
-        state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
-        state "nt_rain", icon:"st.custom.wu1.nt_rain", label: ""
-        state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
-        state "nt_snow", icon:"st.custom.wu1.nt_snow", label: ""
-        state "nt_sunny", icon:"st.custom.wu1.nt_sunny", label: ""
-        state "nt_tstorms", icon:"st.custom.wu1.nt_tstorms", label: ""
-        state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
-        state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
+    standardTile("weatherIcon", "device.weatherIcon", decoration: "flat", height: 2, width: 2) {
+        state "00", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
+        state "01", icon:"https://smartthings-twc-icons.s3.amazonaws.com/01.png", label: ""
+        state "02", icon:"https://smartthings-twc-icons.s3.amazonaws.com/02.png", label: ""
+        state "03", icon:"https://smartthings-twc-icons.s3.amazonaws.com/03.png", label: ""
+        state "04", icon:"https://smartthings-twc-icons.s3.amazonaws.com/04.png", label: ""
+        state "05", icon:"https://smartthings-twc-icons.s3.amazonaws.com/05.png", label: ""
+        state "06", icon:"https://smartthings-twc-icons.s3.amazonaws.com/06.png", label: ""
+        state "07", icon:"https://smartthings-twc-icons.s3.amazonaws.com/07.png", label: ""
+        state "08", icon:"https://smartthings-twc-icons.s3.amazonaws.com/08.png", label: ""
+        state "09", icon:"https://smartthings-twc-icons.s3.amazonaws.com/09.png", label: ""
+        state "10", icon:"https://smartthings-twc-icons.s3.amazonaws.com/10.png", label: ""
+        state "11", icon:"https://smartthings-twc-icons.s3.amazonaws.com/11.png", label: ""
+        state "12", icon:"https://smartthings-twc-icons.s3.amazonaws.com/12.png", label: ""
+        state "13", icon:"https://smartthings-twc-icons.s3.amazonaws.com/13.png", label: ""
+        state "14", icon:"https://smartthings-twc-icons.s3.amazonaws.com/14.png", label: ""
+        state "15", icon:"https://smartthings-twc-icons.s3.amazonaws.com/15.png", label: ""
+        state "16", icon:"https://smartthings-twc-icons.s3.amazonaws.com/16.png", label: ""
+        state "17", icon:"https://smartthings-twc-icons.s3.amazonaws.com/17.png", label: ""
+        state "18", icon:"https://smartthings-twc-icons.s3.amazonaws.com/18.png", label: ""
+        state "19", icon:"https://smartthings-twc-icons.s3.amazonaws.com/19.png", label: ""
+        state "20", icon:"https://smartthings-twc-icons.s3.amazonaws.com/20.png", label: ""
+        state "21", icon:"https://smartthings-twc-icons.s3.amazonaws.com/21.png", label: ""
+        state "22", icon:"https://smartthings-twc-icons.s3.amazonaws.com/22.png", label: ""
+        state "23", icon:"https://smartthings-twc-icons.s3.amazonaws.com/23.png", label: ""
+        state "24", icon:"https://smartthings-twc-icons.s3.amazonaws.com/24.png", label: ""
+        state "25", icon:"https://smartthings-twc-icons.s3.amazonaws.com/25.png", label: ""
+        state "26", icon:"https://smartthings-twc-icons.s3.amazonaws.com/26.png", label: ""
+        state "27", icon:"https://smartthings-twc-icons.s3.amazonaws.com/27.png", label: ""
+        state "28", icon:"https://smartthings-twc-icons.s3.amazonaws.com/28.png", label: ""
+        state "29", icon:"https://smartthings-twc-icons.s3.amazonaws.com/29.png", label: ""
+        state "30", icon:"https://smartthings-twc-icons.s3.amazonaws.com/30.png", label: ""
+        state "31", icon:"https://smartthings-twc-icons.s3.amazonaws.com/31.png", label: ""
+        state "32", icon:"https://smartthings-twc-icons.s3.amazonaws.com/32.png", label: ""
+        state "33", icon:"https://smartthings-twc-icons.s3.amazonaws.com/33.png", label: ""
+        state "34", icon:"https://smartthings-twc-icons.s3.amazonaws.com/34.png", label: ""
+        state "35", icon:"https://smartthings-twc-icons.s3.amazonaws.com/35.png", label: ""
+        state "36", icon:"https://smartthings-twc-icons.s3.amazonaws.com/36.png", label: ""
+        state "37", icon:"https://smartthings-twc-icons.s3.amazonaws.com/37.png", label: ""
+        state "38", icon:"https://smartthings-twc-icons.s3.amazonaws.com/38.png", label: ""
+        state "39", icon:"https://smartthings-twc-icons.s3.amazonaws.com/39.png", label: ""
+        state "40", icon:"https://smartthings-twc-icons.s3.amazonaws.com/40.png", label: ""
+        state "41", icon:"https://smartthings-twc-icons.s3.amazonaws.com/41.png", label: ""
+        state "42", icon:"https://smartthings-twc-icons.s3.amazonaws.com/42.png", label: ""
+        state "43", icon:"https://smartthings-twc-icons.s3.amazonaws.com/43.png", label: ""
+        state "44", icon:"https://smartthings-twc-icons.s3.amazonaws.com/44.png", label: ""
+        state "45", icon:"https://smartthings-twc-icons.s3.amazonaws.com/45.png", label: ""
+        state "46", icon:"https://smartthings-twc-icons.s3.amazonaws.com/46.png", label: ""
+        state "47", icon:"https://smartthings-twc-icons.s3.amazonaws.com/47.png", label: ""
+        state "na", icon:"https://smartthings-twc-icons.s3.amazonaws.com/na.png", label: ""
     }
-    valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
+    valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 6, height: 6, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
-    valueTile("alertMessage", "device.alertMessage", inactiveLabel: false, width: 6, height: 3, decoration: "flat", wordWrap: true) {
+    valueTile("alertMessage", "device.alertMessage", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
     valueTile("weather", "device.weather", inactiveLabel: false, width: 6, height: 3, decoration: "flat", wordWrap: true) {
@@ -177,10 +185,13 @@ metadata {
         state "default", label:'Abs Pres\n${currentValue} in'
     }
     valueTile("location", "device.location", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Location\n${currentValue}'
+        state "default", label:'PWS Location\n${currentValue}'
     }
-    valueTile("name", "device.name", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("pwsName", "device.pwsName", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'PWS Name\n${currentValue}'
+    }
+    valueTile("moonPhase", "device.moonPhase", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
     }
     valueTile("humidity", "device.humidity", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Humidity\n${currentValue}%'
@@ -234,55 +245,55 @@ metadata {
     }
     standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 2, height: 2, decoration: "flat", wordWrap: true) {
         state "default",    label: 'Age of Moon: ${currentValue}'
-        state "0",        	label: '${currentValue}', icon: getMoonIcon('0')
-        state "1",        	label: '${currentValue}', icon: getMoonIcon('1')
-        state "2",        	label: '${currentValue}', icon: getMoonIcon('2')
-        state "3",        	label: '${currentValue}', icon: getMoonIcon('3')
-        state "4",        	label: '${currentValue}', icon: getMoonIcon('4')
-        state "5",        	label: '${currentValue}', icon: getMoonIcon('5')
-        state "6",        	label: '${currentValue}', icon: getMoonIcon('6')
-        state "7",        	label: '${currentValue}', icon: getMoonIcon('7')
-        state "8",        	label: '${currentValue}', icon: getMoonIcon('8')
-        state "9",        	label: '${currentValue}', icon: getMoonIcon('9')
-        state "10",        	label: '${currentValue}', icon: getMoonIcon('10')
-        state "11",        	label: '${currentValue}', icon: getMoonIcon('11')
-        state "12",        	label: '${currentValue}', icon: getMoonIcon('12')
-        state "13",        	label: '${currentValue}', icon: getMoonIcon('13')
-        state "14",        	label: '${currentValue}', icon: getMoonIcon('14')
-        state "15",        	label: '${currentValue}', icon: getMoonIcon('15')
-        state "16",        	label: '${currentValue}', icon: getMoonIcon('16')
-        state "17",        	label: '${currentValue}', icon: getMoonIcon('17')
-        state "18",        	label: '${currentValue}', icon: getMoonIcon('18')
-        state "19",        	label: '${currentValue}', icon: getMoonIcon('19')
-        state "20",        	label: '${currentValue}', icon: getMoonIcon('20')
-        state "21",        	label: '${currentValue}', icon: getMoonIcon('21')
-        state "22",        	label: '${currentValue}', icon: getMoonIcon('22')
-        state "23",        	label: '${currentValue}', icon: getMoonIcon('23')
-        state "24",        	label: '${currentValue}', icon: getMoonIcon('24')
-        state "25",        	label: '${currentValue}', icon: getMoonIcon('25')
-        state "26",        	label: '${currentValue}', icon: getMoonIcon('26')
-        state "27",        	label: '${currentValue}', icon: getMoonIcon('27')
-        state "28",        	label: '${currentValue}', icon: getMoonIcon('28')
-        state "29",        	label: '${currentValue}', icon: getMoonIcon('29')
+        state "0",        	label: '', icon: getMoonIcon('0')
+        state "1",        	label: '', icon: getMoonIcon('1')
+        state "2",        	label: '', icon: getMoonIcon('2')
+        state "3",        	label: '', icon: getMoonIcon('3')
+        state "4",        	label: '', icon: getMoonIcon('4')
+        state "5",        	label: '', icon: getMoonIcon('5')
+        state "6",        	label: '', icon: getMoonIcon('6')
+        state "7",        	label: '', icon: getMoonIcon('7')
+        state "8",        	label: '', icon: getMoonIcon('8')
+        state "9",        	label: '', icon: getMoonIcon('9')
+        state "10",        	label: '', icon: getMoonIcon('10')
+        state "11",        	label: '', icon: getMoonIcon('11')
+        state "12",        	label: '', icon: getMoonIcon('12')
+        state "13",        	label: '', icon: getMoonIcon('13')
+        state "14",        	label: '', icon: getMoonIcon('14')
+        state "15",        	label: '', icon: getMoonIcon('15')
+        state "16",        	label: '', icon: getMoonIcon('16')
+        state "17",        	label: '', icon: getMoonIcon('17')
+        state "18",        	label: '', icon: getMoonIcon('18')
+        state "19",        	label: '', icon: getMoonIcon('19')
+        state "20",        	label: '', icon: getMoonIcon('20')
+        state "21",        	label: '', icon: getMoonIcon('21')
+        state "22",        	label: '', icon: getMoonIcon('22')
+        state "23",        	label: '', icon: getMoonIcon('23')
+        state "24",        	label: '', icon: getMoonIcon('24')
+        state "25",        	label: '', icon: getMoonIcon('25')
+        state "26",        	label: '', icon: getMoonIcon('26')
+        state "27",        	label: '', icon: getMoonIcon('27')
+        state "28",        	label: '', icon: getMoonIcon('28')
+        state "29",        	label: '', icon: getMoonIcon('29')
     }
     standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default",    label: '${currentValue}'
-        state "N",        	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
-        state "North NE", 	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up.png'
-        state "NE",   		label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
-        state "East NE",   	label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
-        state "E",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-right.png'
-        state "East SE",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-right.png'
-        state "SE",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-right.png'
-        state "South SE",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-right.png'
-        state "S",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down.png'
-        state "South SW",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down.png'
-        state "SW",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-left.png'
-        state "West SW",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-down-left.png'
-        state "W",          label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-left.png'
-        state "West NW",    label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-left.png'
-        state "NW",         label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
-        state "North NW",   label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-direction-up-left.png'
+        state "N",        	label: '', icon: getWindIcon('wi-direction-up')
+        state "North NE", 	label: '', icon: getWindIcon('wi-direction-up')
+        state "NE",   		label: '', icon: getWindIcon('wi-direction-up-left')
+        state "East NE",   	label: '', icon: getWindIcon('wi-direction-up-left')
+        state "E",          label: '', icon: getWindIcon('wi-direction-right')
+        state "East SE",    label: '', icon: getWindIcon('wi-direction-right')
+        state "SE",         label: '', icon: getWindIcon('wi-direction-down-right')
+        state "South SE",   label: '', icon: getWindIcon('wi-direction-down-right')
+        state "S",          label: '', icon: getWindIcon('wi-direction-down')
+        state "South SW",   label: '', icon: getWindIcon('wi-direction-down')
+        state "SW",         label: '', icon: getWindIcon('wi-direction-down-left')
+        state "West SW",    label: '', icon: getWindIcon('wi-direction-down-left')
+        state "W",          label: '', icon: getWindIcon('wi-direction-left')
+        state "West NW",    label: '', icon: getWindIcon('wi-direction-left')
+        state "NW",         label: '', icon: getWindIcon('wi-direction-up-left')
+        state "North NW",   label: '', icon: getWindIcon('wi-direction-up-left')
     }
     valueTile("windspeedmph", "device.windspeedmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Wind Speed\n${currentValue} mph'
@@ -296,8 +307,14 @@ metadata {
     valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
-    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Run Every\n${currentValue} mins'
+    valueTile("rainForecast", "device.rainForecast", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: '${currentValue}'
+    }
+    valueTile("windPhrase", "device.windPhrase", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: '${currentValue}'
+    }
+    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Refresh\n${currentValue} mins', action: "refresh"
     }
     valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: '${currentValue}')
@@ -324,29 +341,30 @@ metadata {
             "monthlyrainin",
             "lastRain",
             "lastRainDuration",
+            "solarradiation",
             "totalrainin",
-            "winddir2",
             "winddirection",
             "windspeedmph",
             "motion",
+            "winddir2",
             "windgustmph",
+            "dewPoint",
             "baromrelin",
             "baromabsin",
             "humidity",
-            "dewPoint",
-            "solarradiation",
             "ultravioletIndex",
             "rise",
             "set",
             "moonAge",
-            "name",
+            "moonPhase",
             "location",
-            "scheduleFreqMin",
+            "rainForecast",
+            "windPhrase",
             "lastSTupdate",
+            "scheduleFreqMin",
             "weather",
-            "alertDescription",
-            "refresh",
-            "alertMessage"
+            "alertMessage",
+            "alertDescription"
         ]
     )
 }
@@ -357,11 +375,12 @@ def installed() {
 def updated() {
 }
 
-def uninstalled() {
-}
-
 def refresh() {
     parent.refresh()
+}
+
+def getWindIcon(image) {
+    return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/${image}.png"
 }
 
 def getMoonIcon(imgNumber) {
