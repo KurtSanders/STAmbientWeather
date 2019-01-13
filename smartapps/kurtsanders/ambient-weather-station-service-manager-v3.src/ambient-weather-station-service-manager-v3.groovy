@@ -14,16 +14,17 @@
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2019-01-09
+*  Date: 2019-01-13
 */
 import groovy.time.*
 import java.text.DecimalFormat
+import groovy.time.TimeCategory
 
 String DTHDNI() 				{ return "MyAmbientWeatherStationV3" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appName() 				{ return "Ambient Weather Station Service Manager V3.03" }
-String version()				{ return "V3.0.3" }
-String appModified()			{ return "Jan-09-2019"}
+String appName() 				{ return "Ambient Weather Station Service Manager V3.04" }
+String version()				{ return "V3.0.4" }
+String appModified()			{ return "Jan-13-2019"}
 
 String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
@@ -39,7 +40,7 @@ definition(
     name: 			"Ambient Weather Station Service Manager V3",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"Ambient Personal Weather Station Service Manager V303",
+    description: 	"Ambient Personal Weather Station Service Manager V304",
     category: 		"My Apps",
     iconUrl:   		getAppImg("blue-ball.jpg"),
     iconX2Url: 		getAppImg("blue-ball.jpg"),
@@ -193,6 +194,8 @@ def remoteSensorPage() {
 
 def initialize() {
     if(infoVerbose){log.info "initialize Section: Start"}
+    unsubscribe()
+    subscribe(app, appTouchHandler)
     if(infoVerbose){
         log.info "Ambient API string-> ${appSettings?.apiKey}"
         log.info "The location zip code for your Hub Location is '${location.zipCode}' and your preference zipCode value is '${zipCode}'"
@@ -208,9 +211,10 @@ def initialize() {
     addAmbientChildDevice()
 	// Set user defined refresh rate
     if(state.schedulerFreq!=schedulerFreq) {
+        log.info "Updating your Cron REFRESH schedule from ${state.schedulerFreq} mins to ${schedulerFreq} mins"
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
-        setScheduler(state.schedulerFreq)
+        setScheduler(schedulerFreq)
         def d = getChildDevice(state.deviceId)
         d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
     }
@@ -242,12 +246,42 @@ def uninstalled() {
     if(infoVerbose){log.info "Section Ended: Uninstalled"}
 }
 
-def refresh() {
+def scheduleCheckReset() {
+    if (schedulerFreq!='0'){
+        Date start = new Date()
+        Date end = new Date()
+        use( TimeCategory ) {
+            end = start + schedulerFreq.toInteger().minutes
+        }
+        setScheduler(schedulerFreq)
+        log.info "Reset the next CRON Refresh to ~${schedulerFreq} mins from now (${end.format("h:mm:ss a", location.timeZone)}) to avoid excessive HTTP requests"
+    }  
+}
+
+def appTouchHandler(evt="") {
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
+    scheduleCheckReset()
+    main()
+}
+
+def refresh(evt="") {
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    log.info "Device: 'Refresh ALL' at ${timeStamp}"
+    scheduleCheckReset()
+    main()
+}
+
+def autoScheduleHandler() {
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    log.info "Executing Cron Schedule every ${schedulerFreq} min(s): 'Refresh ALL' at ${timeStamp}"
     main()
 }
 
 def main() {
-    log.info "SmartApp Section: Refresh"
+    def ranNum = new Random().nextInt(10000)
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    log.info "Main() Section: Executing Local Weather for ${zipCode} & Ambient Weather Station API's at ${timeStamp} (ID: ${ranNum}) for: '${state?.ambientMap?.info?.name[0]}'"
 
     // Ambient Weather Station API
     ambientWeatherStation()
@@ -257,7 +291,6 @@ def main() {
 
     // TWC Local Weather Alerts
     checkForSevereWeather()
-
 }
 
 def localWeatherInfo() {
@@ -439,8 +472,8 @@ def ambientWeatherStation() {
                     case { (v > state.ambientMap.lastData.tempf[0]) } :
                         scText = sprintf("Feels like %sº at %s", v, nowTime)
                     break
-                    case { (motionState == 'active') } :
-                        scText = sprintf("Wind is %s mph %s at %s", state.ambientMap.lastData.windspeedmph[0], winddirectionState, nowTime)
+                    case { ((state?.ambientMap?.lastData?.windspeedmph[0]) && (state?.ambientMap?.lastData?.windspeedmph[0]?.toFloat()>0)) } :
+                        scText = sprintf("Wind is %s mph %s at %s", state.ambientMap.lastData.windspeedmph[0], degToCompass(state.ambientMap.lastData?.winddir[0]), nowTime)
                     break
                     default :
                     scText = sprintf("Humidity is %s%% at %s", state.ambientMap.lastData.humidity[0], nowTime)
@@ -454,7 +487,7 @@ def ambientWeatherStation() {
                 d.sendEvent(name:'water', value: waterState)
                 break
                 case 'windspeedmph':
-                def motionState = state.ambientMap.lastData.windspeedmph[0]?.toFloat()>0?'active':'inactive'
+                def motionState = state?.ambientMap?.lastData?.windspeedmph[0]?.toFloat()>0?'active':'inactive'
                 if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
                 d.sendEvent(name:'motion', value: motionState)
                 break
@@ -494,7 +527,7 @@ def ambientWeatherStation() {
                 // Weather Console Sensors
                 case 'tempinf':
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
-                if (remoteSensorDNI !=null) {
+                if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "temperature", value: v)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
@@ -504,7 +537,7 @@ def ambientWeatherStation() {
                 break
                 case 'humidityin':
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
-                if (remoteSensorDNI !=null) {
+                if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "humidity", value: v)
                 } else {
@@ -514,7 +547,7 @@ def ambientWeatherStation() {
                 // Remote Temperature & Humidity Sensors
                 case ~/^temp[0-9]f$/:
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[4..4]}")
-                if (remoteSensorDNI !=null) {
+                if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "temperature", value: v)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
@@ -525,7 +558,7 @@ def ambientWeatherStation() {
                 break
                 case ~/^humidity[0-9]$/:
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
-                if (remoteSensorDNI !=null) {
+                if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "humidity", value: v)
                 } else {
@@ -554,7 +587,7 @@ def ambientWeatherStation() {
 
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if( (appSettings.apiKey==null) || (appSettings.apiKey=="") ) {
+    if(appSettings.apiKey==null){
         log.error("Severre Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
         return false
     }
@@ -573,9 +606,15 @@ def getAmbientStationData() {
                 return false
             }
             state.countRemoteTempHumiditySensors =  state.ambientMap.lastData[0].keySet().count { it.matches('temp[0-9]f') }
+            state.retry = 0
         }
     } catch (e) {
-        log.warn("getAmbientStationData() Try/Catch Error: Unable to get the Ambient Station Data, Error: $e")
+        log.warn("Ambient Weather Station API Data: ${e}") 
+        state.retry = state.retry.toInteger() + 1
+        if (state.retry.toInteger()<3) { 
+            log.warn("Waiting 10 seconds to Try Again: Attempt #${state.retry}")
+            runIn(10, ambientWeatherStation)
+        }
         return false
     }
     if(infoVerbose){log.info "End: getAmbientStationData()"}
@@ -596,7 +635,7 @@ def addAmbientChildDevice() {
         }
         log.info "Added ${AWSName} with DNI: ${DTHDNI()}"
     } else {
-        log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"
+        if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"}
     }
     // add Ambient Weather Remote Sensor Device(s)
     def remoteSensorNamePref
@@ -618,9 +657,11 @@ def addAmbientChildDevice() {
                     }
                     log.info "Added Ambient Remote Sensor: ${remoteSensorNamePref} with DNI: ${key}"
                 } else {
-                    log.info "Verified Remote Sensor #${remoteSensorNumber} of ${state.countRemoteTempHumiditySensors} Exists: ${remoteSensorNamePref} = DNI: ${key}"
+                    if(infoVerbose){log.info "Verified Remote Sensor #${remoteSensorNumber} of ${state.countRemoteTempHumiditySensors} Exists: ${remoteSensorNamePref} = DNI: ${key}"}
                     if ( (remoteSensorNameDNI.label == remoteSensorNamePref) && (remoteSensorNameDNI.name == remoteSensorNamePref) ) {
-                        log.info "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
+                        if(infoVerbose){
+                            log.info "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
+                        }
                     } else {
                         log.error "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
                         remoteSensorNameDNI.label = remoteSensorNamePref
@@ -644,45 +685,46 @@ def degToCompass(num) {
 
 def setScheduler(schedulerFreq) {
     if(infoVerbose){log.info "Section: setScheduler(${schedulerFreq})"}
-    unschedule()
-    if(debugVerbose){log.debug "Refresh Rate is now -> ${schedulerFreq}"}
+    def scheduleHandler = 'autoScheduleHandler'
+    unschedule(scheduleHandler)
+    if(infoVerbose){log.info "Auto Schedule Refresh Rate is now -> ${schedulerFreq} mins"}
     switch(schedulerFreq) {
         case '0':
-        unschedule()
+        log.info "Auto Schedule Refresh Rate is now: OFF"
         break
         case '1':
-        runEvery1Minute(refresh)
+        runEvery1Minute(scheduleHandler)
         break
         case '2':
-        schedule("20 0/2 * * * ?",refresh)
+        schedule("20 0/2 * * * ?",scheduleHandler)
         break
         case '3':
-        schedule("20 0/3 * * * ?",refresh)
+        schedule("20 0/3 * * * ?",scheduleHandler)
         break
         case '4':
-        schedule("20 0/4 * * * ?",refresh)
+        schedule("20 0/4 * * * ?",scheduleHandler)
         break
         case '5':
-        runEvery5Minutes(refresh)
+        runEvery5Minutes(scheduleHandler)
         break
         case '10':
-        runEvery10Minutes(refresh)
+        runEvery10Minutes(scheduleHandler)
         break
         case '15':
-        runEvery15Minutes(refresh)
+        runEvery15Minutes(scheduleHandler)
         break
         case '30':
-        runEvery30Minutes(refresh)
+        runEvery30Minutes(scheduleHandler)
         break
         case '60':
-        runEvery1Hour(refresh)
+        runEvery1Hour(scheduleHandler)
         break
         case '180':
-        runEvery3Hours(refresh)
+        runEvery3Hours(scheduleHandler)
         break
         default :
-        if(debugVerbose){log.error "Unknown Schedule Frequency Value ${schedulerFreq}"}
         unschedule()
+        break
     }
 }
 
