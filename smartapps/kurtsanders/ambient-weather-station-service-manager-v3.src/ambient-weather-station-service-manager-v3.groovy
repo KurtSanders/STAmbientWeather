@@ -1,4 +1,4 @@
-/**
+/*
 *  Copyright 2019 SanderSoft
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -10,40 +10,42 @@
 *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
 *  for the specific language governing permissions and limitations under the License.
 *
-*  Ambient Weather Station V3.03
+*  Ambient Weather Station
 *
 *  Author: Kurt Sanders
 *
-*  Date: 2019-01-13
+*  Date: 2019-01-15
 */
 import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 String DTHDNI() 				{ return "MyAmbientWeatherStationV3" }
+String DTHDNIActionTiles() 		{ return "MyAmbientWeatherActionTiles" }
 String DTHDNIRemoteSensorName() { return "remoteTempfHumiditySensorName"}
-String appName() 				{ return "Ambient Weather Station Service Manager V3.04" }
-String version()				{ return "V3.0.4" }
-String appModified()			{ return "Jan-13-2019"}
+String version()				{ return "V3.0.5" }
+String appModified()			{ return "Jan-15-2019"}
+String appName() 				{ return "Ambient Weather Station Service Manager ${version()}" }
 
 String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station V3" }
+String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor V3"}
 String appAuthor()	 			{ return "SanderSoft" }
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
-// ========================================================================================
+// ============================================================================================================
 // This APP key is ONLY for this application - Do not copy or use elsewhere
-String appKey() {return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
-// ========================================================================================
+String appKey() 				{return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
+// ============================================================================================================
 
 definition(
     name: 			"Ambient Weather Station Service Manager V3",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"Ambient Personal Weather Station Service Manager V304",
+    description: 	"Ambient Personal Weather Station Service Manager ${version()}",
     category: 		"My Apps",
-    iconUrl:   		getAppImg("blue-ball.jpg"),
-    iconX2Url: 		getAppImg("blue-ball.jpg"),
+    iconUrl:   		getAppImg("blue-ball-100.jpg"),
+    iconX2Url: 		getAppImg("blue-ball-200.jpg"),
     iconX3Url: 		getAppImg("blue-ball.jpg"),
     singleInstance: true
 )
@@ -104,7 +106,7 @@ def mainPage() {
         }
         if (apiappSetupCompleteBool && getAmbientStationDataRC) {
             section ("Ambient Weather Station Information") {
-                paragraph image: getAppImg("blue-ball.jpg"),
+                paragraph image: getAppImg("blue-ball-100.jpg"),
                     title: "${state?.ambientMap?.info.name[0]}",
                     required: false,
                     "Location: ${state?.ambientMap.info.location[0]}" +
@@ -139,6 +141,9 @@ def optionsPage () {
             input "${DTHDNIRemoteSensorName()}0", type: "text",
                 title: "Weather Station Console Room Location Short Name",
                 required: true
+            input name: "createActionTileDevice", type: "bool",
+                title: "Create ${DTHNameActionTiles()} for use as ActionTiles™ Weather Tile?",
+                required: false
             paragraph "Background Color Option for Displaying Values"
             paragraph image: getAppImg("No-Color-Option.jpg"),
                 title: "Initial ANDROID Install Setup Choice",
@@ -255,7 +260,7 @@ def scheduleCheckReset() {
         }
         setScheduler(schedulerFreq)
         log.info "Reset the next CRON Refresh to ~${schedulerFreq} mins from now (${end.format("h:mm:ss a", location.timeZone)}) to avoid excessive HTTP requests"
-    }  
+    }
 }
 
 def appTouchHandler(evt="") {
@@ -265,23 +270,25 @@ def appTouchHandler(evt="") {
     main()
 }
 
-def refresh(evt="") {
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    log.info "Device: 'Refresh ALL' at ${timeStamp}"
+def refresh() {
+    log.info "Device: 'Refresh ALL'"
     scheduleCheckReset()
     main()
 }
 
 def autoScheduleHandler() {
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    log.info "Executing Cron Schedule every ${schedulerFreq} min(s): 'Refresh ALL' at ${timeStamp}"
+    log.info "Executing Cron Schedule every ${schedulerFreq} min(s): 'Refresh ALL'"
     main()
 }
 
 def main() {
-    def ranNum = new Random().nextInt(10000)
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    log.info "Main() Section: Executing Local Weather for ${zipCode} & Ambient Weather Station API's at ${timeStamp} (ID: ${ranNum}) for: '${state?.ambientMap?.info?.name[0]}'"
+    def runID = new Random().nextInt(10000)
+    if (state?.runID == runID as String) {
+        log.warn "DUPLICATE RUN: runID: ${runID} state.runID: ${state?.runID}"
+    }
+    state.runID = runID
+
+    log.info "Main(${runID}) Section: Executing Local Weather for: ${zipCode} & Ambient Weather Station API's for: '${state?.ambientMap?.info?.name[0]}'"
 
     // Ambient Weather Station API
     ambientWeatherStation()
@@ -301,8 +308,9 @@ def localWeatherInfo() {
 
     if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
     def obs = getTwcConditions(zipCode)
+    state.weatherIcon = obs?.iconCode as String
     if (obs) {
-        d.sendEvent(name: "weatherIcon", value: obs.iconCode as String, displayed: false)
+        d.sendEvent(name: "weatherIcon", value: state.weatherIcon, displayed: false)
     }
 
     if(infoVerbose){log.info "Getting TWC Location Info for ${zipCode}"}
@@ -319,23 +327,23 @@ def localWeatherInfo() {
     def tf = new java.text.SimpleDateFormat("h:mm a")
     tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
 
-    def localSunrise = "${tf.format(sunriseDate)}"
-    def localSunset = "${tf.format(sunsetDate)}"
+    state.localSunrise = "${tf.format(sunriseDate)}"
+    state.localSunset = "${tf.format(sunsetDate)}"
 
-    d.sendEvent(name: "localSunrise", value: localSunrise , displayed: false)
-    d.sendEvent(name: "localSunset" , value: localSunset  , displayed: false)
+    d.sendEvent(name: "localSunrise", value: state.localSunrise , displayed: false)
+    d.sendEvent(name: "localSunset" , value: state.localSunset  , displayed: false)
 
     // Get the Weather Forecast
     if(infoVerbose){log.info "Getting TWC Forecast for ${state.cityValue}"}
     def f = getTwcForecast(zipCode)
     if (f) {
         def icon = f.daypart[0].iconCode[0] ?: f.daypart[0].iconCode[1]
-        def value = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
+        state.precipChance = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
         def rainType = f.daypart[0].precipType[0] ?: f.daypart[0].precipType[1]
         def windPhrase = f.daypart[0].windPhrase[0] ?: f.daypart[0].windPhrase[1]
         d.sendEvent(name: "moonPhase", value: "Lunar Day: ${f.moonPhaseDay[0]}\n${f.moonPhase[0]}", displayed: false)
         d.sendEvent(name: "moonAge", value: "${f.moonPhaseDay[0]}", displayed: false)
-        d.sendEvent(name: "rainForecast", value: "${rainType.capitalize()}\n${value}%", displayed: false)
+        d.sendEvent(name: "rainForecast", value: "${rainType.capitalize()}\n${state.precipChance}%", displayed: false)
         d.sendEvent(name: "windPhrase", value: "${windPhrase}", displayed: false)
 
         def narrative = f.daypart[0].narrative
@@ -482,7 +490,7 @@ def ambientWeatherStation() {
                 d.sendEvent(name: 'secondaryControl', value: scText, displayed: false )
                 break
                 case 'hourlyrainin':
-                def waterState = state.ambientMap.lastData.hourlyrainin[0]?.toFloat()>0?'wet':'dry'
+                def waterState = state?.ambientMap?.lastData?.hourlyrainin[0]?.toFloat()>0?'wet':'dry'
                 if(debugVerbose){log.debug "water -> ${waterState}"}
                 d.sendEvent(name:'water', value: waterState)
                 break
@@ -583,6 +591,20 @@ def ambientWeatherStation() {
     } else {
         if(debugVerbose){log.debug "getAmbientStationData() did not return any weather data"}
     }
+    if (createActionTileDevice) {
+        def actionTileDNI = getChildDevice(DTHDNIActionTiles())
+        actionTileDNI.sendEvent(name: "localSunrise", 	value: state?.localSunrise , displayed: false)
+        actionTileDNI.sendEvent(name: "localSunset" , 	value: state?.localSunset  , displayed: false)
+        actionTileDNI.sendEvent(name: "weatherIcon",  	value: state?.weatherIcon, displayed: false)
+        actionTileDNI.sendEvent(name: "percentPrecip",	value: state?.precipChance )
+        actionTileDNI.sendEvent(name: "city", 			value: "Ambient - " + state?.ambientMap?.info?.name[0], displayed: false )
+        actionTileDNI.sendEvent(name: "location", 		value: state?.ambientMap?.info?.location[0], displayed: false )
+        actionTileDNI.sendEvent(name: "temperature",  	value: state?.ambientMap?.lastData?.tempf[0] )
+        actionTileDNI.sendEvent(name: "wind",  		  	value: state?.ambientMap?.lastData?.windspeedmph[0] )
+        actionTileDNI.sendEvent(name: "humidity",     	value: state?.ambientMap?.lastData?.humidity[0] )
+        actionTileDNI.sendEvent(name: "feelsLike",    	value: state?.ambientMap?.lastData?.feelsLike[0] )
+        actionTileDNI.sendEvent(name: "lastUpdate",   	value: tileLastUpdated(), displayed: false)
+    }
 }
 
 def getAmbientStationData() {
@@ -591,7 +613,9 @@ def getAmbientStationData() {
         log.error("Severre Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
         return false
     }
-
+    if (state?.retry.toInteger()>0) {
+        log.info "Executing Retry getAmbientStationData() re-attempt #${state.retry}"
+    }
     def params = [
         uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
     ]
@@ -601,18 +625,20 @@ def getAmbientStationData() {
             state.ambientMap = resp.data
             state.respStatus = resp.status
             if (resp.status != 200) {
-                log.error "AmbientWeather.Net: response status code: ${resp.status}"
-                log.error "AmbientWeather.Net: response: ${resp.data}"
+                log.error "AmbientWeather.Net: response status code: ${resp.status}: response: ${resp.data}"
                 return false
             }
             state.countRemoteTempHumiditySensors =  state.ambientMap.lastData[0].keySet().count { it.matches('temp[0-9]f') }
-            state.retry = 0
+            if (state.retry.toInteger()>0) {
+                log.info "Success: Retry getAmbientStationData() re-attempt #${state.retry}"
+                state.retry = 0
+            }
         }
     } catch (e) {
-        log.warn("Ambient Weather Station API Data: ${e}") 
+        log.warn("Ambient Weather Station API Data: ${e}")
         state.retry = state.retry.toInteger() + 1
-        if (state.retry.toInteger()<3) { 
-            log.warn("Waiting 10 seconds to Try Again: Attempt #${state.retry}")
+        if (state.retry.toInteger()<3) {
+            log.info("Waiting 10 seconds to Try Again: Attempt #${state.retry}")
             runIn(10, ambientWeatherStation)
         }
         return false
@@ -637,6 +663,32 @@ def addAmbientChildDevice() {
     } else {
         if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"}
     }
+
+    // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
+    def actionTileDNI = getChildDevice(DTHDNIActionTiles())
+    if (createActionTileDevice) {
+        if (!actionTileDNI) {
+            def AWSName = "Ambient ${DTHNameActionTiles()}"
+            log.info "Adding Ambient ActionTiles™ Device: '${AWSName}' with DNI: '${DTHDNIActionTiles()}'"
+            try {
+                addChildDevice("kurtsanders", DTHNameActionTiles(), DTHDNIActionTiles(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
+            } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
+                log.error "The Ambient Weather ActionTiles™ Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
+                return false
+            }
+            log.info "Added ${AWSName} with DNI: ${DTHDNIActionTiles()}"
+        } else {
+            if(infoVerbose){
+                if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"}
+            }
+        }
+    } else {
+        if (actionTileDNI) {
+            log.info "Deleting ${AWSName} with DNI: ${DTHDNIActionTiles()}"
+            deleteChildDevice(actionTileDNI)
+        }
+    }
+
     // add Ambient Weather Remote Sensor Device(s)
     def remoteSensorNamePref
     def remoteSensorNameDNI
