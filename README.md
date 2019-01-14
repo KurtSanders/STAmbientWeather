@@ -102,7 +102,8 @@ ActionTiles™
 <br>Ambient Weather Station ActionTiles™ Integration</p>
 
 1. A STAmbientWeather APP preference option is available to "Create a SmartWeather Station Tile for use as an Ambient Weather ActionTiles™ Weather Tile?".  
-  * When this new preference option is set to 'ON', and after SAVING from the APP, a local "special use" version of the **SmartWeather Station Tile** child device will be created with the title _"Ambient SmartWeather Station"_.  It will only receive the required weather data fields from the Ambient Weather Station at the same update frequency as the STAmbientWeather APP refresh setting.  
+  * When this new preference option is set to 'ON', and after SAVING from the APP, a local "special use" version of the **SmartWeather Station Tile** child device will be created with the title _"Ambient SmartWeather Station"_.  It will only receive the required weather data fields from the Ambient Weather Station at the same update frequency as the STAmbientWeather APP refresh setting.
+  * Please refer to the instructions on ActionTiles™ website on how to create a SmartWeather Station Weather Tile on your dashboard.      
   * If one has already installed the SmartThings namespace SmartWeather Tile Station installed and reporting their local weather, the child device created by STAmbientWeather will not impact that existing device.  
   * If one does not have SmartThings namespace SmartWeather Station Tile, you may choose to install and configure it separately so that your ActionTiles™ dashboard has both Ambient and local weather. 
      * [ActionTiles™ Tips & Tricks: How do I install a SmartWeather StationTile](https://www.smarttiles.click/help/tips-tricks/#Weather_Tile) 
