@@ -7,7 +7,7 @@ A custom SmartThings SmartApp Service Manager and Device Handler (DTH) which pro
 
 This SmartThings application (V3) provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of the weather data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
 
-[Read Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Changelog & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ## Weather Station Tile and Details View
 ### Screenshots of Device Attributes
@@ -92,6 +92,24 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 6. Display the new SmartThings Tile in your ST Mobile Client
 
 ## ActionTiles™ and STAmbientWeather V3
+
+### Ambient Weather Station ActionTiles™ Integration
+<p align="center">
+ActionTiles™
+</p>
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesWeatherTile.jpg" width="250">
+<br>Ambient Weather Station ActionTiles™ Integration</p>
+
+1. A STAmbientWeather APP preference option is available to "Create a SmartWeather Station Tile for use as an Ambient Weather ActionTiles™ Weather Tile?".  
+  * When this new preference option is set to 'ON', and after SAVING from the APP, a local "special use" version of the **SmartWeather Station Tile** child device will be created with the title _"Ambient SmartWeather Station"_.  It will only receive the required weather data fields from the Ambient Weather Station at the same update frequency as the STAmbientWeather APP refresh setting.  
+  * If one has already installed the SmartThings namespace SmartWeather Tile Station installed and reporting their local weather, the child device created by STAmbientWeather will not impact that existing device.  
+  * If one does not have SmartThings namespace SmartWeather Station Tile, you may choose to install and configure it separately so that your ActionTiles™ dashboard has both Ambient and local weather. 
+     * [ActionTiles™ Tips & Tricks: How do I install a SmartWeather StationTile](https://www.smarttiles.click/help/tips-tricks/#Weather_Tile) 
+  * Do not modify the kurtsanders namespace SmartWeather Station Tile DTH or device as it is pre-configured to work only with STAmbientWeather.
+
+### Ambient Special Attributes
+
 * Only a subset of Ambient weather attributes can be viewed from [ActionTiles™](https://www.actiontiles.com/). Per ActionTiles™ website, ActionTiles™ **only** [supports Things](https://support.actiontiles.com/knowledge-bases/8/articles/3556-compatible-smartthings-capabilities-device-type-abstractions) that are fully compliant with a standard Capability (device type abstraction) as defined by SmartThings Capabilities. 
 * SmartThings publishes a [partial list](https://www.smartthings.com/products) of "WWST" (Works with SmartThings) Certified Devices but not all of those are compatible with ActionTiles, because some of them claim a "Capability" that ActionTiles™ has not built a Tile Type for.
 * Units of measure on ActionTiles™ cannot be modified
