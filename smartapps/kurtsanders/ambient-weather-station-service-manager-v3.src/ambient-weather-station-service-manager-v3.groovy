@@ -64,6 +64,7 @@ def mainPage() {
     def setupMessage = ""
     def setupTitle = "${appName()} API Check"
     def nextPageName = "optionsPage"
+    state.retry = 0
     def getAmbientStationDataRC = getAmbientStationData()
     if ( (apiappSetupCompleteBool) && (getAmbientStationDataRC) ) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for a ${appName()}"
@@ -106,7 +107,7 @@ def mainPage() {
         }
         if (apiappSetupCompleteBool && getAmbientStationDataRC) {
             section ("Ambient Weather Station Information") {
-                paragraph image: getAppImg("blue-ball-100.jpg"),
+                paragraph image: getAppImg("blue-ball.jpg"),
                     title: "${state?.ambientMap?.info.name[0]}",
                     required: false,
                     "Location: ${state?.ambientMap.info.location[0]}" +
