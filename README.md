@@ -98,7 +98,9 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 ActionTiles™
 </p>
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesWeatherTile.jpg" width="250">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesWeatherTile.jpg" width="250"><br>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesWeatherTile2.jpg" width="550">
+
 <br>Ambient Weather Station ActionTiles™ Integration</p>
 
 1. A STAmbientWeather APP preference option is available to "Create a SmartWeather Station Tile for use as an Ambient Weather ActionTiles™ Weather Tile?".  
