@@ -18,11 +18,26 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient3.PNG" width=200>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient4.PNG" width=200></p>
 
-### Ambient Weather Station with multiple report sensors
+### Ambient Weather Station with multiple remote sensors
 
 <p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V3-MobileClient1.PNG" width=200>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
 </p>
+
+### Weather Event SMS Alerts (V3.06)
+
+Select the following events to send Weather SMS Text Alerts for user defined values:
+
+   * Low Temperature
+   * High Temperature
+   * Rain Detected
+   * Severe Weather
+
+Weather SMS Alerts are sent per user preferences for once every {1,2,4,6,12,24} hours. 
+
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/Weather Event Alerts.PNG" width=300>
+</p>
+
 
 ### Requirements:
 
@@ -139,6 +154,8 @@ ActionTiles™
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather API http request when it encounters a ST rate limiting error.
 3. The V3 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
 4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V3 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
+5. STAmbientWeather V3 recognizes ONE Ambient weather station and will add the first station's data and ignore the others.
+6. Multiple instances of STAmbientWeather app are not currently supported.
 
 ## Previous Old Versions
 *(Available in 'Depreciated Versions' GitHub Branch)*
