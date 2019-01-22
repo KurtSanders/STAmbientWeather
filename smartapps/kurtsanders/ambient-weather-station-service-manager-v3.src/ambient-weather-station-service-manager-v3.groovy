@@ -115,17 +115,16 @@ def mainPage() {
         }
         if (apiappSetupCompleteBool && getAmbientStationDataRC) {
             if (weatherStationMac) {
-                state.weatherStationDataIndex = state.ambientMap.findIndexOf {
-                    it.macAddress in [weatherStationMac]
-                }
+                setStateWeatherStationData()
+                state.weatherStationMac = weatherStationMac
                 state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
                 section ("Ambient Weather Station Information") {
                     paragraph image: getAppImg("blue-ball.jpg"),
-                        title: "${state?.ambientMap?.info.name[state.weatherStationDataIndex]}",
+                        title: "${state.ambientMap[state.weatherStationDataIndex].info.name}",
                         required: false,
-                        "Location: ${state?.ambientMap.info.location[state.weatherStationDataIndex]}" +
-                        "\nMac Address: ${state?.ambientMap[state.weatherStationDataIndex].macAddress}" +
-                        "\nRemote Temp/Hydro Sensors: ${state?.countRemoteTempHumiditySensors}"
+                        "Location: ${state?.ambientMap[state.weatherStationDataIndex].info.location}" +
+                        "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
+                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}"
                 }
             } else {
                 def weatherStationList = [:]
@@ -504,9 +503,7 @@ def ambientWeatherStation() {
     if (getAmbientStationData()) {
         if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
-        state.weatherStationDataIndex = state.ambientMap.findIndexOf {
-            it.macAddress in [weatherStationMac]
-        }
+        setStateWeatherStationData()
         if(debugVerbose || infoVerbose) {
             state.ambientMap[state.weatherStationDataIndex].each{ k, v ->
                 log.info "${k} = ${v}"
@@ -1065,4 +1062,15 @@ def lastNotifyDT(lastDT, eventName) {
     if(infoVerbose){log.info "This '${eventName}' event was last sent on ${date}: ${days} days, ${hours} hours ago"}
     if(infoVerbose){log.info "${eventName} Alert Every ${notifyAlertFreq} hours: ${rc?'OK to SMS':'TOO EARLY TO SEND'}"}
     return rc
+}
+
+def setStateWeatherStationData() {
+    if (weatherStationMac) {
+        state.weatherStationDataIndex = state.ambientMap.findIndexOf {
+            it.macAddress in [weatherStationMac]
+        }
+    }
+    state.weatherStationDataIndex = state.weatherStationDataIndex?:0
+    state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
+    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
 }
