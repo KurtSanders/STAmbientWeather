@@ -1,4 +1,4 @@
-# STAmbientWeather V3 (2019)
+# STAmbientWeather V3 (βeta)
 *SmartThings Integration for Ambient Weather Stations*
 
 ### Description:
@@ -24,14 +24,14 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
 </p>
 
-### Weather Event SMS Alerts (V3.06)
+### Weather Event SMS Alerts
 
 Select the following events to send Weather SMS Text Alerts for user defined values:
 
-   * Low Temperature
-   * High Temperature
-   * Rain Detected
-   * Severe Weather
+   * Low Temperature (If Outside Temp is reported by Weather Station)
+   * High Temperature (If Outside Temp is reported by Weather Station)
+   * Rain Detected (If Rain is reported by Weather Station)
+   * Severe Weather (For Zipcode) 
 
 Weather SMS Alerts are sent per user preferences for once every {1,2,4,6,12,24} hours. 
 
@@ -70,7 +70,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 |------|-------|
 |Owner | **kurtsanders** |
 |Name: | **STAmbientWeather**|
-|Branch| **master**|
+|Branch| **beta**|
 
 **Required Files in your SmartThings IDE Repository**
 
