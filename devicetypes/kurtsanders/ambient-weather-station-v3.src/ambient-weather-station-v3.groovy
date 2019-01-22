@@ -19,6 +19,8 @@
 // Start Version Information
 def version() { return ["V3.0", "Requires Ambient WS Service Manager App V3"] }
 // End Version Information
+String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
+
 metadata {
     definition (name: "Ambient Weather Station V3", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Illuminance Measurement"
@@ -28,6 +30,7 @@ metadata {
         capability "Refresh"
         capability "Water Sensor"
         capability "Ultraviolet Index"
+        capability "Battery"
 
         // Wind Motion Detection
         capability "Motion Sensor"
@@ -81,6 +84,7 @@ metadata {
         attribute "alertDescription", "string"
         attribute "alertMessage", "string"
         attribute "version", "string"
+        attribute "date", "string"
 
         command "refresh"
     }
@@ -107,16 +111,16 @@ metadata {
         state "default", label: 'Inside Temp\n${currentValue}°', backgroundColors: TileBgColors('tempinf')
     }
     standardTile("weatherIcon", "device.weatherIcon", decoration: "flat", height: 2, width: 2) {
-        state "00", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
-        state "01", icon:"https://smartthings-twc-icons.s3.amazonaws.com/01.png", label: ""
-        state "02", icon:"https://smartthings-twc-icons.s3.amazonaws.com/02.png", label: ""
-        state "03", icon:"https://smartthings-twc-icons.s3.amazonaws.com/03.png", label: ""
-        state "04", icon:"https://smartthings-twc-icons.s3.amazonaws.com/04.png", label: ""
-        state "05", icon:"https://smartthings-twc-icons.s3.amazonaws.com/05.png", label: ""
-        state "06", icon:"https://smartthings-twc-icons.s3.amazonaws.com/06.png", label: ""
-        state "07", icon:"https://smartthings-twc-icons.s3.amazonaws.com/07.png", label: ""
-        state "08", icon:"https://smartthings-twc-icons.s3.amazonaws.com/08.png", label: ""
-        state "09", icon:"https://smartthings-twc-icons.s3.amazonaws.com/09.png", label: ""
+        state "0", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
+        state "1", icon:"https://smartthings-twc-icons.s3.amazonaws.com/01.png", label: ""
+        state "2", icon:"https://smartthings-twc-icons.s3.amazonaws.com/02.png", label: ""
+        state "3", icon:"https://smartthings-twc-icons.s3.amazonaws.com/03.png", label: ""
+        state "4", icon:"https://smartthings-twc-icons.s3.amazonaws.com/04.png", label: ""
+        state "5", icon:"https://smartthings-twc-icons.s3.amazonaws.com/05.png", label: ""
+        state "6", icon:"https://smartthings-twc-icons.s3.amazonaws.com/06.png", label: ""
+        state "7", icon:"https://smartthings-twc-icons.s3.amazonaws.com/07.png", label: ""
+        state "8", icon:"https://smartthings-twc-icons.s3.amazonaws.com/08.png", label: ""
+        state "9", icon:"https://smartthings-twc-icons.s3.amazonaws.com/09.png", label: ""
         state "10", icon:"https://smartthings-twc-icons.s3.amazonaws.com/10.png", label: ""
         state "11", icon:"https://smartthings-twc-icons.s3.amazonaws.com/11.png", label: ""
         state "12", icon:"https://smartthings-twc-icons.s3.amazonaws.com/12.png", label: ""
@@ -227,10 +231,12 @@ metadata {
         state "default", label: 'Light\n${currentValue}', backgroundColors: TileBgColors('solar')
     }
     standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: ''
         state "wet", label: '', icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-rain.png'
         state "dry", label: 'No Rain', icon: "st.Weather.weather12"
     }
     standardTile("motion", "device.motion", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: ''
         state "active",   label: '',    icon: 'https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/wi-windy.png'
         state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
     }
@@ -322,6 +328,14 @@ metadata {
     standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
     }
+    standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", 	label: '', icon: getAppImg('battery-na.png')
+        state "100", 		label: '', icon: getAppImg('battery-good.png')
+        state "0", 			label: '', icon: getAppImg('battery-bad.png')
+    }
+    valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state("default", label: 'Ambient Server DateTime\n${currentValue}')
+    }
 
     main(["temperature"])
     details(
@@ -360,6 +374,8 @@ metadata {
             "location",
             "rainForecast",
             "windPhrase",
+            "battery",
+            "date",
             "lastSTupdate",
             "scheduleFreqMin",
             "weather",

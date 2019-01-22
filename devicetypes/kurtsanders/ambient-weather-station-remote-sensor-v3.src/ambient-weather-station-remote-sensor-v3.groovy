@@ -21,13 +21,17 @@ def version() {
     return ["V3.0", "Requires Ambient WS Service Manager App V3"]
 }
 // End Version Information
+String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
+
 metadata {
     definition (name: "Ambient Weather Station Remote Sensor V3", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
         capability "Sensor"
+        capability "Battery"
         capability "Refresh"
 
+        attribute "date", "string"
         attribute "lastSTupdate", "string"
         attribute "version", "string"
         
@@ -53,10 +57,18 @@ metadata {
         }
     }
 
-    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
+    standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", 	label: '', icon: getAppImg('battery-na.png')
+        state "100", 		label: '', icon: getAppImg('battery-good.png')
+        state "0", 			label: '', icon: getAppImg('battery-bad.png')
+    }
+    valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state("default", label: 'Ambient Server DateTime\n${currentValue}')
+    }
+    valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: '${currentValue}')
     }
-    standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
     }
 
@@ -66,6 +78,8 @@ metadata {
             // Inside Sensors
             "temperature",
             "humidity",
+            "battery",
+            "date",
             "lastSTupdate",
             "refresh"
         ]
