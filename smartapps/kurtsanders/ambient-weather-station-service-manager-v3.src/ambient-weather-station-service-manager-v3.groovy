@@ -67,7 +67,7 @@ preferences {
 }
 
 def mainPage() {
-    def apiappSetupCompleteBool = !( (appSettings.apiKey==null) && (appSettings.apiKey=="") )
+    def apiappSetupCompleteBool = appSettings.apiKey?true:false
     def setupMessage = ""
     def setupTitle = "${appName()} API Check"
     def nextPageName = "optionsPage"
@@ -770,10 +770,11 @@ def ambientWeatherStation() {
 
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if(appSettings.apiKey==null){
+    if(!appSettings.apiKey){
         log.error("Severe Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
         return false
     }
+    state.retry = state.retry?:0
     if (state?.retry.toInteger()>0) {
         log.info "Executing Retry getAmbientStationData() re-attempt #${state.retry}"
     }
