@@ -297,32 +297,33 @@ def initialize() {
         def d = getChildDevice(state.deviceId)
         d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
     }
-    if(infoVerbose){log.info "initialize Section: End"}
+    log.info "initialize Section: End"
 }
 
 def installed() {
-    if(infoVerbose){log.info "Installed Section: Start"}
+    log.info "Installed Section: Start"
     state.deviceId = DTHDNI()
     initialize()
     runIn(10, main)
-    if(infoVerbose){log.info "Installed Section: End"}
+    log.info "Installed Section: End"
 }
 
 def updated() {
-    if(infoVerbose){ log.info "Updated Section: Start" }
+    log.info "Updated Section: Start"
 	initialize()
-    if(infoVerbose){ log.info "Updated Section: End" }
+    log.info "Updated Section: End"
 }
 
 def uninstalled() {
-    if(infoVerbose){log.info "Section Started: Uninstalled"}
+    log.info "Section Started: Uninstalled"
+    log.info "Removing Cron Job for Refresh"
     unschedule()
     // Remove all devices
     getAllChildDevices().each {
         log.info "Deleting AmbientWS device: ${it.label}"
         deleteChildDevice(it.deviceNetworkId)
     }
-    if(infoVerbose){log.info "Section Ended: Uninstalled"}
+    log.info "Section Ended: Uninstalled"
 }
 
 def scheduleCheckReset() {
