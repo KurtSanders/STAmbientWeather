@@ -21,20 +21,23 @@ import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
+/************************************ Version Specific ***********************************
+String version()				{ return "V4.0.0" }
+String appModified()			{ return "Jan-23-2019"}
+
+/*************************************** Constants ***************************************
+String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
+String appShortName() 			{ return "STAmbientWeather ${version()}" }
+
 String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
 String DTHDNIActionTiles() 		{ return "${app.id}:MyAmbientSmartWeatherStationTile" }
 String DTHDNIRemoteSensorName() { return "${app.id}:MyAmbientRemoteSensor"}
-String version()				{ return "V3.1.1" }
-String appModified()			{ return "Jan-22-2019"}
-String appName() 				{ return "Ambient Weather Station ${version()}" }
-String appShortName() 			{ return "STAmbientWeather ${version()}" }
-String AWSNameActionTilesHide()	{ return false }
-
 String DTHName() 				{ return (noColorTiles)?"Ambient Weather Station V3 No Color Tiles":"Ambient Weather Station" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor"}
 
 String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
 String AWSNameActionTiles()		{ return "SmartWeather" }
+String AWSNameActionTilesHide()	{ return false }
 
 String DTHnamespace()			{ return "kurtsanders" }
 String appAuthor()	 			{ return "SanderSoft" }
@@ -70,27 +73,27 @@ preferences {
 def mainPage() {
     def apiappSetupCompleteBool = appSettings.apiKey?true:false
     def setupMessage = ""
-    def setupTitle = "${appName()} API Check"
+    def setupTitle = "${appNameVersion()} API Check"
     def nextPageName = "optionsPage"
     state.retry = 0
     def getAmbientStationDataRC = getAmbientStationData()
     if ( (apiappSetupCompleteBool) && (getAmbientStationDataRC) ) {
-        setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appName()}. "
+        setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appNameVersion()}. "
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
         setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
-        setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API key setup in the SmartThings IDE (App Settings Section) for ${appName()}"
+        setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}"
         nextPageName = null
     }
     dynamicPage(name: "mainPage", title: setupTitle, submitOnChange: true, nextPage: nextPageName, uninstall:true, install:false) {
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-            paragraph "The API string key is used to securely connect your weather station to ${appName()}."
+            paragraph "The API string key is used to securely connect your weather station to ${appNameVersion()}."
             paragraph image: getAppImg("blue-ball.jpg"),
                 title: "Required API Key",
                 required: false,
                 informationList("apiHelp")
             href(name: "hrefReadme",
-                 title: "${appName()} Setup/Read Me Page",
+                 title: "${appNameVersion()} Setup/Read Me Page",
                  required: false,
                  style: "external",
                  url: "https://github.com/KurtSanders/STAmbientWeather",
@@ -992,16 +995,16 @@ def informationList(variable) {
         case ("apiHelp") :
         // Help Text for API Key
         variable =  [
-            "You MUST enter your Ambient Weather API key in the ${appName()} SmartApp Settings section.",
+            "You MUST enter your Ambient Weather API key in the ${appNameVersion()} SmartApp Settings section.",
             "Visit your Ambient Weather Dashboards's Account page.",
             "Create/Copy your API key from the bottom of the page",
             "Return to your SmartThings IDE 'My SmartApps' browser page.",
-            "EDIT the ${appName()} SmartApp.",
+            "EDIT the ${appNameVersion()} SmartApp.",
             "Press the App Settings button at the top right of the page.",
             "Scroll down the page, expand the 'Settings' section.",
             "Enter or paste your Ambient API key in the API value input box.",
             "Press Update on bottom of page to save.",
-            "Exit the SmartApp and Start ${appName()} Setup again on your mobile phone."
+            "Exit the SmartApp and Start ${appNameVersion()} Setup again on your mobile phone."
         ]
         break
         default:
