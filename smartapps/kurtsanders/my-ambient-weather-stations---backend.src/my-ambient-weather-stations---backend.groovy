@@ -21,12 +21,12 @@ import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
-/************************************ Version Specific ***********************************
+//************************************ Version Specific ***********************************
 String version()				{ return "V4.0.0" }
 String appModified()			{ return "Jan-23-2019"}
 
-/*************************************** Constants ***************************************
-String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
+//*************************************** Constants ***************************************
+String appNameVersion() 		{ return "My Ambient Weather Station ${version()}" }
 String appShortName() 			{ return "STAmbientWeather ${version()}" }
 
 String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
@@ -40,6 +40,7 @@ String AWSNameActionTiles()		{ return "SmartWeather" }
 String AWSNameActionTilesHide()	{ return false }
 
 String DTHnamespace()			{ return "kurtsanders" }
+String parentAppName()			{ return "My Ambient Weather Stations" }
 String appAuthor()	 			{ return "SanderSoft" }
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
@@ -49,19 +50,20 @@ String appKey() 				{return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba
 // ============================================================================================================
 
 definition(
-    name: 			"Ambient Weather Station",
+    name: 			"My Ambient Weather Stations - Backend",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"My Ambient Personal Weather Station Service Manager ${version()}",
+    description: 	"Do not install this directly, use ${parentAppName()} instead!",
     category: 		"My Apps",
     iconUrl:   		getAppImg("blue-ball-100.jpg"),
     iconX2Url: 		getAppImg("blue-ball-200.jpg"),
     iconX3Url: 		getAppImg("blue-ball.jpg"),
-    singleInstance: false
+    parent: 		"${DTHnamespace()}:${parentAppName()}",
+    singleInstance: true
 )
 {
 // The following API Key is to be entered in this SmartApp's settings in the SmartThings IDE App Setting.
-    appSetting 		"apiKey"
+    appSetting 	"apiKey"
 }
 preferences {
     page(name: "mainPage")
@@ -71,7 +73,9 @@ preferences {
 }
 
 def mainPage() {
-    def apiappSetupCompleteBool = appSettings.apiKey?true:false
+    state.apiKey = parent.getMyAmbientKey("${app.name?:app.id}")
+    log.info "apiKey From Parent: ${state.apiKey}"
+    def apiappSetupCompleteBool = state.apiKey?true:false
     def setupMessage = ""
     def setupTitle = "${appNameVersion()} API Check"
     def nextPageName = "optionsPage"
@@ -169,16 +173,20 @@ def optionsPage () {
                 title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
                 required: true
             input name: "schedulerFreq", type: "enum",
-                title: "Run Weather Station Refresh Every (mins)?",
-                options: ['0','1','2','3','4','5','10','15','30','60','180'],
+                title: "Run Ambient Weather Station Refresh Every (X mins)?",
+                options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                 required: true
             input "${DTHDNIRemoteSensorName()}0", type: "text",
                 title: "Weather Station Console Room Location Short Name",
                 required: true
             input name: "solarRadiationTileDisplayUnits", type: "enum",
-                title: "Select Solar Radiation ('Light' Tile) Units of Measure",
-                options: ['W/m²','lux', 'fc'],
+                title: "Select Solar Radiation ('Light') Units of Measure",
+                options: ['W/m²':'Imperial Units','lux':'Metric Units', 'fc':'Foot Candles'],
                 required: true
+            input name: "deviceOS", type: "enum",
+                title: "Mobile Phone Operating System for Optimal Tile Display",
+                options: ["Apple", "Android"],
+                required: false
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
                 input name: "createActionTileDevice", type: "bool",
                     title: "Create ${DTHNameActionTiles()} for use as ActionTiles™ SmartWeather Station Tile?",
@@ -188,24 +196,11 @@ def optionsPage () {
                  title: "Weather Alerts/Notification",
                  required: false,
                  page: "notifyPage")
-            label name: "name", 
-                title: "Suggested SmartApp Name", 
-                state: (name ? "complete" : null), 
-                defaultValue: "AmbientWS - ${state.ambientMap[state.weatherStationDataIndex].info.name}", 
-                required: false,
-                multiple: false
-        }
-        if (!state.deviceId) {
-            section {
-                paragraph "Background Color Option for Displaying Values"
-                paragraph image: getAppImg("No-Color-Option.jpg"),
-                    title: "Initial ANDROID Install Setup Choice",
-                    required: false,
-                    "This NO COLOR backgrounds option is highly recommended to set ON for Android devices.'"
-                input name: "noColorTiles", type: "bool",
-                    title: "Remove Color Backgrounds in Tiles (Recommended ON for Android Users)",
-                    required: false
-            }
+            label name: "name",
+                title: "This SmartApp's Name",
+                state: (name ? "complete" : null),
+                defaultValue: "${state.ambientMap[state.weatherStationDataIndex].info.name}",
+                required: false
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
             input name: "debugVerbose", type: "bool",
@@ -317,7 +312,7 @@ def uninstalled() {
     unschedule()
     // Remove all devices
     getAllChildDevices().each {
-        log.info "Deleting AmbientWS device: ${it.label}"
+        log.info "Deleting Ambient device: ${it.label}"
         deleteChildDevice(it.deviceNetworkId)
     }
 }
@@ -334,14 +329,15 @@ def scheduleCheckReset() {
     }
 }
 
-def appTouchHandler(evt="") {
+def appTouchHandler() {
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     def children = app.getChildDevices()
     log.debug "SmartApp $app.name has ${children.size()} child devices"
 
     def thisdevice = children.findAll { it.typeName == DTHRemoteSensorName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
 	log.info "${it} -> ${it.deviceNetworkId}"
 
-//        log.info "${i}) ${child.typeName} : $child.name" 
+//        log.info "${i}) ${child.typeName} : $child.name"
 //        log.info "${i}) DNI: ${child.deviceNetworkId}"
 //        log.info "${i}) getChildDevice(): ${getChildDevice(child.deviceNetworkId)}"
     }
@@ -349,7 +345,7 @@ def appTouchHandler(evt="") {
     //    def thisdevice = children.findAll { it.name == "TimberRidge" }
     //	log.info thisdevice
     /*    children.eachWithIndex { child, i ->
-        log.info "${i}) ${child.typeName} : $child.name" 
+        log.info "${i}) ${child.typeName} : $child.name"
         log.info "${i}) ID: $child.id"
         log.info "${i}) Label: $child.label"
         log.info "${i}) DNI: ${child.deviceNetworkId}"
@@ -357,9 +353,6 @@ def appTouchHandler(evt="") {
     // DTHRemoteSensorName()
     // DTHName()
     */
-    return
-
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
     scheduleCheckReset()
     main()
@@ -802,7 +795,7 @@ def ambientWeatherStation() {
 
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
-    if(!appSettings.apiKey){
+    if(!state.apiKey){
         log.error("Severe Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
         return false
     }
@@ -811,7 +804,7 @@ def getAmbientStationData() {
         log.info "Executing Retry getAmbientStationData() re-attempt #${state.retry}"
     }
     def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${appSettings.apiKey}"
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${state.apiKey}"
     ]
     try {
         httpGet(params) { resp ->
@@ -849,7 +842,7 @@ def addAmbientChildDevice() {
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         def AWSName =  "${AWSBaseName} - Console"
-        log.info "Adding AmbientWS Device: ${AWSName} with DNI: ${state.deviceId}"
+        log.info "Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
         try {
             addChildDevice(DTHnamespace(), DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
         } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
