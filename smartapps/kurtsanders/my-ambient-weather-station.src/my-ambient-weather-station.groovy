@@ -323,15 +323,15 @@ def scheduleCheckReset() {
     }
 }
 
-def appTouchHandler() {
+def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     def children = app.getChildDevices()
     log.debug "SmartApp $app.name has ${children.size()} child devices"
     def thisdevice = children.findAll { it.typeName == DTHRemoteSensorName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-        log.info "${it} -> ${it.deviceNetworkId}"
-        log.info thisdevice.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }
+        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
     }
     /*
+        log.info thisdevice.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }
     log.info "${i}) ${child.typeName} : $child.name"
     log.info "${i}) DNI: ${child.deviceNetworkId}"
     log.info "${i}) getChildDevice(): ${getChildDevice(child.deviceNetworkId)}"
