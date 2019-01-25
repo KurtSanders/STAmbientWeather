@@ -44,8 +44,10 @@ metadata {
         attribute "date", "string"
         attribute "dateutc", "string"
         attribute "dewPoint", "string"
+        attribute "dewpoint", "string"
         attribute "eventrainin", "string"
         attribute "feelsLike", "string"
+        attribute "feelslike", "string"
         attribute "hourlyrainin", "string"
         attribute "humidity", "string"
         attribute "humidityin", "string"
@@ -180,6 +182,9 @@ metadata {
     valueTile("feelsLike", "device.feelsLike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Feels Like\n${currentValue}º'
     }
+    valueTile("feelslike", "device.feelslike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Feels Like\n${currentValue}º'
+    }
     valueTile("baromrelin", "device.baromrelin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rel Pres \n${currentValue} in '
     }
@@ -239,7 +244,10 @@ metadata {
         state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
     }
     valueTile("dewPoint", "device.dewPoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Dewpoint\n${currentValue}°'
+        state "default", label:'Dew point\n${currentValue}°'
+    }
+    valueTile("dewpoint", "device.dewpoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Dew point\n${currentValue}°'
     }
     valueTile("winddir", "device.winddir", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Wind Direction\n${currentValue}º'

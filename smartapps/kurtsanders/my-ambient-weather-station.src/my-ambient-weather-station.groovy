@@ -730,9 +730,12 @@ def ambientWeatherStation() {
                     sendEventOptions = [displayed : false]
                     break
                     case ~/^temp.*/:
+                    sendEventOptions = [units : tempUnits]
+                    break
                     case ('feelsLike'):
                     case ('dewPoint'):
                     sendEventOptions = [units : tempUnits]
+                    d.sendEvent(name: k.toLowerCase(), value: v, units : tempUnits, displayed: false )
                     break
                     case ~/^humidity.*/:
                     sendEventOptions = [units : '%']
@@ -1044,9 +1047,8 @@ def notifyEvents() {
     if (mobilePhone){
         def now = now()
         def msg
-        //        state.notifySevereAlertDT = now-3600000*2
         if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${appShortName()}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
+            msg = "${state.ambientMap[state.weatherStationDataIndex].info.name}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -1054,7 +1056,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${appShortName()}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
+            msg = "${state.ambientMap[state.weatherStationDataIndex].info.name}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
@@ -1062,7 +1064,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin?.toInteger()>0) ){
-            log.debug "${appShortName()}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
+            log.debug "${state.ambientMap[state.weatherStationDataIndex].info.name}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
