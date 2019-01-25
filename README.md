@@ -1,4 +1,6 @@
-# STAmbientWeather V3 (βeta)
+# STAmbientWeather V4 (βeta) 
+### *New V4 provides supports for concurrent multiple instances of weather network stations*
+
 *SmartThings Integration for Ambient Weather Stations*
 
 ### Description:
