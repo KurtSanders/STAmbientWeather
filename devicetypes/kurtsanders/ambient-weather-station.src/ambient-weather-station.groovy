@@ -107,20 +107,17 @@ metadata {
             }
         }
     }
-    valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside Temp\n${currentValue}°', backgroundColors: TileBgColors('tempinf')
-    }
     standardTile("weatherIcon", "device.weatherIcon", decoration: "flat", height: 2, width: 2) {
-        state "0", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
-        state "1", icon:"https://smartthings-twc-icons.s3.amazonaws.com/01.png", label: ""
-        state "2", icon:"https://smartthings-twc-icons.s3.amazonaws.com/02.png", label: ""
-        state "3", icon:"https://smartthings-twc-icons.s3.amazonaws.com/03.png", label: ""
-        state "4", icon:"https://smartthings-twc-icons.s3.amazonaws.com/04.png", label: ""
-        state "5", icon:"https://smartthings-twc-icons.s3.amazonaws.com/05.png", label: ""
-        state "6", icon:"https://smartthings-twc-icons.s3.amazonaws.com/06.png", label: ""
-        state "7", icon:"https://smartthings-twc-icons.s3.amazonaws.com/07.png", label: ""
-        state "8", icon:"https://smartthings-twc-icons.s3.amazonaws.com/08.png", label: ""
-        state "9", icon:"https://smartthings-twc-icons.s3.amazonaws.com/09.png", label: ""
+        state "00", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
+        state "01", icon:"https://smartthings-twc-icons.s3.amazonaws.com/01.png", label: ""
+        state "02", icon:"https://smartthings-twc-icons.s3.amazonaws.com/02.png", label: ""
+        state "03", icon:"https://smartthings-twc-icons.s3.amazonaws.com/03.png", label: ""
+        state "04", icon:"https://smartthings-twc-icons.s3.amazonaws.com/04.png", label: ""
+        state "05", icon:"https://smartthings-twc-icons.s3.amazonaws.com/05.png", label: ""
+        state "06", icon:"https://smartthings-twc-icons.s3.amazonaws.com/06.png", label: ""
+        state "07", icon:"https://smartthings-twc-icons.s3.amazonaws.com/07.png", label: ""
+        state "08", icon:"https://smartthings-twc-icons.s3.amazonaws.com/08.png", label: ""
+        state "09", icon:"https://smartthings-twc-icons.s3.amazonaws.com/09.png", label: ""
         state "10", icon:"https://smartthings-twc-icons.s3.amazonaws.com/10.png", label: ""
         state "11", icon:"https://smartthings-twc-icons.s3.amazonaws.com/11.png", label: ""
         state "12", icon:"https://smartthings-twc-icons.s3.amazonaws.com/12.png", label: ""
@@ -161,6 +158,10 @@ metadata {
         state "47", icon:"https://smartthings-twc-icons.s3.amazonaws.com/47.png", label: ""
         state "na", icon:"https://smartthings-twc-icons.s3.amazonaws.com/na.png", label: ""
     }
+    valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Inside Temp\n${currentValue}°'
+    }
+
     valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 6, height: 6, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
@@ -177,7 +178,7 @@ metadata {
         state "default", label:'Sunset\n ${currentValue}'
     }
     valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Inside Humidity\n${currentValue}%' //, backgroundColors: TileBgColors('humidity')
+        state "default", label:'Inside Humidity\n${currentValue}%'
     }
     valueTile("feelsLike", "device.feelsLike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Feels Like\n${currentValue}º'
@@ -201,19 +202,19 @@ metadata {
         state "default", label:'${currentValue}'
     }
     valueTile("humidity", "device.humidity", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Humidity\n${currentValue}%' //, backgroundColors: TileBgColors('humidity')
+        state "default", label:'Humidity\n${currentValue}%'
     }
     valueTile("eventrainin", "device.eventrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Event\n${currentValue} in/hr' //, backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain/Event\n${currentValue} in/hr'
     }
     valueTile("hourlyrainin", "device.hourlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'RainFall/Hour\n${currentValue} in' //,  backgroundColors: TileBgColors('rain')
     }
     valueTile("dailyrainin", "device.dailyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Today\n${currentValue} in' //, backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain Today\n${currentValue} in'
     }
     valueTile("weeklyrainin", "device.weeklyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Week\n${currentValue} in' //, backgroundColors: TileBgColors('rain')
+        state "default", label:'Rain/Week\n${currentValue} in'
     }
     valueTile("monthlyrainin", "device.monthlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Rain/Month\n${currentValue} in'
@@ -228,10 +229,10 @@ metadata {
         state "default", label:'Duration Since Last Rain\n${currentValue}'
     }
     valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'UVI\n${currentValue}' //, backgroundColors: TileBgColors('uvi')
+        state "default", label: 'UVI\n${currentValue}'
     }
     valueTile("solarradiation", "device.illuminance", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Light\n${currentValue}' //, backgroundColors: TileBgColors('solar')
+        state "default", label: 'Light\n${currentValue}'
     }
     standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: ''
@@ -326,7 +327,7 @@ metadata {
         state "default", label: '${currentValue}'
     }
     valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Refresh\n${currentValue} mins', action: "refresh" //, backgroundColors: TileBgColors('scheduleFreqMin')
+        state "default", label: 'Refresh\n${currentValue} mins', action: "refresh"
     }
     valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: '${currentValue}')
@@ -399,87 +400,4 @@ def updated() {
 
 def refresh() {
     parent.refresh()
-}
-
-def TileBgColors(colorSetName) {
-	return
-    switch(colorSetName) {
-        case 'tempinf':
-        return [
-            [value: 60, color: "#153591"],
-            [value: 65, color: "#1e9cbb"],
-            [value: 69, color: "#90d2a7"],
-            [value: 71, color: "#44b621"],
-            [value: 73, color: "#f1d801"],
-            [value: 75, color: "#d04e00"],
-            [value: 80, color: "#bc2323"]
-        ]
-        break
-        case 'rain':
-        return [
-            [value: 0,   color: "#ffffff"],
-            [value: 1,   color: "#0000ff"],
-            [value: 10,  color: "#ff0000"]
-        ]
-        break
-        case 'wind':
-        return [
-            [value: 0,  color: "#ffffff"],
-            [value: 5,  color: "#153591"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 15, color: "#90d2a7"],
-            [value: 20, color: "#44b621"],
-            [value: 25, color: "#f1d801"],
-            [value: 30, color: "#d04e00"],
-            [value: 50, color: "#bc2323"]
-        ]
-        break
-        case 'humidity':
-        return [
-            [value: 0,  color: "#ffffff"],
-            [value: 10, color: "#1e9cbb"],
-            [value: 20, color: "#90d2a7"],
-            [value: 30, color: "#44b621"],
-            [value: 40, color: "#f1d801"],
-            [value: 50, color: "#d04e00"],
-            [value: 60, color: "#d04e00"],
-            [value: 70, color: "#d04e00"],
-            [value: 80, color: "#d04e00"],
-            [value: 90, color: "#d04e00"],
-            [value: 99, color: "#ff0000"]
-        ]
-        break
-        case 'solar':
-        return [
-            [value: 0,    	color: "#000000"],
-            [value: 1,   	color: "#CCCC00"],
-            [value: 100000, color: "#FFFF00"]
-        ]
-        break
-        case 'uvi':
-        return [
-            [value: 0,    color: "#000000"],
-            [value: 12,   color: "#ffffff"]
-        ]
-        break
-        case 'scheduleFreqMin':
-        return [
-            [value: 0,    color: "#FF0000"],
-            [value: 1,    color: "#9400D3"],
-            [value: 2,    color: "#00FF00"],
-            [value: 3,    color: "#458b74"],
-            [value: 4,    color: "#FF7F00"],
-            [value: 5,    color: "#4B0082"],
-            [value: 10,   color: "#0000FF"],
-            [value: 15,   color: "#00FF00"],
-            [value: 30,   color: "#FFFF00"],
-            [value: 60,   color: "#FF7F00"],
-            [value: 180,  color: "#ff69b4"]
-        ]
-        break
-        case 'default':
-        return [
-            [value: '0',  color: "#ffffff"]
-        ]
-    }
 }

@@ -72,7 +72,6 @@ preferences {
 
 def mainPage() {
     state.apiKey = appSettings.apiKey
-    log.info "apiKey: ${state.apiKey}"
     def apiappSetupCompleteBool = state.apiKey?true:false
     def setupMessage = ""
     def setupTitle = "${appNameVersion()} API Check"
@@ -126,7 +125,7 @@ def mainPage() {
                 state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
                 section ("Ambient Weather Station Information") {
                     paragraph image: getAppImg("blue-ball.jpg"),
-                        title: "${state.ambientMap[state.weatherStationDataIndex].info.name}",
+                        title: "${state.weatherStationName}",
                         required: false,
                         "Location: ${state?.ambientMap[state.weatherStationDataIndex].info.location}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
@@ -159,10 +158,10 @@ def mainPage() {
 }
 
 def optionsPage () {
-    log.info "Ambient Weather Station Selected = Mac: ${weatherStationMac}, Name/Loc: ${state.ambientMap[state.weatherStationDataIndex].info.name}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
+    log.info "Ambient Weather Station Selected = Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
-    dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.ambientMap[state.weatherStationDataIndex].info.name}'",
+    dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
                 nextPage: lastPageName,
                 uninstall:false,
                 install : !remoteSensorsExist ) {
@@ -193,7 +192,7 @@ def optionsPage () {
             label name: "name",
                 title: "This SmartApp's Name",
                 state: (name ? "complete" : null),
-                defaultValue: "${state.ambientMap[state.weatherStationDataIndex].info.name}",
+                defaultValue: "${state.weatherStationName}",
                 required: false
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
@@ -369,7 +368,7 @@ def main() {
     }
     state.runID = runID
 
-    log.info "Main (#${runID}) Section: Executing Local Weather for: ${zipCode} & Ambient Weather Station API's for: '${state.ambientMap[state.weatherStationDataIndex].info.name}'"
+    log.info "Main (#${runID}) Section: Executing Local Weather for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
 
     // TWC Local Weather
     localWeatherInfo()
@@ -775,7 +774,7 @@ def ambientWeatherStation() {
         d.sendEvent(name: "forecastIcon", 		value : state.forecastIcon as String)
         d.sendEvent(name: "weather", 			value : state?.wxPhraseShort)
         d.sendEvent(name: "percentPrecip", 		value : state.precipChance, unit: "%")
-        d.sendEvent(name: "city", 				value : "Ambient - ${state.ambientMap[state.weatherStationDataIndex].info.name}") // , isStateChange: true)
+        d.sendEvent(name: "city", 				value : "Ambient - ${state.weatherStationName}") // , isStateChange: true)
         d.sendEvent(name: "location", 			value : state.cityValue, displayed: false)
         d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: tempUnits)
         d.sendEvent(name: "humidity", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.humidity, unit: "%")
@@ -791,7 +790,7 @@ def ambientWeatherStation() {
 def getAmbientStationData() {
 	if(infoVerbose){log.info "Start: getAmbientStationData()"}
     if(!state.apiKey){
-        log.error("Severe Error: The API key is undefined in this SmartApp's IDE properties settings, exiting")
+        log.error("Severe Error: The API key is UNDEFINED in ${app.name}'s IDE 'App Settings' field, fatal error now exiting")
         return false
     }
     state.retry = state.retry?:0
@@ -833,7 +832,7 @@ def getAmbientStationData() {
 
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station device
-    def AWSBaseName = state.ambientMap[state.weatherStationDataIndex].info.name?:"${app.name}"
+    def AWSBaseName = state.weatherStationName?:"${app.name}"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         def AWSName =  "${AWSBaseName} - Console"
@@ -900,10 +899,10 @@ def addAmbientChildDevice() {
                             log.info "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
                         }
                     } else {
-                        log.error "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
+                        log.warn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
                         remoteSensorNameDNI.label = remoteSensorNamePref
                         remoteSensorNameDNI.name  = remoteSensorNamePref
-                        log.info "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
+                        log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
                     }
                 }
             } else {
@@ -1046,9 +1045,10 @@ def SMSNotifcationHistory() {
 def notifyEvents() {
     if (mobilePhone){
         def now = now()
+        //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
         if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${state.ambientMap[state.weatherStationDataIndex].info.name}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
+            msg = "${state.weatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -1056,7 +1056,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${state.ambientMap[state.weatherStationDataIndex].info.name}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
+            msg = "${state.weatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
@@ -1064,7 +1064,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin?.toInteger()>0) ){
-            log.debug "${state.ambientMap[state.weatherStationDataIndex].info.name}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
+            log.debug "${sstate.weatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
@@ -1095,4 +1095,5 @@ def setStateWeatherStationData() {
     state.weatherStationDataIndex = state.weatherStationDataIndex?:0
     state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
     state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
+    state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name
 }
