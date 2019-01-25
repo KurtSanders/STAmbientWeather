@@ -325,24 +325,24 @@ def scheduleCheckReset() {
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     def children = app.getChildDevices()
+    def thisdevice
     log.debug "SmartApp $app.name has ${children.size()} child devices"
-    def thisdevice = children.findAll { it.typeName == DTHRemoteSensorName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
+    thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
         log.info "${it} <-> DNI: ${it.deviceNetworkId}"
     }
     /*
-        log.info thisdevice.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }
+    thisdevice = children.findAll { it.typeName == DTHName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
+        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+    }
+    thisdevice = children.findAll { it.typeName == DTHRemoteSensorName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
+        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+    }
     log.info "${i}) ${child.typeName} : $child.name"
     log.info "${i}) DNI: ${child.deviceNetworkId}"
     log.info "${i}) getChildDevice(): ${getChildDevice(child.deviceNetworkId)}"
-    def thisdevice = children.findAll { it.name == "TimberRidge" }
-    log.info thisdevice
-    children.eachWithIndex { child, i ->
-    log.info "${i}) ${child.typeName} : $child.name"
     log.info "${i}) ID: $child.id"
     log.info "${i}) Label: $child.label"
     log.info "${i}) DNI: ${child.deviceNetworkId}"
-    DTHRemoteSensorName()
-    DTHName()
     */
     log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
     scheduleCheckReset()
