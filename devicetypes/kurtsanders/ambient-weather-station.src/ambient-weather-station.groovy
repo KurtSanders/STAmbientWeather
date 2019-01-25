@@ -108,7 +108,7 @@ metadata {
         }
     }
     valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside\n${currentValue}°', backgroundColors: TileBgColors('tempinf')
+        state "default", label: 'Inside Temp\n${currentValue}°', backgroundColors: TileBgColors('tempinf')
     }
     standardTile("weatherIcon", "device.weatherIcon", decoration: "flat", height: 2, width: 2) {
         state "0", icon:"https://smartthings-twc-icons.s3.amazonaws.com/00.png", label: ""
