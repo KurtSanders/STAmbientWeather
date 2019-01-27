@@ -58,6 +58,7 @@ metadata {
         attribute "maxdailygust", "string"
         attribute "monthlyrainin", "string"
         attribute "pwsName", "string"
+        attribute "solarradiation", "string"
         attribute "temperature", "string"
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
@@ -66,6 +67,7 @@ metadata {
         attribute "winddirection", "string"
         attribute "windgustmph", "string"
         attribute "windspeedmph", "string"
+        attribute "ultravioletIndexDisplay", "string"
         // End of Ambient Weather API Rest MAP
 
         // Weather Forecast & Misc attributes
@@ -158,105 +160,7 @@ metadata {
         state "47", icon:"https://smartthings-twc-icons.s3.amazonaws.com/47.png", label: ""
         state "na", icon:"https://smartthings-twc-icons.s3.amazonaws.com/na.png", label: ""
     }
-    valueTile("tempinf", "device.tempinf", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside Temp\n${currentValue}°'
-    }
-
-    valueTile("alertDescription", "device.alertDescription", inactiveLabel: false, width: 6, height: 6, decoration: "flat", wordWrap: true) {
-        state "default", label:'${currentValue}'
-    }
-    valueTile("alertMessage", "device.alertMessage", inactiveLabel: false, width: 6, height: 2, decoration: "flat", wordWrap: true) {
-        state "default", label:'${currentValue}'
-    }
-    valueTile("weather", "device.weather", inactiveLabel: false, width: 6, height: 3, decoration: "flat", wordWrap: true) {
-        state "default", label:'${currentValue}'
-    }
-    valueTile("rise", "device.localSunrise", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Sunrise\n ${currentValue}'
-    }
-    valueTile("set", "device.localSunset", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Sunset\n ${currentValue}'
-    }
-    valueTile("humidityin", "device.humidityin", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Inside Humidity\n${currentValue}%'
-    }
-    valueTile("feelsLike", "device.feelsLike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Feels Like\n${currentValue}º'
-    }
-    valueTile("feelslike", "device.feelslike", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Feels Like\n${currentValue}º'
-    }
-    valueTile("baromrelin", "device.baromrelin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rel Pres \n${currentValue} in '
-    }
-    valueTile("baromabsin", "device.baromabsin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Abs Pres\n${currentValue} in'
-    }
-    valueTile("location", "device.location", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'PWS Location\n${currentValue}'
-    }
-    valueTile("pwsName", "device.pwsName", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'PWS Name\n${currentValue}'
-    }
-    valueTile("moonPhase", "device.moonPhase", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'${currentValue}'
-    }
-    valueTile("humidity", "device.humidity", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Humidity\n${currentValue}%'
-    }
-    valueTile("eventrainin", "device.eventrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Event\n${currentValue} in/hr'
-    }
-    valueTile("hourlyrainin", "device.hourlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'RainFall/Hour\n${currentValue} in' //,  backgroundColors: TileBgColors('rain')
-    }
-    valueTile("dailyrainin", "device.dailyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Today\n${currentValue} in'
-    }
-    valueTile("weeklyrainin", "device.weeklyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Week\n${currentValue} in'
-    }
-    valueTile("monthlyrainin", "device.monthlyrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Month\n${currentValue} in'
-    }
-    valueTile("totalrainin", "device.totalrainin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Total\n${currentValue} in'
-    }
-    valueTile("lastRain", "device.lastRain", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Last Rain Date\n${currentValue}'
-    }
-    valueTile("lastRainDuration", "device.lastRainDuration", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Duration Since Last Rain\n${currentValue}'
-    }
-    valueTile("ultravioletIndex", "device.ultravioletIndex", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'UVI\n${currentValue}'
-    }
-    valueTile("solarradiation", "device.illuminance", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Light\n${currentValue}'
-    }
-    standardTile("water", "device.water", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: ''
-        state "wet", label: '', icon: getAppImg('wi-rain.png')
-        state "dry", label: 'No Rain', icon: "st.Weather.weather12"
-    }
-    standardTile("motion", "device.motion", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: ''
-        state "active",   label: '',    icon: getAppImg('wi-windy.png')
-        state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
-    }
-    valueTile("dewPoint", "device.dewPoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Dew point\n${currentValue}°'
-    }
-    valueTile("dewpoint", "device.dewpoint", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Dew point\n${currentValue}°'
-    }
-    valueTile("winddir", "device.winddir", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Direction\n${currentValue}º'
-    }
-    valueTile("winddir2", "device.winddir2", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Direction\n${currentValue}'
-    }
-    standardTile("moonAge", "device.moonAge", inactiveLabel: false, width: 2, height: 2, decoration: "flat", wordWrap: true) {
+    standardTile("moonAge", "device.moonAge",  width: 2, height: 2, decoration: "flat", wordWrap: true) {
         state "default",    label: 'Age of Moon: ${currentValue}'
         state "0",        	label: '', icon: getMoonIcon('0')
         state "1",        	label: '', icon: getMoonIcon('1')
@@ -289,8 +193,102 @@ metadata {
         state "28",        	label: '', icon: getMoonIcon('28')
         state "29",        	label: '', icon: getMoonIcon('29')
     }
-    standardTile("winddirection", "device.winddirection", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default",    label: '${currentValue}'
+    valueTile("tempinf", "device.tempinf", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Inside Temp\n${currentValue}°'
+    }
+    valueTile("humidityin", "device.humidityin", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Inside Humidity\n${currentValue}%'
+    }
+    valueTile("feelsLike", "device.feelsLike", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Feels Like\n${currentValue}º'
+    }
+    valueTile("rise", "device.localSunrise", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Sunrise\n ${currentValue}'
+    }
+    valueTile("set", "device.localSunset", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Sunset\n ${currentValue}'
+    }
+    valueTile("feelslike", "device.feelslike",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Feels Like\n${currentValue}º'
+    }
+    valueTile("baromrelin", "device.baromrelin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rel Pres \n${currentValue} in '
+    }
+    valueTile("baromabsin", "device.baromabsin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Abs Pres\n${currentValue} in'
+    }
+    valueTile("location", "device.location", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'PWS Location\n${currentValue}'
+    }
+    valueTile("pwsName", "device.pwsName",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'PWS Name\n${currentValue}'
+    }
+    valueTile("moonPhase", "device.moonPhase",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
+    }
+    valueTile("humidity", "device.humidity",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Humidity\n${currentValue}%'
+    }
+    valueTile("eventrainin", "device.eventrainin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Event\n${currentValue} in/hr'
+    }
+    valueTile("hourlyrainin", "device.hourlyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'RainFall/Hour\n${currentValue} in'
+    }
+    valueTile("dailyrainin", "device.dailyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain Today\n${currentValue} in'
+    }
+    valueTile("weeklyrainin", "device.weeklyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Week\n${currentValue} in'
+    }
+    valueTile("monthlyrainin", "device.monthlyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Month\n${currentValue} in'
+    }
+    valueTile("totalrainin", "device.totalrainin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain Total\n${currentValue} in'
+    }
+    valueTile("lastRain", "device.lastRain", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Last Rain Date\n${currentValue}'
+    }
+    valueTile("lastRainDuration", "device.lastRainDuration", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Duration Since Last Rain\n${currentValue}'
+    }
+    valueTile("ultravioletIndex", "device.ultravioletIndex", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'UVI\n${currentValue}'
+    }
+    valueTile("ultravioletIndexDisplay", "device.ultravioletIndexDisplay", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'UVI Risk\n${currentValue}'
+    }
+    valueTile("solarradiation", "device.solarradiation",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Light\n${currentValue}'
+    }
+    valueTile("illuminance", "device.illuminance",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: '${currentValue}'
+    }
+    standardTile("water", "device.water",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Rain Detection', icon: getAppImg('na.png')
+        state "wet",     label: '', icon: getAppImg('wi-rain.png')
+        state "dry",     label: 'No Rain', icon: "st.Weather.weather12"
+    }
+    standardTile("motion", "device.motion", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Detection', icon: getAppImg('na.png')
+        state "active",   label: '',    icon: getAppImg('wi-windy.png')
+        state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
+    }
+    valueTile("dewPoint", "device.dewPoint", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Dew point\n${currentValue}°'
+    }
+    valueTile("dewpoint", "device.dewpoint", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Dew point\n${currentValue}°'
+    }
+    valueTile("winddir", "device.winddir",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Direction\n${currentValue}º'
+    }
+    valueTile("winddir2", "device.winddir2",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Direction\n${currentValue}'
+    }
+    standardTile("winddirection", "device.winddirection",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Direction', icon: getAppImg('na.png')
         state "N",        	label: '', icon: getAppImg('wi-direction-up.png')
         state "North NE", 	label: '', icon: getAppImg('wi-direction-up.png')
         state "NE",   		label: '', icon: getAppImg('wi-direction-up-left.png')
@@ -308,31 +306,31 @@ metadata {
         state "NW",         label: '', icon: getAppImg('wi-direction-up-left.png')
         state "North NW",   label: '', icon: getAppImg('wi-direction-up-left.png')
     }
-    valueTile("windspeedmph", "device.windspeedmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Speed\n${currentValue} mph' // , backgroundColors: TileBgColors('wind')
+    valueTile("windspeedmph", "device.windspeedmph", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Speed\n${currentValue} mph'
     }
-    valueTile("windgustmph", "device.windgustmph", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Gust\n${currentValue} mph'// , backgroundColors: TileBgColors('wind')
+    valueTile("windgustmph", "device.windgustmph", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Gust\n${currentValue} mph'
     }
-    valueTile("maxdailygust", "device.maxdailygust", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Daily Gust\n${currentValue} mph' // , backgroundColors: TileBgColors('wind')
+    valueTile("maxdailygust", "device.maxdailygust", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Daily Gust\n${currentValue} mph'
     }
-    valueTile("macAddress", "device.macAddress", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("macAddress", "device.macAddress", width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
     }
-    valueTile("rainForecast", "device.rainForecast", inactiveLabel: false, width: 1, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("rainForecast", "device.rainForecast", width: 1, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: '${currentValue}'
     }
-    valueTile("windPhrase", "device.windPhrase", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("windPhrase", "device.windPhrase",  width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: '${currentValue}'
     }
-    valueTile("scheduleFreqMin", "device.scheduleFreqMin", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Refresh\n${currentValue} mins', action: "refresh"
+    valueTile("scheduleFreqMin", "device.scheduleFreqMin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Refresh Cycle\n${currentValue} mins', action: "refresh"
     }
-    valueTile("lastSTupdate", "device.lastSTupdate", inactiveLabel: false, width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: '${currentValue}')
+    valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: '${currentValue}', action: "refresh"
     }
-    standardTile("refresh", "device.weather", inactiveLabel: false, width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
     }
     standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -342,6 +340,15 @@ metadata {
     }
     valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Ambient Server DateTime\n${currentValue}')
+    }
+    valueTile("weather", "device.weather",  width: 6, height: 3, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
+    }
+    valueTile("alertDescription", "device.alertDescription", width: 6, height: 6, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
+    }
+    valueTile("alertMessage", "device.alertMessage", width: 6, height: 2, decoration: "flat", wordWrap: true) {
+        state "default", label:'${currentValue}'
     }
 
     main(["temperature"])
@@ -373,7 +380,7 @@ metadata {
             "baromrelin",
             "baromabsin",
             "humidity",
-            "ultravioletIndex",
+            "ultravioletIndexDisplay",
             "rise",
             "set",
             "moonAge",
@@ -392,7 +399,41 @@ metadata {
     )
 }
 
+def initialize() {
+    def naStndardFields = [
+        "humidityin" ,
+        "feelsLike",
+        "water",
+        "eventrainin",
+        "hourlyrainin",
+        "dailyrainin",
+        "weeklyrainin",
+        "monthlyrainin",
+        "solarradiation",
+        "lastRain",
+        "lastRainDuration",
+        "totalrainin",
+        "winddirection",
+        "windspeedmph",
+        "motion",
+        "winddir2",
+        "windgustmph",
+        "dewPoint",
+        "baromrelin",
+        "baromabsin",
+        "humidity",
+        "ultravioletIndexDisplay",
+        "windPhrase",
+        "battery"
+    ]
+    naStndardFields.each {
+        log.debug "Updated Missing Weather Field: '${it}' to 'N/A'"
+        sendEvent(name: it, value: "N/A")
+    }
+}
+
 def installed() {
+    initialize()
 }
 
 def updated() {

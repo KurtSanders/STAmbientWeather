@@ -71,7 +71,12 @@ preferences {
 }
 
 def mainPage() {
-    state.apiKey = appSettings.apiKey
+    if (state.apiKey) {
+        log.debug "Ambient Weather API = ${state.apiKey}"
+    } else {
+        state.apiKey = appSettings.apiKey
+        log.debug "*NEW* Ambient Weather API = ${state.apiKey}"
+    }
     def apiappSetupCompleteBool = state.apiKey?true:false
     def setupMessage = ""
     def setupTitle = "${appNameVersion()} API Check"
@@ -639,13 +644,31 @@ def ambientWeatherStation() {
                 d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap[state.weatherStationDataIndex].lastData.winddir + "º)")
                 break
                 case 'uv':
+                def UVInumRange
+                switch (v) {
+                    case {it < 3}:
+                    UVInumRange="Low (${v})"
+                    break
+                    case {it < 6}:
+                    UVInumRange="Medium (${v})"
+                    break
+                    case {it < 8}:
+                    UVInumRange="High (${v})"
+                    break
+                    case {it < 11}:
+                    UVInumRange="Very High (${v})"
+                    break
+                    default:
+                    UVInumRange="Extreme (${v})"
+                    break
+                }
+                d.sendEvent(name: 'ultravioletIndexDisplay', value: UVInumRange )
                 k='ultravioletIndex'
                 break
                 case 'yearlyrainin':
                 k='totalrainin'
                 break
                 case 'solarradiation':
-                k='illuminance'
                 v = v.toInteger()
                 if(v > 0) {
                     switch(solarRadiationTileDisplayUnits) {
@@ -658,8 +681,8 @@ def ambientWeatherStation() {
                         default:
                             break
                     }
-                    d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
-                    okTOSendEvent = false
+                    d.sendEvent(name: k, value: sprintf("%,06d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                    k='illuminance'
                 }
                 break
                 case 'windspeedmph':
@@ -735,6 +758,9 @@ def ambientWeatherStation() {
                     case ('dewPoint'):
                     sendEventOptions = [units : tempUnits]
                     d.sendEvent(name: k.toLowerCase(), value: v, units : tempUnits, displayed: false )
+                    break
+                    case ('illuminance'):
+                    sendEventOptions = [units: solarRadiationTileDisplayUnits?:'W/m²']
                     break
                     case ~/^humidity.*/:
                     sendEventOptions = [units : '%']

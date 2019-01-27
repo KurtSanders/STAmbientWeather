@@ -203,7 +203,7 @@ metadata {
         }
 
         valueTile("lastUpdate", "device.lastUpdate", decoration: "flat", height: 1, width: 3, wordWrap: true) {
-            state "default", label:'Last update:\n${currentValue}'
+            state "default", label:'Last update:\n${currentValue}', action: "refresh"
         }
         valueTile("location", "device.location", inactiveLabel: false, width: 3, height: 1, decoration: "flat", wordWrap: true) {
             state "default", label:'PWS Location\n${currentValue}'
