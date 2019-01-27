@@ -128,7 +128,6 @@ def mainPage() {
                 setStateWeatherStationData()
                 state.weatherStationMac = weatherStationMac
                 countRemoteTempHumiditySensors()
-//                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
                 section ("Ambient Weather Station Information") {
                     paragraph image: getAppImg("blue-ball.jpg"),
                         title: "${state.weatherStationName}",
@@ -140,7 +139,7 @@ def mainPage() {
             } else {
                 def weatherStationList = [:]
                 state.ambientMap.each {
-                    weatherStationList << [[ "${it.macAddress}" : "${it.info.name} @ ${it.info.location}" ]]
+                    weatherStationList << [[ "${it.macAddress}" : "${it.info.name}${it.info.location?' @ ':''}${it.info.location}" ]]
                 }
                 section ("Ambient Weather Station Information") {
                     input name: "weatherStationMac", submitOnChange: true, type: "enum",
@@ -1167,7 +1166,7 @@ def setStateWeatherStationData() {
     state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
     countRemoteTempHumiditySensors()
 //    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
-    state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name
+    state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name?:state.ambientMap[state.weatherStationDataIndex].info.location
 }
 
 def countRemoteTempHumiditySensors() {
