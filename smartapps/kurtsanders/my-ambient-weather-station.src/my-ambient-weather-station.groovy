@@ -127,7 +127,8 @@ def mainPage() {
             if (weatherStationMac) {
                 setStateWeatherStationData()
                 state.weatherStationMac = weatherStationMac
-                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
+                countRemoteTempHumiditySensors()
+//                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
                 section ("Ambient Weather Station Information") {
                     paragraph image: getAppImg("blue-ball.jpg"),
                         title: "${state.weatherStationName}",
@@ -178,9 +179,11 @@ def optionsPage () {
                 title: "Run Ambient Weather Station Refresh Every (X mins)?",
                 options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                 required: true
-            input "${DTHDNIRemoteSensorName()}0", type: "text",
-                title: "Weather Station Console Room Location Short Name",
-                required: true
+            if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
+                input "${DTHDNIRemoteSensorName()}0", type: "text",
+                    title: "Weather Station Console Room Location Short Name",
+                    required: true
+            }
             input name: "solarRadiationTileDisplayUnits", type: "enum",
                 title: "Select Solar Radiation ('Light') Units of Measure",
                 options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
@@ -559,13 +562,27 @@ def ambientWeatherStation() {
                 d.sendEvent(name: 'secondaryControl', value: "", displayed: false )
             }
         }
-        // Update Main Weather Device with Remote Sensor 1 if tempf does not exist, same with humidity
+
+        // Update Main Weather Device with Remote Sensor 1 values if tempf does not exist, same with humidity
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
                 d.sendEvent(name:"temperature", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: tempUnits)
             }
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
                 d.sendEvent(name:"humidity", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%")
+            }
+        }
+        // Update Main Weather Device with Remote Sensor 1 values if tempinf does not exist, same with humidityin
+        if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) {
+            log.debug "Fixing Main Station for inside temp"
+            if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
+                d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: tempUnits)
+            }
+        }
+        if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidityin')) {
+            log.debug "Fixing Main Station for inside humidity"
+            if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
+                d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%")
             }
         }
 
@@ -741,6 +758,33 @@ def ambientWeatherStation() {
                 }
                 okTOSendEvent = false
                 break
+                // Remote Temperature & Humidity Soil Sensors
+                case ~/^soiltemp[0-9]$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
+                if (remoteSensorDNI) {
+                    if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: tempUnits)
+                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+                    remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[8..8]}")) {
+                        remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData."batt${k[8..8]}".toInteger()*100, displayed: false)
+                    }
+
+                } else {
+                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
+                }
+                okTOSendEvent = false
+                break
+                case ~/^soilhum[0-9]$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[7..7]}")
+                if (remoteSensorDNI) {
+                    if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%")
+                } else {
+                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[7..7]}}"
+                }
+                okTOSendEvent = false
+                break
                 default:
                     break
             }
@@ -836,7 +880,8 @@ def getAmbientStationData() {
                 return false
             }
             if (state.weatherStationDataIndex) {
-                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
+                countRemoteTempHumiditySensors()
+//                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
             }
             if (state.retry.toInteger()>0) {
                 log.info "Success: Retry getAmbientStationData() re-attempt #${state.retry}"
@@ -1120,6 +1165,12 @@ def setStateWeatherStationData() {
     }
     state.weatherStationDataIndex = state.weatherStationDataIndex?:0
     state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
-    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
+    countRemoteTempHumiditySensors()
+//    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
     state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name
+}
+
+def countRemoteTempHumiditySensors() {
+    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9]f$|^soiltemp[0-9]$') }
+    return state.countRemoteTempHumiditySensors
 }
