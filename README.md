@@ -76,16 +76,22 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 
 **Required Files in your SmartThings IDE Repository**
 
-| IDE Repository    | Filename |
-|-------------------|----------|
-| My SmartApps      | kurtsanders : Ambient Weather Station Service Manager V3   |
-| My Device Handler | kurtsanders : Ambient Weather Station V3<br>kurtsanders : Ambient Weather Station V3 No Color Tiles<br>kurtsanders : Ambient Weather Station Remote Sensor V3|
+| IDE Repository    | Filename | Status |
+| :---: | :----------| :---:  |
+| My SmartApps      | kurtsanders : My Ambient Weather Station | **NEW**  |
+| My Device Handler | kurtsanders : SmartWeather Tile Station | **Updated** |
+| My Device Handler | kurtsanders : Ambient Weather Station | **NEW**  |
+| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | **NEW** |
+
+> - *It is required that all other previous versions/files of Ambient Weather Station be removed and only these V4 files from the above table are present in your SmartThings IDE.*
+> - V3 cannot be updated to V4 due to the extensive re-coding to accomodate multiple instances of Ambient Weather Station nodes and SMS alerts.  A fresh/clean install of V4 is only supported.
+
 
 **Instructions**
 
-1. Using the 'Update from REPO' button in the SmartThings IDE, Check the Ambient Weather Station Service Manager V3 SmartApp and publish & save.  Do the same from the "My Device Handlers" for the three (3) Ambient Weather device handlers ([See GitHub IDE integration](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github)) from this STAmbientWeather(master) repository to your SmartThings IDE.
-2. **Required Next Step before setup on mobile client:** You must edit the newly added Ambient Weather Station Reporter V3 SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.
-3. Locate the Ambient Weather Station Reporter V3 app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
+1. Using the 'Update from REPO' button in the SmartThings IDE, Check the 'My Ambient Weather Station' SmartApp and publish & save.  Do the same from the "My Device Handlers" for the three (3) Ambient Weather device handlers ([See GitHub IDE integration](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github)) from this STAmbientWeather(master) repository to your SmartThings IDE.
+2. **Required Next Step before setup on mobile client:** You must edit the newly added 'My Ambient Weather Station' SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.
+3. Locate the My Ambient Weather Station app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-Ambient Weather Station.PNG" width="300">
 </p>
@@ -108,7 +114,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 5. If you have Ambient remote temperature/hydro sensors attached to your ambient weather network station, you will be presented with a "remote sensor" screen in which you **must provide** a short descriptive name for each using only alpha or numeric characters.  The remote sensors will be numbered on the screen according to their dip switch setting.
 6. Display the new SmartThings Tile in your ST Mobile Client
 
-## ActionTiles™ and STAmbientWeather V3
+## ActionTiles™ and STAmbientWeather
 
 ### Ambient Weather Station ActionTiles™ Integration
 <p align="center">
@@ -154,14 +160,14 @@ ActionTiles™
 ## Known Issues
 1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather API http request when it encounters a ST rate limiting error.
-3. The V3 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
-4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V3 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
-5. STAmbientWeather V3 recognizes ONE Ambient weather station and will add the first station's data and ignore the others.
-6. Multiple instances of STAmbientWeather app are not currently supported.
+3. The V4 version is the ONLY supported release in 2019.  Please upgrade previous versions if you desire new features, bug fixes, etc. 
+4. Android o/s mobile devices render data values much better with the **NO COLOR** preference option selected ON during installation.  If one desires to change to a COLOR or NO COLOR background tile mode, they must do so in the ST IDE in My Devices by changing the DTH name for that device accordingly (See Table above for filenames of DTH's for this V4 release).  One can always remove and re-install the application and select the correct NO COLOR Option as well.
+5. The depreciated STAmbientWeather V3 recognizes only ONE Ambient weather station and will add the first station's data and ignore the others. Version 4 handles multiple weather station nodes.
 
 ## Previous Old Versions
 *(Available in 'Depreciated Versions' GitHub Branch)*
 
+	- V3 Depreciated 1/31/2019 
 	- V2 Depreciated 12/01/2018 
 	- V1 Depreciated 06/01/2018
 
