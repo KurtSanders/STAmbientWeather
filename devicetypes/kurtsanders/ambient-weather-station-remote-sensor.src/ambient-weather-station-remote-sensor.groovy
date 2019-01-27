@@ -61,7 +61,7 @@ metadata {
         state("default", label: 'Ambient Server DateTime\n${currentValue}')
     }
     valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: '${currentValue}'), action: "refresh"
+        state "default", label: '${currentValue}', action: "refresh"
     }
     standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
