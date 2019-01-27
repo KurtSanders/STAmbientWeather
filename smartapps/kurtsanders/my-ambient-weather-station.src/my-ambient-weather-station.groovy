@@ -183,7 +183,7 @@ def optionsPage () {
                 required: true
             input name: "solarRadiationTileDisplayUnits", type: "enum",
                 title: "Select Solar Radiation ('Light') Units of Measure",
-                options: ['W/m²':'Imperial Units','lux':'Metric Units', 'fc':'Foot Candles'],
+                options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
                 required: true
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
                 input name: "createActionTileDevice", type: "bool",
