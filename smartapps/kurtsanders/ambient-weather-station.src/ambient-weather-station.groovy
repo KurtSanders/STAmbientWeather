@@ -72,7 +72,7 @@ preferences {
 
 def mainPage() {
     if (state.apiKey) {
-        log.debug "The Ambient Weather API beng used is: ${state.apiKey}"
+        log.debug "The Ambient Weather API being used is: ${state.apiKey}"
     } else {
         state.apiKey = appSettings.apiKey
         log.debug "*NEW* Ambient Weather API = ${state.apiKey}"
@@ -83,14 +83,12 @@ def mainPage() {
     def nextPageName = "optionsPage"
     state.retry = 0
     def getAmbientStationDataRC = getAmbientStationData()
-    log.debug "getAmbientStationDataRC = ${getAmbientStationDataRC}"
-    log.debug "apiappSetupCompleteBool = ${apiappSetupCompleteBool}"
     if (apiappSetupCompleteBool && getAmbientStationDataRC) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appNameVersion()}. "
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
         setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
-        setupMessage = "API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
+        setupMessage = "Ambient API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
         nextPageName = null
     }
     dynamicPage(name: "mainPage", title: setupTitle, submitOnChange: true, nextPage: nextPageName, uninstall:true, install:false) {
@@ -334,7 +332,7 @@ def scheduleCheckReset() {
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
-    if (!debugVerbose) {
+    if (debugVerbose) {
         def children = app.getChildDevices()
         def thisdevice
         log.debug "SmartApp $app.name has ${children.size()} child devices"
@@ -342,21 +340,7 @@ def appTouchHandler(evt="") {
             log.info "${it} <-> DNI: ${it.deviceNetworkId}"
         }
     }
-
-    /*
-    thisdevice = children.findAll { it.typeName == DTHName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
-    }
-    thisdevice = children.findAll { it.typeName == DTHRemoteSensorName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
-    }
-    log.info "${i}) ${child.typeName} : $child.name"
-    log.info "${i}) DNI: ${child.deviceNetworkId}"
-    log.info "${i}) getChildDevice(): ${getChildDevice(child.deviceNetworkId)}"
-    log.info "${i}) ID: $child.id"
-    log.info "${i}) Label: $child.label"
-    log.info "${i}) DNI: ${child.deviceNetworkId}"
-    */
+    refresh()
 }
 
 def refresh() {
