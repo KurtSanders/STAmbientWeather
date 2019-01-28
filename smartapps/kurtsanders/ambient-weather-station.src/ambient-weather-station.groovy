@@ -23,17 +23,17 @@ import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
 String version()				{ return "V4.0.0" }
-String appModified()			{ return "Jan-24-2019"}
+String appModified()			{ return "Jan-28-2019"}
 
 //*************************************** Constants ***************************************
-String appNameVersion() 		{ return "My Ambient Weather Station ${version()}" }
+String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
 String appShortName() 			{ return "STAmbientWeather ${version()}" }
 
 String DTHName() 				{ return "Ambient Weather Station" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor"}
-String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
-String DTHDNIRemoteSensorName() { return "${app.id}:MyAmbientRemoteSensor"}
-String DTHDNIActionTiles() 		{ return "${app.id}:MyAmbientSmartWeatherStationTile" }
+String DTHDNI() 				{ return "${app.id}:AmbientWeatherStation" }
+String DTHDNIRemoteSensorName() { return "${app.id}:AmbientRemoteSensor"}
+String DTHDNIActionTiles() 		{ return "${app.id}:AmbientSmartWeatherStationTile" }
 
 String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
 String AWSNameActionTiles()		{ return "SmartWeather" }
@@ -49,10 +49,10 @@ String appKey() 				{return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba
 // ============================================================================================================
 
 definition(
-    name: 			"My Ambient Weather Station",
+    name: 			"Ambient Weather Station",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"Connect your Ambient Weather Station to SmartThings",
+    description: 	"Connect your Ambient™ Weather Station and remote sensors to SmartThings.  Get local forecast weather along with real-time data from your PWS",
     category: 		"My Apps",
     iconUrl:   		getAppImg("blue-ball-100.jpg"),
     iconX2Url: 		getAppImg("blue-ball-200.jpg"),
@@ -72,7 +72,7 @@ preferences {
 
 def mainPage() {
     if (state.apiKey) {
-        log.debug "Ambient Weather API = ${state.apiKey}"
+        log.debug "The Ambient Weather API beng used is: ${state.apiKey}"
     } else {
         state.apiKey = appSettings.apiKey
         log.debug "*NEW* Ambient Weather API = ${state.apiKey}"
@@ -329,14 +329,28 @@ def scheduleCheckReset() {
     }
 }
 
+include 'asynchttp_v1'
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    def children = app.getChildDevices()
-    def thisdevice
-    log.debug "SmartApp $app.name has ${children.size()} child devices"
-    thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-        log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+    if (debugVerbose) {
+        def children = app.getChildDevices()
+        def thisdevice
+        log.debug "SmartApp $app.name has ${children.size()} child devices"
+        thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
+            log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+        }
     }
+    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
+    def params = [
+        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${state.apiKey}"
+    ]
+    log.debug "Sending Async get to Ambient at ${timeStamp}"
+    asynchttp_v1.get('responseHandlerMethod', params)
+
+    return
+    scheduleCheckReset()
+    main()
+
     /*
     thisdevice = children.findAll { it.typeName == DTHName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
         log.info "${it} <-> DNI: ${it.deviceNetworkId}"
@@ -351,10 +365,48 @@ def appTouchHandler(evt="") {
     log.info "${i}) Label: $child.label"
     log.info "${i}) DNI: ${child.deviceNetworkId}"
     */
-    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
-    scheduleCheckReset()
-    main()
 }
+
+def responseHandlerMethod(response, data) {
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    if (response.hasError()) {
+        log.error "Ambient Weather http response returned an error: $response.errorMessage"
+    } else {
+        def results
+        try {
+            results = response.json
+        } catch (e) {
+            log.error "error parsing json from response: $e"
+        }
+        if (results) {
+            log.debug "state.ambientMap Old = ${state.ambientMap}"
+            log.debug "Results Size: ${results[0].size()}"
+            log.debug "Results Data: ${results[0]}"
+            state.ambientMap = results
+//            state.respStatus = results.status
+            log.debug "state.ambientMap New = ${state.ambientMap}"
+            log.info "Weather Station Name = ${state.ambientMap[0].info.name}"
+            ambientWeatherStation(true)
+            if (debugVerbose) {
+                results[0].each{ k, v ->
+                    log.info "Top: ${k} = ${v}"
+                    if (k instanceof Map) {
+                        k.each { x, y ->
+                            log.info "KMap: ${x} = ${y}"
+                        }
+                    }
+                    if (v instanceof Map) {
+                        v.each { x, y ->
+                            log.info "VMap: ${x} = ${y}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 def refresh() {
     log.info "Device: 'Refresh ALL'"
@@ -463,9 +515,20 @@ def checkForSevereWeather() {
     def alertMsg = []
     def alertDescription = []
     def alerts = getTwcAlerts()
+    switch (alerts.size()) {
+        case {it==1}:
+        state.weatherAlerts = "(1 Alert) "
+        break
+        case {it>1}:
+        state.weatherAlerts = "(${alerts.size()} Alerts) "
+        break
+        default:
+            state.weatherAlerts = ""
+        break
+    }
     def msg = ""
     if (alerts) {
-        alerts.eachWithIndex {alert, i ->
+        alerts.each {alert ->
             msg += "${alert.headlineText}"
             if (alert.effectiveTimeLocal && !msg.contains(" from ")) {
                 msg += " from ${parseAlertTime(alert.effectiveTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.effectiveTimeLocalTimeZone))}"
@@ -476,7 +539,7 @@ def checkForSevereWeather() {
             alertMsg << msg
             def detailKey = alert.detailKey
             def TwcAlertDetail = getTwcAlertDetail(detailKey)
-            alertDescription << TwcAlertDetail.alertDetail.texts.description.join(",").replaceAll("[\\t\\n\\r&]+"," ")
+            alertDescription << TwcAlertDetail.alertDetail.texts.description.join(",").replaceAll("[\\t\\n\\r&]+"," ").take((400/alerts.size()).toInteger())
             msg = ""
         }
     } else {
@@ -490,7 +553,7 @@ def checkForSevereWeather() {
     d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
     if ( (mobilePhone) && (notifySevereAlert) && (alerts) ) {
         if (lastNotifyDT(state.notifySevereAlertDT, "${alerts.size()} Weather Alert(s)")) {
-            msg = "${appShortName()}: SEVERE WEATHER ALERT: ${alertMsg.join(', ')}"
+            msg = "${state.weatherStationName}: SEVERE WEATHER ALERT: ${alertMsg.join(', ')}"
             if(debugVerbose){log.debug "SMS: ${msg}"}
             state.notifySevereAlertDT = now()
             sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -498,9 +561,9 @@ def checkForSevereWeather() {
     }
 }
 
-def ambientWeatherStation() {
+def ambientWeatherStation(async=false) {
     // Ambient Weather Station
-    if(infoVerbose){log.info "Ambient Weather Station Reporter: Executing 'Refresh Routine' auto every: ${schedulerFreq} min(s)"}
+    log.info "${app.name}: Executing ${async?'ASYNC HTTP Mode':'Sync Http Mode'} 'Refresh Routine' auto every: ${schedulerFreq} min(s)"
     def d = getChildDevice(state.deviceId)
     def okTOSendEvent = true
     def remoteSensorDNI = ""
@@ -512,7 +575,9 @@ def ambientWeatherStation() {
     def measureUnits = tempUnits == "C" ? "CM" : "IN"
     def baroUnits = tempUnits == "C" ? "MMHG" : "INHg"
     def sendEventOptions = ""
-    if (getAmbientStationData()) {
+    def rcAmbientStationData = async?:getAmbientStationData()
+//    if (getAmbientStationData()) {
+    if (rcAmbientStationData) {
         if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         setStateWeatherStationData()
@@ -554,11 +619,11 @@ def ambientWeatherStation() {
 
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('feelsLike')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity')) {
-                d.sendEvent(name: 'secondaryControl', value: sprintf("Humidity is %s%% at %s", state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime), displayed: false )
+                d.sendEvent(name: 'secondaryControl', value: sprintf("%sHumidity is %s%% at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime), displayed: false )
             } else if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
-                d.sendEvent(name: 'secondaryControl', value: sprintf("Humidity is %s%% at %s", state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, nowTime), displayed: false )
+                d.sendEvent(name: 'secondaryControl', value: sprintf("%sHumidity is %s%% at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, nowTime), displayed: false )
             } else {
-                d.sendEvent(name: 'secondaryControl', value: "", displayed: false )
+                d.sendEvent(name: 'secondaryControl', value: state.weatherAlerts, displayed: false )
             }
         }
 
@@ -634,16 +699,16 @@ def ambientWeatherStation() {
                     case {( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0 ))} :
                         DecimalFormat df = new DecimalFormat("0.00")
                     def numberForRainLevel = df.format(state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin)
-                    scText = sprintf("Raining at %s in/hr at %s", numberForRainLevel, nowTime)
+                    scText = sprintf("%sRaining at %s in/hr at %s", state.weatherAlerts,numberForRainLevel, nowTime)
                     break
                     case { (v > state.ambientMap[state.weatherStationDataIndex].lastData.tempf) } :
-                        scText = sprintf("Feels like %sº at %s", v, nowTime)
+                        scText = sprintf("%sFeels like %sº at %s", state.weatherAlerts, v, nowTime)
                     break
                     case { ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('windspeedmph')) && (state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph.toFloat()>0)) } :
-                        scText = sprintf("Wind is %s %s %s at %s", state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph, windUnits, degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true), nowTime)
+                        scText = sprintf("%sWind is %s %s %s at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph, windUnits, degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true), nowTime)
                     break
                     default :
-                    scText = sprintf("Humidity is %s%% at %s", state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime)
+                    scText = sprintf("%sHumidity is %s%% at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime)
                     break
                 }
                 d.sendEvent(name: 'secondaryControl', value: scText, displayed: false )
@@ -857,7 +922,7 @@ def ambientWeatherStation() {
 }
 
 def getAmbientStationData() {
-	if(infoVerbose){log.info "Start: getAmbientStationData()"}
+	if(!infoVerbose){log.info "Start: getAmbientStationData()"}
     if(!state.apiKey){
         log.error("Severe Error: The API key is UNDEFINED in ${app.name}'s IDE 'App Settings' field, fatal error now exiting")
         return false
