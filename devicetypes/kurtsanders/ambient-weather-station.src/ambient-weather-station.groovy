@@ -344,10 +344,10 @@ metadata {
     valueTile("weather", "device.weather",  width: 6, height: 3, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
-    valueTile("alertDescription", "device.alertDescription", width: 6, height: 6, decoration: "flat", wordWrap: true) {
+    valueTile("alertMessage", "device.alertMessage", width: 6, height: 2, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
-    valueTile("alertMessage", "device.alertMessage", width: 6, height: 2, decoration: "flat", wordWrap: true) {
+    valueTile("alertDescription", "device.alertDescription", width: 6, height: 6, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
 
@@ -401,34 +401,27 @@ metadata {
 
 def initialize() {
     def naStndardFields = [
-        "humidityin" ,
-        "feelsLike",
-        "water",
-        "eventrainin",
-        "hourlyrainin",
+        "baromabsin",
+        "baromrelin",
         "dailyrainin",
-        "weeklyrainin",
-        "monthlyrainin",
-        "solarradiation",
+        "dewPoint",
+        "eventrainin",
+        "feelsLike",
+        "hourlyrainin",
         "lastRain",
         "lastRainDuration",
+        "monthlyrainin",
+        "solarradiation",
         "totalrainin",
-        "winddirection",
-        "windspeedmph",
-        "motion",
-        "winddir2",
-        "windgustmph",
-        "dewPoint",
-        "baromrelin",
-        "baromabsin",
-        "humidity",
         "ultravioletIndexDisplay",
+        "weeklyrainin",
+        "windgustmph",
         "windPhrase",
-        "battery"
+        "windspeedmph"
     ]
-    naStndardFields.each {
-        log.debug "Updated Missing Weather Field: '${it}' to 'N/A'"
-        sendEvent(name: it, value: "N/A")
+    naStndardFields.eachWithIndex { field, i ->
+        log.debug "${i}) Setting Initial Weather Field: '${field}' to 'N/A'"
+        sendEvent(name: "${field}", value: "N/A")
     }
 }
 

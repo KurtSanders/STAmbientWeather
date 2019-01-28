@@ -31,9 +31,9 @@ String appShortName() 			{ return "STAmbientWeather ${version()}" }
 
 String DTHName() 				{ return "Ambient Weather Station" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor"}
-String DTHDNI() 				{ return "${app.id}:AmbientWeatherStation" }
-String DTHDNIRemoteSensorName() { return "${app.id}:AmbientRemoteSensor"}
-String DTHDNIActionTiles() 		{ return "${app.id}:AmbientSmartWeatherStationTile" }
+String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
+String DTHDNIRemoteSensorName() { return "${app.id}:MyAmbientRemoteSensor"}
+String DTHDNIActionTiles() 		{ return "${app.id}:MyAmbientSmartWeatherStationTile" }
 
 String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
 String AWSNameActionTiles()		{ return "SmartWeather" }
@@ -83,12 +83,14 @@ def mainPage() {
     def nextPageName = "optionsPage"
     state.retry = 0
     def getAmbientStationDataRC = getAmbientStationData()
-    if ( (apiappSetupCompleteBool) && (getAmbientStationDataRC) ) {
+    log.debug "getAmbientStationDataRC = ${getAmbientStationDataRC}"
+    log.debug "apiappSetupCompleteBool = ${apiappSetupCompleteBool}"
+    if (apiappSetupCompleteBool && getAmbientStationDataRC) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appNameVersion()}. "
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
         setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
-        setupMessage = "Setup Incomplete: Please check and/or complete the REQUIRED API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}"
+        setupMessage = "API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
         nextPageName = null
     }
     dynamicPage(name: "mainPage", title: setupTitle, submitOnChange: true, nextPage: nextPageName, uninstall:true, install:false) {
@@ -329,10 +331,10 @@ def scheduleCheckReset() {
     }
 }
 
-include 'asynchttp_v1'
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    if (debugVerbose) {
+    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
+    if (!debugVerbose) {
         def children = app.getChildDevices()
         def thisdevice
         log.debug "SmartApp $app.name has ${children.size()} child devices"
@@ -340,16 +342,6 @@ def appTouchHandler(evt="") {
             log.info "${it} <-> DNI: ${it.deviceNetworkId}"
         }
     }
-    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
-    def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${state.apiKey}"
-    ]
-    log.debug "Sending Async get to Ambient at ${timeStamp}"
-    asynchttp_v1.get('responseHandlerMethod', params)
-
-    return
-    scheduleCheckReset()
-    main()
 
     /*
     thisdevice = children.findAll { it.typeName == DTHName() }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
@@ -366,47 +358,6 @@ def appTouchHandler(evt="") {
     log.info "${i}) DNI: ${child.deviceNetworkId}"
     */
 }
-
-def responseHandlerMethod(response, data) {
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    if (response.hasError()) {
-        log.error "Ambient Weather http response returned an error: $response.errorMessage"
-    } else {
-        def results
-        try {
-            results = response.json
-        } catch (e) {
-            log.error "error parsing json from response: $e"
-        }
-        if (results) {
-            log.debug "state.ambientMap Old = ${state.ambientMap}"
-            log.debug "Results Size: ${results[0].size()}"
-            log.debug "Results Data: ${results[0]}"
-            state.ambientMap = results
-//            state.respStatus = results.status
-            log.debug "state.ambientMap New = ${state.ambientMap}"
-            log.info "Weather Station Name = ${state.ambientMap[0].info.name}"
-            ambientWeatherStation(true)
-            if (debugVerbose) {
-                results[0].each{ k, v ->
-                    log.info "Top: ${k} = ${v}"
-                    if (k instanceof Map) {
-                        k.each { x, y ->
-                            log.info "KMap: ${x} = ${y}"
-                        }
-                    }
-                    if (v instanceof Map) {
-                        v.each { x, y ->
-                            log.info "VMap: ${x} = ${y}"
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 
 def refresh() {
     log.info "Device: 'Refresh ALL'"
@@ -561,9 +512,9 @@ def checkForSevereWeather() {
     }
 }
 
-def ambientWeatherStation(async=false) {
+def ambientWeatherStation() {
     // Ambient Weather Station
-    log.info "${app.name}: Executing ${async?'ASYNC HTTP Mode':'Sync Http Mode'} 'Refresh Routine' auto every: ${schedulerFreq} min(s)"
+    log.info "${app.name}: Executing 'Refresh Routine' auto every: ${schedulerFreq} min(s)"
     def d = getChildDevice(state.deviceId)
     def okTOSendEvent = true
     def remoteSensorDNI = ""
@@ -575,9 +526,7 @@ def ambientWeatherStation(async=false) {
     def measureUnits = tempUnits == "C" ? "CM" : "IN"
     def baroUnits = tempUnits == "C" ? "MMHG" : "INHg"
     def sendEventOptions = ""
-    def rcAmbientStationData = async?:getAmbientStationData()
-//    if (getAmbientStationData()) {
-    if (rcAmbientStationData) {
+    if (getAmbientStationData()) {
         if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         setStateWeatherStationData()
@@ -638,13 +587,13 @@ def ambientWeatherStation(async=false) {
         }
         // Update Main Weather Device with Remote Sensor 1 values if tempinf does not exist, same with humidityin
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) {
-            log.debug "Fixing Main Station for inside temp"
+            if(debugVerbose){log.debug "Fixing Main Station for inside temp"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
                 d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: tempUnits)
             }
         }
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidityin')) {
-            log.debug "Fixing Main Station for inside humidity"
+            if(debugVerbose){log.debug "Fixing Main Station for inside humidity"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
                 d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%")
             }
@@ -945,7 +894,6 @@ def getAmbientStationData() {
             }
             if (state.weatherStationDataIndex) {
                 countRemoteTempHumiditySensors()
-//                state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
             }
             if (state.retry.toInteger()>0) {
                 log.info "Success: Retry getAmbientStationData() re-attempt #${state.retry}"
@@ -954,6 +902,10 @@ def getAmbientStationData() {
         }
     } catch (e) {
         log.warn("Ambient Weather Station API Data: ${e}")
+        state.httpError = e.toString()
+        if (e.toString().contains("Unauthorized")) {
+            return false
+        }
         state.retry = state.retry.toInteger() + 1
         if (state.retry.toInteger()<3) {
             log.info("Waiting 10 seconds to Try Again: Attempt #${state.retry}")
@@ -971,14 +923,14 @@ def addAmbientChildDevice() {
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         def AWSName =  "${AWSBaseName} - Console"
-        log.info "Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
+        log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
         try {
             addChildDevice(DTHnamespace(), DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
         } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
             log.error "The Ambient Weather Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
             return false
         }
-        log.info "Added ${AWSName} with DNI: ${DTHDNI()}"
+        log.info "Success: Added ${AWSName} with DNI: ${DTHDNI()}"
     } else {
         if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"}
     }
@@ -988,14 +940,14 @@ def addAmbientChildDevice() {
     def AWSSmartWeatherName = "${AWSBaseName} - ${AWSNameActionTiles()}"
     if (createActionTileDevice) {
         if (!actionTileDNI) {
-            log.info "Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
+            log.info "NEW: Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
             try {
                 addChildDevice(DTHnamespace(), DTHNameActionTiles(), DTHDNIActionTiles(), null, ["name": AWSSmartWeatherName, "label": AWSSmartWeatherName, isComponent: AWSNameActionTilesHide(), completedSetup: true])
             } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
                 log.error "The Ambient Weather ActionTiles™ Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
                 return false
             }
-            log.info "Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
+            log.info "Success: Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
         } else {
             if(infoVerbose){
                 if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"}
@@ -1019,14 +971,14 @@ def addAmbientChildDevice() {
             remoteSensorNumber = key.reverse()[0..0]
             if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
                 if (!remoteSensorNameDNI) {
-                    log.info "Adding Remote Sensor: ${remoteSensorNamePref}"
+                    log.info "NEW: Adding Remote Sensor: ${remoteSensorNamePref}"
                     try {
                         addChildDevice(DTHnamespace(), DTHRemoteSensorName(), "${key}", null, ["name": remoteSensorNamePref, "label": remoteSensorNamePref, completedSetup: true])
                     } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
                         log.error "The Ambient Weather Device Handler '${DTHRemoteSensorName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
                         return false
                     }
-                    log.info "Added Ambient Remote Sensor: ${remoteSensorNamePref} with DNI: ${key}"
+                    log.info "Success Added Ambient Remote Sensor: ${remoteSensorNamePref} with DNI: ${key}"
                 } else {
                     if(infoVerbose){log.info "Verified Remote Sensor #${remoteSensorNumber} of ${state.countRemoteTempHumiditySensors} Exists: ${remoteSensorNamePref} = DNI: ${key}"}
                     if ( (remoteSensorNameDNI.label == remoteSensorNamePref) && (remoteSensorNameDNI.name == remoteSensorNamePref) ) {
@@ -1230,7 +1182,6 @@ def setStateWeatherStationData() {
     state.weatherStationDataIndex = state.weatherStationDataIndex?:0
     state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
     countRemoteTempHumiditySensors()
-//    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('temp[0-9]f') }
     state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name?:state.ambientMap[state.weatherStationDataIndex].info.location
 }
 
