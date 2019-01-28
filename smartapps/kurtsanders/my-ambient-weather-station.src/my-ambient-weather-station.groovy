@@ -200,7 +200,7 @@ def optionsPage () {
                 title: "This SmartApp's Name",
                 state: (name ? "complete" : null),
                 defaultValue: "${state.weatherStationName}",
-                required: false
+                required: true
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
             input name: "debugVerbose", type: "bool",
