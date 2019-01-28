@@ -1,5 +1,8 @@
-# STAmbientWeather V4 (βeta) 
-### *New V4 provides supports for concurrent multiple instances of weather network stations*
+# My Ambient Weather Station 
+### Version: [V4 (βeta](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version#v4-%CE%B2eta))
+---
+
+### *New V4 provides supports for concurrent multiple instances of Ambient weather network stations*
 
 *SmartThings Integration for Ambient Weather Stations*
 
