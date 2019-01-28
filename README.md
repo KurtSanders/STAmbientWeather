@@ -15,6 +15,14 @@ This SmartThings application (V3) provides access to your [Ambientweather.net](h
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Changelog & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ## Weather Station Tile and Details View
+
+### Multiple Ambient Weather Station Instances of Independent Operating Nodes
+
+<p align="center">
+Allows for multiple Ambient weather system models or geolocation instances<br>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient1.jpg" width=300></p>
+
+
 ### Screenshots of Device Attributes
 
 <p align="center">
@@ -96,7 +104,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 2. **Required Next Step before setup on mobile client:** You must edit the newly added 'My Ambient Weather Station' SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.
 3. Locate the My Ambient Weather Station app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-Ambient Weather Station.PNG" width="300">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient2.jpg" width="300">
 </p>
 
 4. Update the following fields
