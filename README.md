@@ -118,8 +118,9 @@ Ambient®
 	- zipCode	(Your Zipcode for Weather Forecast Info)
 	- Run Weather Station Refresh ('0' is 'Off/Manual Refresh')
 	- 	(# mins for the APP to update weather values from your weather station)
-	- Remove Color Background in Tiles for Displaying Values *(Only functions during initial installation/setup)*
 	- Select Solar Radiation Units of Measure
+	- Weather Alerts/Notifications >
+	- This SmartApp's Name (Used to name this App Instance in your Automation List)
 	- IDE Logging (Optional)
 		- debugVerbose	
 		- infoVerbose	bool	
