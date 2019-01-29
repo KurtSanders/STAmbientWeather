@@ -189,9 +189,9 @@ def optionsPage () {
                 title: "Select Solar Radiation ('Light') Units of Measure",
                 options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
                 required: true
-            if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
+            if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
                 input name: "createActionTileDevice", type: "bool",
-                    title: "Create ${DTHNameActionTiles()} for use as ActionTiles™ SmartWeather Station Tile?",
+                    title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
                     required: false
             }
             href(name: "Define Weather Alerts/Notification",
@@ -765,7 +765,6 @@ def ambientWeatherStation() {
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[8..8]}")) {
                         remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData."batt${k[8..8]}".toInteger()*100, displayed: false)
                     }
-
                 } else {
                     log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
                 }
@@ -902,10 +901,12 @@ def getAmbientStationData() {
 
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station device
+    // Derive a Short Name for the Weather Station
     def AWSBaseName = state.weatherStationName?:"${app.name}"
+    AWSBaseName = AWSBaseName.substring(0,AWSBaseName.length()>11?11:AWSBaseName.length())
+    def AWSName =  "${AWSBaseName} - Console"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
-        def AWSName =  "${AWSBaseName} - Console"
         log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
         try {
             addChildDevice(DTHnamespace(), DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
@@ -915,7 +916,15 @@ def addAmbientChildDevice() {
         }
         log.info "Success: Added ${AWSName} with DNI: ${DTHDNI()}"
     } else {
-        if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"}
+        log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"
+        if ( (AWSDNI.label == AWSName) && (AWSDNI.name == AWSName) ) {
+            log.info "Device Label/Name Pref Match: Name: ${AWSDNI.name} = Label: ${AWSDNI.label} -> NO CHANGE"
+        } else {
+            log.warn "Device Label/Name Pref Mis-Match: Name: ${AWSDNI.name} <> Label: ${AWSDNI.label} <> Device Label: ${AWSName} -> RENAMING"
+            AWSDNI.label = AWSName
+            AWSDNI.name  = AWSName
+            log.warn "Successfully Renamed Device Label for: ${AWSDNI}"
+        }
     }
 
     // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
@@ -932,8 +941,14 @@ def addAmbientChildDevice() {
             }
             log.info "Success: Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
         } else {
-            if(infoVerbose){
-                if(infoVerbose){log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"}
+            log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"
+            if ( (actionTileDNI.label == AWSSmartWeatherName) && (actionTileDNI.name == AWSSmartWeatherName) ) {
+                log.info "Device Label/Name Pref Match: Name: ${actionTileDNI.name} = Label: ${actionTileDNI.label} -> NO CHANGE"
+            } else {
+                log.warn "Device Label/Name Pref Mis-Match: Name: ${actionTileDNI.name} <> Label: ${actionTileDNI.label} <> Device Label: ${AWSSmartWeatherName} -> RENAMING"
+                actionTileDNI.label = AWSSmartWeatherName
+                actionTileDNI.name  = AWSSmartWeatherName
+                log.warn "Successfully Renamed Device Label for: ${actionTileDNI}"
             }
         }
     } else {
@@ -1169,6 +1184,6 @@ def setStateWeatherStationData() {
 }
 
 def countRemoteTempHumiditySensors() {
-    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9]f$|^soiltemp[0-9]$') }
+    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9][0-9]?f|^soiltemp[0-9]?[0-9]?') }
     return state.countRemoteTempHumiditySensors
 }
