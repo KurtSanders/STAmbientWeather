@@ -43,6 +43,8 @@ String DTHnamespace()			{ return "kurtsanders" }
 String appAuthor()	 			{ return "SanderSoft" }
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
+Integer wm2lux(value)			{ return (value * 126.7).toInteger() }
+Integer wm2fc(value)			{ return (wm2lux(value) * 0.0929).toInteger() }
 // ============================================================================================================
 // This APP key is ONLY for this application - Do not copy or use elsewhere
 String appKey() 				{return "33054086b3d745779f5ac35e147baa76f13e75d44ea245388ba598911905fb50"}
@@ -450,6 +452,8 @@ def checkForSevereWeather() {
     def alertMsg = []
     def alertDescription = []
     def alerts = getTwcAlerts()
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+    def msg = ""
     switch (alerts.size()) {
         case {it==1}:
         state.weatherAlerts = "(1 Alert) "
@@ -461,7 +465,6 @@ def checkForSevereWeather() {
             state.weatherAlerts = ""
         break
     }
-    def msg = ""
     if (alerts) {
         alerts.each {alert ->
             msg += "${alert.headlineText}"
@@ -478,8 +481,6 @@ def checkForSevereWeather() {
             msg = ""
         }
     } else {
-        // Time Stamp
-        def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
         alertMsg = "No current weather alerts for ${state.cityValue} at ${timeStamp}\nlatitude = ${state.latitude}º\nlongitude = ${state.longitude}º"
     }
     if(infoVerbose){log.info "Alert msg: ${alertMsg}"}
@@ -488,7 +489,7 @@ def checkForSevereWeather() {
     d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
     if ( (mobilePhone) && (notifySevereAlert) && (alerts) ) {
         if (lastNotifyDT(state.notifySevereAlertDT, "${alerts.size()} Weather Alert(s)")) {
-            msg = "${state.weatherStationName}: SEVERE WEATHER ALERT: ${alertMsg.join(', ')}"
+            msg = "Ambient Weather Station ${state.weatherStationName}: SEVERE WEATHER ALERT for ${state.cityValue} at ${timeStamp}: ${alertMsg.join(', ')}"
             if(debugVerbose){log.debug "SMS: ${msg}"}
             state.notifySevereAlertDT = now()
             sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -684,20 +685,18 @@ def ambientWeatherStation() {
                 break
                 case 'solarradiation':
                 v = v.toInteger()
-                if(v > 0) {
                     switch(solarRadiationTileDisplayUnits) {
                         case ('lux'):
-                        v = (v * 683)
+                    v = wm2lux(v)
                         break
                         case ('fc'):
-                        v = (v * 683 * 0.0929).toInteger()
+                    v = wm2fc(v)
                         break
                         default:
                             break
                     }
-                    d.sendEvent(name: k, value: sprintf("%,06d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
                     k='illuminance'
-                }
                 break
                 case 'windspeedmph':
                 // Send windSpeed as power and energy for pseudo tiles in ActionTiles™
