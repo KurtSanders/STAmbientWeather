@@ -144,11 +144,12 @@ def mainPage() {
                     weatherStationList << [[ "${it.macAddress}" : "${it.info.name}${it.info.location?' @ ':''}${it.info.location}" ]]
                 }
                 section ("Ambient Weather Station Information") {
-                    input name: "weatherStationMac", submitOnChange: true, type: "enum",
-                        title: "Select the Weather Station to Install",
-                        options: weatherStationList,
-                        multiple: false,
-                        required: true
+                    input (name: "weatherStationMac", submitOnChange: true, type: "enum",
+                           title: "Select the Weather Station to Install",
+                           options: weatherStationList,
+                           multiple: false,
+                           required: true
+                          )
                 }
             }
         }
@@ -165,7 +166,7 @@ def mainPage() {
 }
 
 def optionsPage () {
-    log.info "Ambient Weather Station Selected = Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
+    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
     def i = 0
@@ -173,60 +174,69 @@ def optionsPage () {
     for (i; i <= state.weatherStationName.length(); i++) {
         AWSBaseNameEnum << ["${i}":"${(i==0)?'No Prefix':state.weatherStationName.substring(0,i)}"]
     }
-    log.debug "AWSBaseNameLength = ${AWSBaseNameLength}"
     dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
                 nextPage: lastPageName,
                 uninstall:false,
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
-            input name: "zipCode", type: "number",
-                title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
-                required: true
-            input name: "schedulerFreq", type: "enum",
-                title: "Run Ambient Weather Station Refresh Every (X mins)?",
-                options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
-                required: true
+            input ( name: "zipCode", type: "number",
+                   title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
+                   required: true
+                  )
+            input ( name: "schedulerFreq", type: "enum",
+                   title: "Run Ambient Weather Station Refresh Every (X mins)?",
+                   options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
+                   required: true
+                  )
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
-                input name: "${DTHDNIRemoteSensorName()}0", type: "text",
-                    title: "Weather Station Console Room Location Short Name",
-                    required: true
+                input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
+                       title: "Weather Station Console Room Location Short Name",
+                       required: true
+                      )
             }
-            input name: "solarRadiationTileDisplayUnits", type: "enum",
-                title: "Select Solar Radiation ('Light') Units of Measure",
-                options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
-                required: true
+            input ( name: "solarRadiationTileDisplayUnits", type: "enum",
+                   title: "Select Solar Radiation ('Light') Units of Measure",
+                   options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
+                   required: true
+                  )
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
-                input name: "createActionTileDevice", type: "bool",
-                    title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
-                    required: false
+                input ( name: "createActionTileDevice", type: "bool",
+                       title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
+                       required: false
+                      )
             }
             href(name: "Define Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
                  defaultValue: "Tap to Select",
                  page: "notifyPage")
-            input name: "AWSBaseNameLength", type: "enum",
-                title: "Select the base prefix used for each weather device",
-                options: AWSBaseNameEnum,
-                state: (AWSBaseNameLength ? "complete" : null),
-                defaultValue: "${state.weatherStationName}",
-                required: true
-            label name: "name",
-                title: "This SmartApp's Name",
-                state: (name ? "complete" : null),
-                defaultValue: "${state.weatherStationName}",
-                required: true
+            input ( name: "AWSBaseNameLength", type: "enum",
+                   title: "Select the base prefix used for each weather device",
+                   options: AWSBaseNameEnum,
+                   state: (AWSBaseNameLength ? "complete" : null),
+                   defaultValue: "${state.weatherStationName}",
+                   required: true
+                  )
+            label ( name: "name",
+                   title: "This SmartApp's Name",
+                   state: (name ? "complete" : null),
+                   defaultValue: "${state.weatherStationName}",
+                   required: true
+                  )
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
-            input name: "debugVerbose", type: "bool",
-                title: "Show Debug Messages in Live Logging IDE",
-                required: false
-            input name: "infoVerbose", type: "bool",
-                title: "Show Info Messages in Live Logging IDE",
-                required: false
-            input name: "WUVerbose", type: "bool",
-                title: "Show Local Weather Info Messages in Live Logging IDE",
-                required: false
+            input (name: "debugVerbose", type: "bool",
+                   title: "Show Debug Messages in Live Logging IDE",
+                   required: false
+                  )
+            input ( name: "infoVerbose", type: "bool",
+                   title: "Show Info Messages in Live Logging IDE",
+                   required: false
+                  )
+            input ( name: "WUVerbose", type: "bool",
+                   title: "Show Local Weather Info Messages in Live Logging IDE",
+                   required: false
+                  )
         }
     }
 }
@@ -254,30 +264,35 @@ def remoteSensorPage() {
 def notifyPage() {
     dynamicPage(name: "notifyPage", title: "Weather Alerts/Notification", uninstall: false, install: false) {
         section("Mobile SMS Notify Options") {
-            input name: "mobilePhone", type: "phone",
-                title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
-                required: true
-            input name: "notifyAlertFreq", type: "enum",
-                required: true,
-                title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
-                options: [1,2,4,6,12,24],
-                multiple: false
-
+            input ( name: "mobilePhone", type: "phone",
+                   title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
+                   required: true
+                  )
+            input ( name: "notifyAlertFreq", type: "enum",
+                   required: true,
+                   title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
+                   options: [1,2,4,6,12,24],
+                   multiple: false
+                  )
         }
         section ("Weather Station Notify Options") {
-            input name: "notifySevereAlert", type: "bool", required: false,
-                title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
+            input ( name: "notifySevereAlert", type: "bool", required: false,
+                   title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
+                  )
             if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
-                input name: "notifyAlertLowTemp", type: "number", required: false,
-                    title: "Notify when a temperature value is EQUAL OR BELOW this value. Leave field blank to cancel notification."
+                input ( name: "notifyAlertLowTemp", type: "number", required: false,
+                       title: "Notify when a temperature value is EQUAL OR BELOW this value. Leave field blank to cancel notification."
+                      )
             }
             if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
-                input name: "notifyAlertHighTemp", type: "number", required: false,
-                    title: "Notify when a temperature value is EQUAL OR ABOVE this value.  Leave field blank to cancel notification."
+                input ( name: "notifyAlertHighTemp", type: "number", required: false,
+                       title: "Notify when a temperature value is EQUAL OR ABOVE this value.  Leave field blank to cancel notification."
+                      )
             }
             if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) ) {
-                input name: "notifyRain", type: "bool", required: false,
-                    title: "Notify when RAIN is detected"
+                input ( name: "notifyRain", type: "bool", required: false,
+                       title: "Notify when RAIN is detected"
+                      )
             }
         }
         section (hideable: true, hidden: true, "Last SMS Notifications") {
@@ -320,6 +335,7 @@ def installed() {
 
 def updated() {
 	initialize()
+    runIn(10, main)
 }
 
 def uninstalled() {
@@ -377,7 +393,7 @@ def main() {
     }
     state.runID = runID
 
-    log.info "Main (#${runID}) Section: Executing Local Weather for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
+    log.info "Main (#${runID}) Section: Executing Local Weather Routines for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
 
     // TWC Local Weather
     localWeatherInfo()
