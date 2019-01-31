@@ -168,12 +168,18 @@ def optionsPage () {
     log.info "Ambient Weather Station Selected = Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
+    def i = 0
+    def AWSBaseNameEnum = [:]
+    for (i; i <= state.weatherStationName.length(); i++) {
+        AWSBaseNameEnum << ["${i}":"${(i==0)?'No Prefix':state.weatherStationName.substring(0,i)}"]
+    }
+    log.debug "AWSBaseNameLength = ${AWSBaseNameLength}"
     dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
                 nextPage: lastPageName,
                 uninstall:false,
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
-            input "zipCode", type: "number",
+            input name: "zipCode", type: "number",
                 title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
                 required: true
             input name: "schedulerFreq", type: "enum",
@@ -181,7 +187,7 @@ def optionsPage () {
                 options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                 required: true
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
-                input "${DTHDNIRemoteSensorName()}0", type: "text",
+                input name: "${DTHDNIRemoteSensorName()}0", type: "text",
                     title: "Weather Station Console Room Location Short Name",
                     required: true
             }
@@ -197,7 +203,14 @@ def optionsPage () {
             href(name: "Define Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
+                 defaultValue: "Tap to Select",
                  page: "notifyPage")
+            input name: "AWSBaseNameLength", type: "enum",
+                title: "Select the base prefix used for each weather device",
+                options: AWSBaseNameEnum,
+                state: (AWSBaseNameLength ? "complete" : null),
+                defaultValue: "${state.weatherStationName}",
+                required: true
             label name: "name",
                 title: "This SmartApp's Name",
                 state: (name ? "complete" : null),
@@ -380,13 +393,19 @@ def main() {
 }
 
 def localWeatherInfo() {
-
     if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
+    if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
+    def zipCodeString = zipCode.toString()
+    def obs
+    try {
+        obs = getTwcConditions(zipCodeString)
+    }
+    catch (e) {
+        log.warn "TWC Conditions Data not provided by getTwcConditions(${zipCode}) API, fatal error = ${e}"
+        return
+    }
     def d = getChildDevice(state.deviceId)
     d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-
-    if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
-    def obs = getTwcConditions(zipCode)
     state.weatherIcon = obs?.iconCode as String
     state.wxPhraseShort = obs?.wxPhraseShort
     if (obs) {
@@ -394,7 +413,7 @@ def localWeatherInfo() {
     }
 
     if(infoVerbose){log.info "Getting TWC Location Info for ${zipCode}"}
-    def loc = getTwcLocation(zipCode)?.location
+    def loc = getTwcLocation(zipCodeString)?.location
     state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode} ${loc.countryCode}"
     state.latitude = "${loc?.latitude}"
     state.longitude = "${loc?.longitude}"
@@ -415,7 +434,7 @@ def localWeatherInfo() {
 
     // Get the Weather Forecast
     if(infoVerbose){log.info "Getting TWC Forecast for ${state.cityValue}"}
-    def f = getTwcForecast(zipCode)
+    def f = getTwcForecast(zipCodeString)
     if (f) {
         state.forecastIcon = f.daypart[0].iconCode[0] ?: f.daypart[0].iconCode[1]
         state.precipChance = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
@@ -451,7 +470,8 @@ def checkForSevereWeather() {
     def d = getChildDevice(state.deviceId)
     def alertMsg = []
     def alertDescription = []
-    def alerts = getTwcAlerts()
+    def alertGeoLocation = ((state.latitude) && (state.longitude))?"${state.latitude},${state.longitude}":""
+    def alerts = getTwcAlerts("${alertGeoLocation}")
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     def msg = ""
     switch (alerts.size()) {
@@ -727,9 +747,10 @@ def ambientWeatherStation() {
                     log.error "Missing ${DTHDNIRemoteSensorName()}0"
                 }
                 break
-                // Remote Temperature & Humidity Sensors
-                case ~/^temp[0-9]f$/:
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[4..4]}")
+                // Post values for remote temperature & humidity sensors
+                case ~/^temp[0-9][0-9]?f$|^soiltemp[0-9][0-9]?$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
+                if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "temperature", value: v, units: tempUnits)
@@ -740,43 +761,18 @@ def ambientWeatherStation() {
                     }
 
                 } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[4..4]}}"
+                    log.error "Missing ST Device ${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]} for ${k}"
                 }
                 okTOSendEvent = false
                 break
-                case ~/^humidity[0-9]$/:
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
+                case ~/^humidity[0-9][0-9]?$|^soilhum[0-9][0-9]?$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
+                if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
                     remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%")
                 } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
-                }
-                okTOSendEvent = false
-                break
-                // Remote Temperature & Humidity Soil Sensors
-                case ~/^soiltemp[0-9]$/:
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[8..8]}")
-                if (remoteSensorDNI) {
-                    if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: tempUnits)
-                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-                    remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[8..8]}")) {
-                        remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData."batt${k[8..8]}".toInteger()*100, displayed: false)
-                    }
-                } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[8..8]}}"
-                }
-                okTOSendEvent = false
-                break
-                case ~/^soilhum[0-9]$/:
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k[7..7]}")
-                if (remoteSensorDNI) {
-                    if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%")
-                } else {
-                    log.error "Missing ${${DTHDNIRemoteSensorName()}${k[7..7]}}"
+                    log.error "Missing ST Device ${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]} for ${k}"
                 }
                 okTOSendEvent = false
                 break
@@ -900,11 +896,20 @@ def getAmbientStationData() {
 }
 
 def addAmbientChildDevice() {
-    // add Ambient Weather Reporter Station device
-    // Derive a Short Name for the Weather Station
+    // add Ambient Weather Reporter Station devices
+    // Derive a Short Name for the Weather Station and Remote Sensors
     def AWSBaseName = state.weatherStationName?:"${app.name}"
-    AWSBaseName = AWSBaseName.substring(0,AWSBaseName.length()>11?11:AWSBaseName.length())
-    def AWSName =  "${AWSBaseName} - Console"
+    def AWSBaseNameLengthNum
+    try {
+        AWSBaseNameLengthNum = AWSBaseNameLength?AWSBaseNameLength.toInteger().abs():AWSBaseNameLength.length()
+    } catch (e) {
+        log.warn "Invalid AWSBaseNameLength '${AWSBaseNameLength}' ${e}: Using '${AWSBaseName.length()}' as default prefix length"
+        AWSBaseNameLengthNum = AWSBaseName.length()
+    }
+    AWSBaseName = "${AWSBaseName.substring(0,AWSBaseNameLengthNum<=AWSBaseName.length()?AWSBaseNameLengthNum:AWSBaseName.length())}"
+    AWSBaseName = AWSBaseNameLengthNum==0?'':"${AWSBaseName} - "
+    // Create/Validate Weather Console Device
+    def AWSName =  "${AWSBaseName}${AWSBaseNameLengthNum==0?'Weather Console':'Console'}"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
@@ -929,7 +934,7 @@ def addAmbientChildDevice() {
 
     // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
     def actionTileDNI = getChildDevice(DTHDNIActionTiles())
-    def AWSSmartWeatherName = "${AWSBaseName} - ${AWSNameActionTiles()}"
+    def AWSSmartWeatherName = "${AWSBaseName}${AWSNameActionTiles()}"
     if (createActionTileDevice) {
         if (!actionTileDNI) {
             log.info "NEW: Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
@@ -964,7 +969,7 @@ def addAmbientChildDevice() {
     def remoteSensorNumber
     settings.each { key, value ->
         if ( key.startsWith(DTHDNIRemoteSensorName()) ) {
-            remoteSensorNamePref = "${AWSBaseName} - ${value}"
+            remoteSensorNamePref = "${AWSBaseName}${value}"
             remoteSensorNameDNI = getChildDevice(key)
             remoteSensorNumber = key.reverse()[0..0]
             if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
