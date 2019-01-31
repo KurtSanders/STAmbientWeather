@@ -172,7 +172,9 @@ def optionsPage () {
     def i = 0
     def AWSBaseNameEnum = [:]
     for (i; i <= state.weatherStationName.length(); i++) {
-        AWSBaseNameEnum << ["${i}":"${(i==0)?'No Prefix':state.weatherStationName.substring(0,i)}"]
+        if (state.weatherStationName.substring(0,i)==state.weatherStationName.substring(0,i).trim()) {
+            AWSBaseNameEnum << ["${i}":"${(i==0)?'No Prefix':state.weatherStationName.substring(0,i)}"]
+        }
     }
     dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
                 nextPage: lastPageName,
