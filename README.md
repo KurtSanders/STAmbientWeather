@@ -1,14 +1,14 @@
 # Ambient Weather® Station™ 
+*SmartThings® Integration for Ambient Weather® Stations*
 ### Version: [V4 (βeta](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version#v4-%CE%B2eta))
+
 ---
 
-### *New V4 provides supports for concurrent multiple instances of Ambient Weather® network stations*
-
-*SmartThings® Integration for Ambient Weather® Stations*
+### *New V4 provides supports for concurrent multiple instances of Ambient Weather® network stations and SMS alerts*
 
 ### Description:
 
-A custom SmartThings® SmartApp Service Manager and Device Handler (DTH) which provides a connection to the weather data generated from your personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html).  
+A custom SmartThings® SmartApp and Device Handlers (DTH) which provides a connection to the weather data generated from your personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html).  
 
 This SmartThings® application provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the SmartThings Tile update/refresh rate of their weather data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
 
