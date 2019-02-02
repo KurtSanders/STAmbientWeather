@@ -215,7 +215,6 @@ def optionsPage () {
             input ( name: "AWSBaseNameLength", type: "enum",
                    title: "Select the base prefix used for each weather device",
                    options: AWSBaseNameEnum,
-                   state: (AWSBaseNameLength ? "complete" : null),
                    defaultValue: "${state.weatherStationName}",
                    required: true
                   )
