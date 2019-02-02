@@ -853,15 +853,13 @@ def ambientWeatherStation() {
         d.sendEvent(name: "forecastIcon", 		value : state.forecastIcon as String)
         d.sendEvent(name: "weather", 			value : state?.wxPhraseShort)
         d.sendEvent(name: "percentPrecip", 		value : state.precipChance, unit: "%")
-        d.sendEvent(name: "city", 				value : "Ambient - ${state.weatherStationName}") // , isStateChange: true)
+        d.sendEvent(name: "city", 				value : "Ambient - ${state.weatherStationName}")
         d.sendEvent(name: "location", 			value : state.cityValue, displayed: false)
         d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: tempUnits)
         d.sendEvent(name: "humidity", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.humidity, unit: "%")
         d.sendEvent(name: "feelsLike", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.feelsLike, unit: tempUnits)
-        d.sendEvent(name: "wind",
-                    value : state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph?:"N/A", unit: windUnits)
-        d.sendEvent(name: "windVector",
-        value : "${degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, false)} ${state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph?:""} ${windUnits}")
+        d.sendEvent(name: "wind",				value : state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph ?:"0", unit: windUnits)
+        d.sendEvent(name: "windVector",			value : "${degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, false)} ${state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph?:""} ${windUnits}")
         d.sendEvent(name: "lastUpdate", 		value : tileLastUpdated(), displayed: false)
     }
 }
@@ -1155,8 +1153,9 @@ def notifyEvents() {
         def now = now()
         //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
+        def ambientWeatherStationName = "${DTHName()} - '${state.weatherStationName}'"
         if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${state.weatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
+            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -1164,7 +1163,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${state.weatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
+            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
@@ -1172,7 +1171,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin?.toInteger()>0) ){
-            log.debug "${sstate.weatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
+            log.debug "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
