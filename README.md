@@ -20,8 +20,8 @@ This SmartThings® application provides access to your [Ambientweather.net](http
 
 <p align="center">
 Allows for multiple Ambient Weather® system models or geolocation instances<br>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient2.PNG" width=300>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient1.PNG" width=300>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient2.PNG" width=300>
 </p>
 
 
