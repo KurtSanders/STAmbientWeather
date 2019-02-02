@@ -20,16 +20,17 @@ This SmartThings® application provides access to your [Ambientweather.net](http
 
 <p align="center">
 Allows for multiple Ambient Weather® system models or geolocation instances<br>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient1.jpg" width=300></p>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient2.PNG" width=300>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient1.PNG" width=300>
+</p>
 
 
 ### Screenshots of Device Attributes
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient1.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient2.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient3.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient4.PNG" width=200></p>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient3.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient4.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient5.PNG" width=200></p>
 
 ### Ambient Weather® Station with multiple remote sensors
 
