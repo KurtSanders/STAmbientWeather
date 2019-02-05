@@ -160,7 +160,7 @@ ActionTiles™
 * Units of measure on ActionTiles™ cannot be modified
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesColorTiles.jpg" width="600">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg" width="400">
 </p>
 
 One will need to edit the tile settings each of the three ActionTiles™ title headers to show decimals and custom  labels as shown below. 
@@ -168,13 +168,13 @@ One will need to edit the tile settings each of the three ActionTiles™ title h
 #### Ambient Weather Station :arrow_right: ActionTiles™
 
 | ActionTiles™ Thing :ballot_box_with_check: | Ambient Weather® Attribute | Show Decimals | Recommended Custom Label|
-|------------|-------------------|-------------------|-------------------|
+|------------|-------------------|:-------------------:|-------------------|
 | Energy | Max Daily Gust, mph | :ballot_box_with_check: |Wind Gust Daily Max|
 | Power  | Wind Speed, mph | :ballot_box_with_check: |Wind Speed |
 | Illuminance Measurement | Solar Radiation, lux or w/m²<br>Light, lux or w/m² | | |
 | Motion Sensor | windspeedmph > 1 = active | | |
 | Relative Humidity Measurement | Outside Relative Humidity, % | | |
-| Temperature Measurement | Outside Temperature, °F |ballot_box_with_check:| |
+| Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:| |
 | Ultraviolet Index | Ultraviolet Index, uv | | UVI |
 | Water Sensor | hourlyrainin > 0 = wet | | Rain State |
 
