@@ -688,6 +688,9 @@ def ambientWeatherStation() {
                 def motionState = state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph?.toFloat()>0?'active':'inactive'
                 if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
                 d.sendEvent(name:'motion', value: motionState)
+                // Send windSpeed as power and energy for pseudo tiles in ActionTiles™
+                d.sendEvent(name: "power", value: v,  displayed: false)
+                d.sendEvent(name: "energy", value: v, displayed: false)
                 break
                 case 'winddir':
                 def winddirectionState = degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true)
@@ -734,11 +737,6 @@ def ambientWeatherStation() {
                     }
                 d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
                     k='illuminance'
-                break
-                case 'windspeedmph':
-                // Send windSpeed as power and energy for pseudo tiles in ActionTiles™
-                d.sendEvent(name: "power", value: v,  displayed: false)
-                d.sendEvent(name: "energy", value: v, displayed: false)
                 break
                 // Weather Console Sensors
                 case 'tempinf':
