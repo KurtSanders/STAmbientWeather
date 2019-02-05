@@ -180,10 +180,9 @@ ActionTiles™
 
 #### ActionTiles™ Things Panel
 
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
-
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTilesSettings.jpg">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesWeatherTileSettings.jpg" width="300">
 </p>
 
 </p>
