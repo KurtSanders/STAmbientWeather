@@ -688,8 +688,11 @@ def ambientWeatherStation() {
                 def motionState = state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph?.toFloat()>0?'active':'inactive'
                 if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
                 d.sendEvent(name:'motion', value: motionState)
-                // Send windSpeed as power and energy for pseudo tiles in ActionTiles™
+                // Send windSpeed as power for pseudo tiles in ActionTiles™
                 d.sendEvent(name: "power", value: v,  displayed: false)
+                break
+                case 'maxdailygust':
+                // Send maxdailygust as energy for pseudo tiles in ActionTiles™
                 d.sendEvent(name: "energy", value: v, displayed: false)
                 break
                 case 'winddir':
