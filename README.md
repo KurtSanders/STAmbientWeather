@@ -160,10 +160,10 @@ ActionTiles™
 * Units of measure on ActionTiles™ cannot be modified
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg" width="400">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg" width="600">
 </p>
 
-One will need to edit the tile settings each of the three ActionTiles™ title headers to show decimals and custom  labels as shown below. 
+* One will need to edit the tile settings each of the three ActionTiles™ title headers to show decimals and custom  labels as shown below. 
 
 #### Ambient Weather Station :arrow_right: ActionTiles™
 
@@ -171,12 +171,14 @@ One will need to edit the tile settings each of the three ActionTiles™ title h
 |------------|-------------------|:-------------------:|-------------------|
 | Energy | Max Daily Gust, mph | :ballot_box_with_check: |Wind Gust Daily Max|
 | Power  | Wind Speed, mph | :ballot_box_with_check: |Wind Speed |
-| Illuminance Measurement | Solar Radiation, lux or w/m²<br>Light, lux or w/m² | | |
-| Motion Sensor | windspeedmph > 1 = active | | |
-| Relative Humidity Measurement | Outside Relative Humidity, % | | |
-| Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:| |
+| Illuminance Measurement | Solar Radiation, lux, fc or w/m² | |Light|
+| Motion Sensor | windspeedmph > 1 = active | |Wind State |
+| Relative Humidity Measurement | Outside Relative Humidity, % | |Humidity |
+| Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:|Temperature|
 | Ultraviolet Index | Ultraviolet Index, uv | | UVI |
 | Water Sensor | hourlyrainin > 0 = wet | | Rain State |
+
+#### ActionTiles™ Things Panel
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
 </p>
