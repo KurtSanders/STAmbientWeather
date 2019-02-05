@@ -181,6 +181,11 @@ ActionTiles™
 #### ActionTiles™ Things Panel
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTilesSettings.jpg">
+</p>
+
 </p>
 
 ## Known Issues
