@@ -160,7 +160,7 @@ ActionTiles™
 * Units of measure on ActionTiles™ cannot be modified
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg" width="600">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg">
 </p>
 
 * One will need to edit the tile settings each of the three ActionTiles™ title headers to show decimals and custom  labels as shown below. 
