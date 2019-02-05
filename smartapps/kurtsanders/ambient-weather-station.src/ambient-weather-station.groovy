@@ -181,8 +181,8 @@ def optionsPage () {
                 uninstall:false,
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
-            input ( name: "zipCode", type: "number",
-                   title: "Enter ZipCode for local Weather API Forecast/Moon (Required)",
+            input ( name: "zipCode", type: "text",
+                   title: "Enter a 'USA 5 digit ZipCode' for TWC Weather Forecasts, Moon Day, etc (Required)",
                    required: true
                   )
             input ( name: "schedulerFreq", type: "enum",
@@ -412,15 +412,13 @@ def main() {
 def localWeatherInfo() {
     if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
     if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
-    def zipCodeString = zipCode.toString()
-    def obs
-    try {
-        obs = getTwcConditions(zipCodeString)
+    // Verify zipCode for 5 digit numeric
+    def zipcode = zipCode
+    if (!zipcode.matches('^[0-9]{5}$')) {
+        log.error "The zipCode entered ${zipCode} is an invalid USA 5 digit zipcode NNNNN'...  Using ST Hub's defualt zipcode"
+        zipcode = ''
     }
-    catch (e) {
-        log.warn "TWC Conditions Data not provided by getTwcConditions(${zipCode}) API, fatal error = ${e}"
-        return
-    }
+    def obs = getTwcConditions(zipcode)
     def d = getChildDevice(state.deviceId)
     d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
     state.weatherIcon = obs?.iconCode as String
@@ -429,8 +427,8 @@ def localWeatherInfo() {
         d.sendEvent(name: "weatherIcon", value: state.weatherIcon, displayed: false)
     }
 
-    if(infoVerbose){log.info "Getting TWC Location Info for ${zipCode}"}
-    def loc = getTwcLocation(zipCodeString)?.location
+    if(infoVerbose){log.info "Getting TWC Location Info for ${zipcode}"}
+    def loc = getTwcLocation(zipcode)?.location
     state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode} ${loc.countryCode}"
     state.latitude = "${loc?.latitude}"
     state.longitude = "${loc?.longitude}"
@@ -451,7 +449,7 @@ def localWeatherInfo() {
 
     // Get the Weather Forecast
     if(infoVerbose){log.info "Getting TWC Forecast for ${state.cityValue}"}
-    def f = getTwcForecast(zipCodeString)
+    def f = getTwcForecast(zipcode)
     if (f) {
         state.forecastIcon = f.daypart[0].iconCode[0] ?: f.daypart[0].iconCode[1]
         state.precipChance = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
