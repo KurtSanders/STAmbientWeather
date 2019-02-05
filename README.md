@@ -176,7 +176,7 @@ ActionTiles™
 | Relative Humidity Measurement | Outside Relative Humidity, % | |Humidity |
 | Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:|Temperature|
 | Ultraviolet Index | Ultraviolet Index, uv | | UVI |
-| Water Sensor | hourlyrainin > 0 = wet | | Rain State |
+| Water Sensor | hourlyrainin > 0 = wet | | Rain Detected |
 
 #### ActionTiles™ Things Panel
 
