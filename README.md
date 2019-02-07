@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: [V4.0.0 (βeta](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version#v4-%CE%B2eta))
+### Version: 4.0.0
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 
@@ -20,22 +20,22 @@ This SmartThings® application provides access to your [Ambientweather.net](http
 
 <p align="center">
 Allows for multiple Ambient Weather® system models or geolocation instances<br>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient2.PNG" width=300>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient2.PNG" width=300>
 </p>
 
 
 ### Screenshots of Device Attributes
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient3.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient4.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient5.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient6.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient3.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient4.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient5.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient6.PNG" width=200>
 </p>
 
 ### Ambient Weather® Station with multiple remote sensors
 
-<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient9.PNG" width=200>
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient9.PNG" width=200>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
 </p>
 
@@ -52,13 +52,13 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 
 	Weather SMS Alerts are sent per user preferences for once every {1,2,4,6,12,24} hours. 
 
-<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/Weather Event Alerts.PNG" width=300>
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/Weather Event Alerts.PNG" width=300>
 </p>
 
 
 ### Requirements:
 
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**
 
 * Your Ambient Weather® Station **API Key** (Required)
 	* An Ambient Weather® Station **API Key** CAN BE SELF GENERATED FROM YOUR [AMBIENT DASHBOARD ACCOUNT VIEW](https://dashboard.ambientweather.net/account). The API key is used to securely connect this SmartThings application to your personal Ambient Weather® station data. Just locate your Ambient API key from your Ambient Weather® station account.
@@ -66,8 +66,8 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 ### Enter your Ambient API key in the ST IDE Editor for the SmartApp in the Settings section.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey1.jpg" width="500"><br><br>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/V2-APIKey2.jpg" width="400">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey1.jpg" width="500"><br><br>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey2.jpg" width="400">
 </p>
 
 1. A personal [Ambient Weather® Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather® Network: (e.g., Model 2902A for example) and optionally up to 99 Ambient remote temperature/hydro sensor(s).
@@ -87,7 +87,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 |------|-------|
 |Owner | **kurtsanders** |
 |Name: | **STAmbientWeather**|
-|Branch| **beta** |
+|Branch| **master** |
 
 **Required Files in your SmartThings IDE Repository**
 
@@ -108,12 +108,12 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 2. **Required Next Step before setup on mobile client:** You must edit the newly added 'Ambient Weather Station' SmartApp in the IDE SmartApps browser Tab 'App Settings' and enter your apiString (Your Ambient API Key).  Update/Save your changes.  *Known Issue: If you receive an error "Unauthorized" message trying to save/update the settings page for your API key, you might need to use the Incognito mode of Chrome or private settings of your browser to update this page.*
 3. Locate the Ambient Weather Station app in the MarketPlace/SmartApps/My Apps list and click to launch the smartapp.
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient1.PNG" width=300>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient1.PNG" width=300>
 </p>
 
 4. Update the following fields from Ambient Weather Station Preferences 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/screenshots/V4-MobileClient8.PNG" width=300>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient8.PNG" width=300>
 </p>
 
 * Preferences
@@ -160,7 +160,7 @@ ActionTiles™
 * Units of measure on ActionTiles™ cannot be modified
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesColorTiles.jpg">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesColorTiles.jpg">
 </p>
 
 * One will need to edit the tile settings each of the three ActionTiles™ title headers to show decimals and custom  labels as shown below. 
@@ -182,7 +182,7 @@ ActionTiles™
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesV3Things.jpg" width="600">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/images/ActionTilesWeatherTileSettings.jpg" width="300">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ActionTilesWeatherTileSettings.jpg" width="300">
 </p>
 
 </p>
