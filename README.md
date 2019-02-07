@@ -3,7 +3,6 @@
 ### Version: 4.0.0
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
-
 ---
 
 ### *New V4 provides supports for concurrent multiple instances of Ambient Weather® network stations and SMS alerts*
@@ -22,7 +21,6 @@ This SmartThings® application provides access to your [Ambientweather.net](http
 Allows for multiple Ambient Weather® system models or geolocation instances<br>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient2.PNG" width=300>
 </p>
-
 
 ### Screenshots of Device Attributes
 
@@ -83,20 +81,19 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 
 Create a new SmartThings Repository entry in your SmartThings IDE under 'Settings' with the following values:
 
-| Name | Value |
-|------|-------|
-|Owner | **kurtsanders** |
-|Name: | **STAmbientWeather**|
-|Branch| **master** |
+| Owner | Name | Branch |
+|------|:-------:|--------|
+| kurtsanders | STAmbientWeather | master |
 
 **Required Files in your SmartThings IDE Repository**
+These files below are required for V4 to operate.  You will need to Update from Repo
 
-| IDE Repository    | Filename | Status |
-| :---: | :----------| :---:  |
-| My SmartApps      | kurtsanders : Ambient Weather Station | **NEW**  |
-| My Device Handler | kurtsanders : SmartWeather Tile Station | **Updated** |
-| My Device Handler | kurtsanders : Ambient Weather Station | **NEW**  |
-| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | **NEW** |
+| IDE Repository    | Filename | Status | Version |
+| :---: | :----------| :---:  | :---:  |
+| My SmartApps      | kurtsanders : Ambient Weather Station | **NEW**  | 4.0.0 |
+| My Device Handler | kurtsanders : SmartWeather Tile Station | **Updated** | 4.0.0 |
+| My Device Handler | kurtsanders : Ambient Weather Station | **NEW**  | 4.0.0 |
+| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | **NEW** | 4.0.0 |
 
 > - *It is strongly recommended that all previous versions/files of Ambient Weather Station be removed from your ST IDE and only the V4 files from the above table are listed in your SmartThings IDE.*
 > - Note: V3 cannot be updated to V4 due to the extensive re-coding to accomodate multiple instances of Ambient Weather® Station nodes and SMS alerts.  A fresh/clean install of Ambient Weather Station is only supported.
