@@ -1,5 +1,5 @@
 /**
-*  Copyright 2018 SanderSoft
+*  Copyright 2018, 2019 SanderSoft
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -10,21 +10,16 @@
 *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
 *  for the specific language governing permissions and limitations under the License.
 *
-*  Ambient Weather Station
+*  Ambient Weather Station Remote Sensor
 *
-*  Author: Kurt Sanders
+*  Author: Kurt Sanders, SanderSoft™
 *
-*  Date: 2018-12-30
 */
-// Start Version Information
-def version() {
-    return ["V3.0", "Requires Ambient WS Service Manager App V3"]
-}
-// End Version Information
+
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 
 metadata {
-    definition (name: "Ambient Weather Station Remote Sensor V3", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station Remote Sensor", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
         capability "Sensor"
@@ -38,7 +33,7 @@ metadata {
         command "refresh"
     }
     tiles(scale: 2) {
-        multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: false) {
+        multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: true) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
                 attributeState("default",label:'${currentValue}º',
                                backgroundColors:[
@@ -66,7 +61,7 @@ metadata {
         state("default", label: 'Ambient Server DateTime\n${currentValue}')
     }
     valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: '${currentValue}')
+        state "default", label: '${currentValue}', action: "refresh"
     }
     standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
@@ -91,8 +86,6 @@ def refresh() {
 def installed() {
 }
 def updated() {
-//    log.info "DTH Section: Updated"
 }
 def uninstalled() {
-//    log.info "DTH Section: Uninstalled"
 }
