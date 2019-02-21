@@ -184,18 +184,21 @@ ActionTiles™
 
 </p>
 
-## Known Issues
-1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
-2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
-3. Ambient Weather Station is the ONLY supported release in 2019.  Please upgrade previous legacy versions if you desire new features, bug fixes, support, multiple instances, alerts, etc. 
-4. The legacy STAmbientWeather V3 ONLY recognizes ONE Ambient Weather® station and will add the first station's data and ignore the others. Ambient Weather Station handles multiple weather station nodes and will prompt for the instance to install.
+## WebCore Tiles Dashboard
 
-## Previous Old/Legacy Versions
-*(Available in 'Depreciated Versions' GitHub Branch)*
+You can import this WebCore piston template into your WebCore using the backup code: **6dj8**.  Remember to: 
 
-	- V3 Depreciated 3/1/2019 
-	- V2 Depreciated 12/01/2018 
-	- V1 Depreciated 06/01/2018
+1. Change the name to your SmartThings weather station name. 
+2. Use ‘Tiles’ mode in the webCore browser settings for categories to display this piston as tiles!
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/WebCore0.jpeg" width="600">
+
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/WebCore1.PNG" width="600">
+</p>
+
+</p>
+
 
 ## Capabilities, Attributes & Commands
 The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or a custom smartApp.
@@ -271,6 +274,19 @@ The following device capabilities, attributes and commands are available for you
 
         command "refresh"
         
+
+## Known Issues
+1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
+2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
+3. Ambient Weather Station is the ONLY supported release in 2019.  Please upgrade previous legacy versions if you desire new features, bug fixes, support, multiple instances, alerts, etc. 
+4. The legacy STAmbientWeather V3 ONLY recognizes ONE Ambient Weather® station and will add the first station's data and ignore the others. Ambient Weather Station handles multiple weather station nodes and will prompt for the instance to install.
+
+## Previous Old/Legacy Versions
+*(Available in 'Depreciated Versions' GitHub Branch)*
+
+	- V3 Depreciated 3/1/2019 
+	- V2 Depreciated 12/01/2018 
+	- V1 Depreciated 06/01/2018
 
 
 
