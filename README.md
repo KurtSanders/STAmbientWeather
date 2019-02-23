@@ -169,11 +169,13 @@ ActionTiles™
 | Energy | Max Daily Gust, mph | :ballot_box_with_check: |Wind Gust Daily Max|
 | Power  | Wind Speed, mph | :ballot_box_with_check: |Wind Speed |
 | Illuminance Measurement | Solar Radiation, lux, fc or w/m² | |Light|
-| Motion Sensor | windspeedmph > 1 = active | |Wind State |
+| Motion Sensor¹ | windspeedmph > 1 = active | |Wind State |
 | Relative Humidity Measurement | Outside Relative Humidity, % | |Humidity |
 | Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:|Temperature|
 | Ultraviolet Index | Ultraviolet Index, uv | | UVI |
-| Water Sensor | hourlyrainin > 0 = wet | | Rain Detected |
+| Water Sensor¹ | hourlyrainin > 0 = wet | | Rain Detected |
+
+¹ It is recommended that one specifically designate the "motion sensors" and/or “leak detectors” in one’s Smart Home Alarm app to be notified rather than use the “Use every Motion or Moisture sensor” to avoid false alarms fro your Ambient Weather Station which uses these standard capabilities for weather consitions.
 
 #### ActionTiles™ Things Panel
 
