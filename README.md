@@ -175,7 +175,7 @@ ActionTiles™
 | Ultraviolet Index | Ultraviolet Index, uv | | UVI |
 | Water Sensor¹ | hourlyrainin > 0 = wet | | Rain Detected |
 
-¹ It is recommended that one specifically designate the "motion sensors" and/or “leak detectors” in one’s Smart Home Alarm app to be notified rather than use the “Use every Motion or Moisture sensor” to avoid false alarms fro your Ambient Weather Station which uses these standard capabilities for weather consitions.
+¹ It is STRONGLY recommended that one specifically designate the "motion sensors" and/or “leak detectors” in one’s Smart Home Alarm app to be notified rather than use the “Use every Motion or Moisture sensor” to avoid false alarms fro your Ambient Weather Station which uses these standard capabilities for weather conditions.
 
 #### ActionTiles™ Things Panel
 
