@@ -37,7 +37,7 @@ metadata {
         capability "Energy Meter"
 
         // Start of Ambient Weather API Rest MAP
-        // Actual numeric values from Ambient Weather API non rounded"
+        // Actual numeric values from Ambient Weather API non rounded
         attribute "windspeedmph_real", "number"
         attribute "windgustmph_real", "number"
         attribute "maxdailygust_real", "number"
