@@ -1,11 +1,11 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.0.0
+### Version: 4.0.x
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
 
-### *New V4 provides supports for concurrent multiple instances of Ambient Weather® network stations and SMS alerts*
+### *The version provides supports for concurrent multiple instances of Ambient Weather® network stations and SMS alerts*
 
 ### Description:
 
@@ -129,6 +129,7 @@ These files below are required for V4 to operate.  You will need to Update from 
 6. Display the new SmartThings Tile in your ST Mobile Client
 7. It is recommended that one create a ST Room to organize the created weather devices.
 8. Add the created weather devices to WebCore and any other smartApps to create weather related events.
+9. **Important:** Please verify and deactivate in SmartThings Smart Home Monitor (SHM) the use of the wildcard settings, "All Leak Detectors and All Motion Sensors' for SHM actions.  Ambient Weather Station SmartAPP uses 'Leak Detection' sensor and 'Motion' sensor for Rain and Wind respectively. If you use the wildcard settings, you may get unexpected results for SHM when rain or wind is detected.   
 
 ## ActionTiles™ and STAmbientWeather
 
@@ -280,13 +281,12 @@ The following device capabilities, attributes and commands are available for you
 ## Known Issues
 1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
-3. Ambient Weather Station is the ONLY supported release in 2019.  Please upgrade previous legacy versions if you desire new features, bug fixes, support, multiple instances, alerts, etc. 
-4. The legacy STAmbientWeather V3 ONLY recognizes ONE Ambient Weather® station and will add the first station's data and ignore the others. Ambient Weather Station handles multiple weather station nodes and will prompt for the instance to install.
+
 
 ## Previous Old/Legacy Versions
-*(Available in 'Depreciated Versions' GitHub Branch)*
+*(Available in Releases and 'Depreciated Versions' GitHub Branch)*
 
-	- V3 Depreciated 3/1/2019 
+	- V3 Depreciated 3/5/2019 
 	- V2 Depreciated 12/01/2018 
 	- V1 Depreciated 06/01/2018
 
