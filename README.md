@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.0.x
+### Version: 4.0.1
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
@@ -206,7 +206,6 @@ You can import this WebCore piston template into your WebCore using the backup c
 ## Capabilities, Attributes & Commands
 The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or a custom smartApp.
 
-		// Standard Capabilities
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
@@ -218,12 +217,34 @@ The following device capabilities, attributes and commands are available for you
 
         // Wind Motion Detection
         capability "Motion Sensor"
-        
-        // Wind Speed Psuedo Capabilities for ActionTiles™
+        // Wind Speed Psuedo Capability
         capability "Power Meter"
         capability "Energy Meter"
 
         // Start of Ambient Weather API Rest MAP
+        // Actual numeric values from Ambient Weather API non rounded"
+        attribute "windspeedmph_real", "number"
+        attribute "windgustmph_real", "number"
+        attribute "maxdailygust_real", "number"
+        attribute "tempf_real", "number"
+        attribute "hourlyrainin_real", "number"
+        attribute "eventrainin_real", "number"
+        attribute "dailyrainin_real", "number"
+        attribute "weeklyrainin_real", "number"
+        attribute "monthlyrainin_real", "number"
+        attribute "totalrainin_real", "number"
+        attribute "baromrelin_real", "number"
+        attribute "baromabsin_real", "number"
+        attribute "humidity_real", "number"
+        attribute "tempinf_real", "number"
+        attribute "humidityin_real", "number"
+        attribute "solarradiation_real", "number"
+        attribute "feelsLike_real", "number"
+        attribute "dewPoint_real", "number"
+
+		// Numeric values from Ambient API are rounded to 0.1 if 0 < X < 0.1 
+		// because SmartThings Tiles cannot display values 
+		// less than 0.1 and greater than zero
         attribute "baromabsin", "string"
         attribute "baromrelin", "string"
         attribute "city", "string"
@@ -281,6 +302,7 @@ The following device capabilities, attributes and commands are available for you
 ## Known Issues
 1. Units of measure shown on the DTH are set from your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings) and this ST application has only been tested using USA imperial units setting.
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
+3. SmartThings devices force a 'round down' on ALL displayed numeric values in the devices' Tile less than 0.1 to GT 0. Therefore, when an Ambient sensor reports a sensor that is below 0.1 and GT 0, this app will round the numeric value up to .1.  To get at the unrounded values, please use the attribute names with a suffix of '_real'.
 
 
 ## Previous Old/Legacy Versions
