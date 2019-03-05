@@ -37,6 +37,27 @@ metadata {
         capability "Energy Meter"
 
         // Start of Ambient Weather API Rest MAP
+        // Actual numeric values from Ambient Weather API non rounded"
+        attribute "windspeedmph_real", "number"
+        attribute "windgustmph_real", "number"
+        attribute "maxdailygust_real", "number"
+        attribute "tempf_real", "number"
+        attribute "hourlyrainin_real", "number"
+        attribute "eventrainin_real", "number"
+        attribute "dailyrainin_real", "number"
+        attribute "weeklyrainin_real", "number"
+        attribute "monthlyrainin_real", "number"
+        attribute "totalrainin_real", "number"
+        attribute "baromrelin_real", "number"
+        attribute "baromabsin_real", "number"
+        attribute "humidity_real", "number"
+        attribute "tempinf_real", "number"
+        attribute "humidityin_real", "number"
+        attribute "solarradiation_real", "number"
+        attribute "feelsLike_real", "number"
+        attribute "dewPoint_real", "number"
+
+		// Numeric values from Ambient API are rounded to 0.1 if 0 < X < 0.1 because SmartThings Tiles cannot display values less than 0.1 and greater than zero
         attribute "baromabsin", "string"
         attribute "baromrelin", "string"
         attribute "city", "string"

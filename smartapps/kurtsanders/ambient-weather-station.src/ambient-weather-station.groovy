@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.0.0" }
-String appModified()			{ return "Jan-28-2019"}
+String version()				{ return "V4.0.1" }
+String appModified()			{ return "Mar-05-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -627,10 +627,37 @@ def ambientWeatherStation() {
             d.sendEvent(name: k, value: v, displayed: false)
         }
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
+            // Send Real numeric weather values to devics hidden variables with _real suffix
+            def realNumericWeatherVariablesList = [
+                'windspeedmph',
+                'windgustmph',
+                'maxdailygust',
+                'tempf_real',
+                'hourlyrainin',
+                'eventrainin',
+                'dailyrainin',
+                'weeklyrainin',
+                'monthlyrainin',
+                'totalrainin',
+                'baromrelin',
+                'baromabsin',
+                'humidity',
+                'tempinf',
+                'humidityin',
+                'solarradiation',
+                'feelsLike',
+                'dewPoint'
+            ]
+			if (realNumericWeatherVariablesList.contains(k)) {
+                d.sendEvent(name: "${k}_real", value: v , displayed: false )
+            }
+
             okTOSendEvent = true
+            // SmartThings devices automatically force a 'round down' on ALL displayed numeric values in the Tile when less than 0.1 but GT 0.
+            // Therefore, when an Ambient sensor reports a sensor that is below 0.1 but greater than 0, the value will be rounded up to .1
             try {
                 if( (v.isNumber()) && (v>0) && (v<0.1) ) {
-                    if(debugVerbose){log.debug "${k}: Converting number '${v}'<0.1 -> 0.1}"}
+                    if(debugVerbose){log.debug "${k}: Rounding small weather number '${v}'<0.1 -> 0.1} for Tile Display"}
                     v = 0.1
                 }
             }
