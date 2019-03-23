@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.0.1
+### Version: 4.0.2
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
@@ -52,6 +52,10 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 
 <p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/Weather Event Alerts.PNG" width=300>
 </p>
+
+#### Filtering/Suppressing Selected Weather Alerts
+
+One can filter/suppress selected Weather Alerts from the Ambient Weather Station's preferences options menu by selecting one or more of the listed [Nation Weather Services' Product Identifiers](https://forecast.weather.gov/product_types.php).   The default option (nothing selected) allows all Weather Alerts to be reported for the zipcode entered.  
 
 
 ### Requirements:
