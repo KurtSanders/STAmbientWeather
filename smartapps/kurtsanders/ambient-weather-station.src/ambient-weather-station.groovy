@@ -524,7 +524,7 @@ def checkForSevereWeather() {
     }
     if (alerts) {
         alerts.each {alert ->
-            msg += "${alert.headlineText}"
+            msg += "${alert.productIdentifier} - ${alert.headlineText}"
             if (alert.effectiveTimeLocal && !msg.contains(" from ")) {
                 msg += " from ${parseAlertTime(alert.effectiveTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.effectiveTimeLocalTimeZone))}"
             }
