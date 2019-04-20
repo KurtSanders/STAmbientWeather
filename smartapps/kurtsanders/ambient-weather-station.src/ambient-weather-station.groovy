@@ -1221,7 +1221,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0) ){
-            log.debug "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
+            msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
