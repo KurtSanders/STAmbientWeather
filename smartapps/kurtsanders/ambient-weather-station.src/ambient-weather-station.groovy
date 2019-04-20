@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.0.2" }
-String appModified()			{ return "Mar-23-2019"}
+String version()				{ return "V4.0.3" }
+String appModified()			{ return "Apr-20-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -1220,7 +1220,7 @@ def notifyEvents() {
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
             }
         }
-        if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin?.toInteger()>0) ){
+        if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0) ){
             log.debug "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
