@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.0.3" }
-String appModified()			{ return "Apr-20-2019"}
+String version()				{ return "V4.0.4" }
+String appModified()			{ return "Jun-2-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
