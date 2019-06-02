@@ -33,6 +33,7 @@ String DTHName() 				{ return "Ambient Weather Station" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor"}
 String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
 String DTHDNIRemoteSensorName() { return "${app.id}:MyAmbientRemoteSensor"}
+Integer MaxNumRemoteSensors()	{ return 8 }
 String DTHDNIActionTiles() 		{ return "${app.id}:MyAmbientSmartWeatherStationTile" }
 
 String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
@@ -250,6 +251,7 @@ def optionsPage () {
 def remoteSensorPage() {
     dynamicPage(name: "remoteSensorPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
         def i = 1
+        def remoteSensorKeyName
         section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
             paragraph "Information Regarding Ambient Remote Sensors"
             paragraph image: getAppImg("blue-ball.jpg"),
@@ -259,13 +261,17 @@ def remoteSensorPage() {
                 "If you wish to change the short name of the remote sensor, DO NOT change or rename them in the Device Tile or ST IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
                 "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
                 "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
-            for (i; i <= state?.countRemoteTempHumiditySensors; i++) {
+ //           for (i; i <= state?.countRemoteTempHumiditySensors; i++) {
+            for (i; i <= MaxNumRemoteSensors(); i++) {
+                remoteSensorKeyName = "temp${i}f"
+                if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) ) {
                 input "${DTHDNIRemoteSensorName()}${i}", type: "text",
                     title: "Ambient Remote Sensor #${i}",
                     required: true
             }
         }
     }
+}
 }
 
 def notifyPage() {
@@ -1038,9 +1044,10 @@ def addAmbientChildDevice() {
             remoteSensorNamePref = "${AWSBaseName}${value}"
             remoteSensorNameDNI = getChildDevice(key)
             remoteSensorNumber = key.reverse()[0..0]
-            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
+//            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
+            if (remoteSensorNumber.toInteger() <= MaxNumRemoteSensors()) {
                 if (!remoteSensorNameDNI) {
-                    log.info "NEW: Adding Remote Sensor: ${remoteSensorNamePref}"
+                    log.info "NEW: Adding Remote Sensor #${remoteSensorNumber}: ${remoteSensorNamePref}"
                     try {
                         addChildDevice(DTHnamespace(), DTHRemoteSensorName(), "${key}", null, ["name": remoteSensorNamePref, "label": remoteSensorNamePref, completedSetup: true])
                     } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
@@ -1204,24 +1211,24 @@ def notifyEvents() {
         //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
         def ambientWeatherStationName = "${DTHName()} - '${state.weatherStationName}'"
-        if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º <= ${notifyAlertLowTemp}º"
+        if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf<=notifyAlertLowTemp.toInteger()) ) {
+            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}º <= ${notifyAlertLowTemp}º"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
                 state.notifyAlertLowTempDT = now
             }
         }
-        if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData?.tempf}º >= ${notifyAlertHighTemp}º"
+        if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf.toInteger()>=notifyAlertHighTemp) ) {
+            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}º >= ${notifyAlertHighTemp}º"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
             }
         }
-        if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0) ){
-            msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin} in/hr"
+        if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin.toFloat()>0) ){
+            msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin} in/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
