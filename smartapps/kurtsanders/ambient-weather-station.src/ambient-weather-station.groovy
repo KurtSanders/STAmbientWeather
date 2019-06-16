@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.0.4" }
-String appModified()			{ return "Jun-2-2019"}
+String version()				{ return "V4.1" }
+String appModified()			{ return "Jun-16-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -69,6 +69,7 @@ definition(
 preferences {
     page(name: "mainPage")
     page(name: "optionsPage")
+    page(name: "unitsPage")
     page(name: "remoteSensorPage")
     page(name: "notifyPage")
 }
@@ -166,6 +167,40 @@ def mainPage() {
     }
 }
 
+def unitsPage() {
+    dynamicPage(name: "unitsPage", title: "Ambient Units of Measure Settings for: '${state.weatherStationName}'",
+                uninstall : false,
+                install   : false ) {
+        section("Weather Station Unit of Measure Options") {
+            input ( name: "tempUnits", type: "enum",
+                   title: "Select Temperature Units of Measure",
+                   options: ['°F':'Fahrenheit °F','°C':'Celsius °C'],
+                   required: true
+                  )
+            input ( name: "windUnits", type: "enum",
+                   title: "Select Wind Speed Units of Measure",
+                   options: ['mph':'Miles per Hour','fps':'Feet per Second','mps':'Meter per Second','kph':'Kilometers per Hour','knotts':'Knotts'],
+                   required: true
+                  )
+            input ( name: "measureUnits", type: "enum",
+                   title: "Select Rainfall Units of Measure",
+                   options: ['in':'Inches','cm':'Centimeters'],
+                   required: true
+                  )
+            input ( name: "baroUnits", type: "enum",
+                   title: "Select Barometer Units of Measure",
+                   options: ['inHg':'inHg','mmHg':'mmHg', 'hPa':'hPa'],
+                   required: true
+                  )
+            input ( name: "solarRadiationTileDisplayUnits", type: "enum",
+                   title: "Select Solar Radiation ('Light') Units of Measure",
+                   options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
+                   required: true
+                  )
+        }
+    }
+}
+
 def optionsPage () {
     log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
@@ -197,11 +232,11 @@ def optionsPage () {
                        required: true
                       )
             }
-            input ( name: "solarRadiationTileDisplayUnits", type: "enum",
-                   title: "Select Solar Radiation ('Light') Units of Measure",
-                   options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
-                   required: true
-                  )
+            href(name: "Select Weather Units of Measure",
+                 title: "Select Weather Units of Measure",
+                 required: true,
+                 defaultValue: "Tap to Select",
+                 page: "unitsPage")
             input ( name: "productIdentifierFilterList", type: "enum",
                    title: "Select Weather Alert Product Identifiers to Filter (Optional)",
                    options: alertFilterList(),
@@ -253,23 +288,22 @@ def remoteSensorPage() {
         def i = 1
         def remoteSensorKeyName
         section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
-            paragraph "Information Regarding Ambient Remote Sensors"
+            paragraph "Ambient Remote Sensor Names"
             paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Information, Issues and Instructions",
+                title: "Please scroll this page to enter REQUIRED Sensor Names",
                 required: false,
                 "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
                 "If you wish to change the short name of the remote sensor, DO NOT change or rename them in the Device Tile or ST IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
                 "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
                 "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
- //           for (i; i <= state?.countRemoteTempHumiditySensors; i++) {
             for (i; i <= MaxNumRemoteSensors(); i++) {
                 remoteSensorKeyName = "temp${i}f"
-                if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) ) {
-                input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                    title: "Ambient Remote Sensor #${i}",
-                    required: true
+                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
+                    input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                        title: "Ambient Remote Sensor #${i}",
+                        required: true
+                }
             }
-        }
     }
 }
 }
@@ -325,6 +359,10 @@ def initialize() {
     state.notifyRainDT 				= state.notifyRainDT?:now
     state.notifySevereAlertDT 		= state.notifySevereAlertDT?:now
     state.notifyAlertFreq 			= notifyAlertFreq?:24
+    state.tempUnitsDisplay 			= tempUnits
+    state.windUnitsDisplay 			= windUnits
+    state.measureUnitsDisplay 		= measureUnits
+    state.baroUnitsDisplay 			= baroUnits
 
     // Check for all devices needed to run this app
     addAmbientChildDevice()
@@ -470,7 +508,7 @@ def localWeatherInfo() {
         d.sendEvent(name: "moonPhase", value: "Lunar Day: ${f.moonPhaseDay[0]}\n${f.moonPhase[0]}", displayed: false)
         d.sendEvent(name: "moonAge", value: "${f.moonPhaseDay[0]}", displayed: false)
         d.sendEvent(name: "rainForecast", value: "${rainType.capitalize()}\n${state.precipChance}%", displayed: false)
-        d.sendEvent(name: "windPhrase", value: "${windPhrase}", displayed: false)
+        d.sendEvent(name: "windPhrase", value: "Forecast: ${windPhrase}", displayed: false)
 
         def narrative = f.daypart[0].narrative
         def daypartName = f.daypart[0].daypartName
@@ -572,15 +610,15 @@ def ambientWeatherStation() {
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
     def nowTime = new Date().format('h:mm a',location.timeZone).toLowerCase()
     def currentDT = new Date()
-    def tempUnits = getTemperatureScale()
-    def windUnits = tempUnits == "C" ? "KPH" : "MPH"
-    def measureUnits = tempUnits == "C" ? "CM" : "IN"
-    def baroUnits = tempUnits == "C" ? "MMHG" : "INHg"
     def sendEventOptions = ""
     if (getAmbientStationData()) {
         if(debugVerbose){log.debug "httpget resp status = ${state.respStatus}"}
         if(infoVerbose){log.info "Processing Ambient Weather data returned from getAmbientStationData())"}
         setStateWeatherStationData()
+        convertStateWeatherStationData()
+        d.sendEvent(name:"unitsOfMeasure",
+                    value: "Temperature: ${state.tempUnitsDisplay}\nHeight: ${state.measureUnitsDisplay}\nWind: ${state.windUnitsDisplay}\nBarometric: ${state.baroUnitsDisplay}",
+                    displayed: false)
         if(debugVerbose || infoVerbose) {
             state.ambientMap[state.weatherStationDataIndex].each{ k, v ->
                 log.info "${k} = ${v}"
@@ -612,7 +650,7 @@ def ambientWeatherStation() {
             d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
         if ((state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('totalrainin')==false) || (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('yearlyrainin')==false)) {
-            d.sendEvent(name:"totalrainin", value: "N/A", unit: measureUnits, displayed: false)
+            d.sendEvent(name:"totalrainin", value: "N/A", unit: state.measureUnitsDisplay, displayed: false)
         }
         d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
         d.sendEvent(name:"macAddress", value: state.ambientMap[state.weatherStationDataIndex].macAddress, displayed: false)
@@ -630,23 +668,26 @@ def ambientWeatherStation() {
         // Update Main Weather Device with Remote Sensor 1 values if tempf does not exist, same with humidity
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
-                d.sendEvent(name:"temperature", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: tempUnits)
+                d.sendEvent(name:"temperature", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: state.tempUnitsDisplay)
             }
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
-                d.sendEvent(name:"humidity", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%")
+                d.sendEvent(name:"humidity", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%", displayed: false)
+                d.sendEvent(name:"humidity_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.humidity1}%")
             }
         }
         // Update Main Weather Device with Remote Sensor 1 values if tempinf does not exist, same with humidityin
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) {
             if(debugVerbose){log.debug "Fixing Main Station for inside temp"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
-                d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: tempUnits)
+                d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: state.tempUnitsDisplay, displayed: false)
+                d.sendEvent(name:"tempinf_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.temp1f}${state.tempUnitsDisplay}")
             }
         }
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidityin')) {
             if(debugVerbose){log.debug "Fixing Main Station for inside humidity"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
-                d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%")
+                d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%", displayed: false)
+                d.sendEvent(name:"humidityin_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.humidity1}%")
             }
         }
 
@@ -657,33 +698,34 @@ def ambientWeatherStation() {
             if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
             d.sendEvent(name: k, value: v, displayed: false)
         }
+
+        // Send display & real numeric weather values to the devices with _display & _real suffix
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
-            // Send Real numeric weather values to devics hidden variables with _real suffix
-            def realNumericWeatherVariablesList = [
-                'windspeedmph',
-                'windgustmph',
-                'maxdailygust',
-                'tempf_real',
-                'hourlyrainin',
-                'eventrainin',
-                'dailyrainin',
-                'weeklyrainin',
-                'monthlyrainin',
-                'totalrainin',
-                'baromrelin',
-                'baromabsin',
-                'humidity',
-                'tempinf',
-                'humidityin',
-                'solarradiation',
-                'feelsLike',
-                'dewPoint'
-            ]
-			if (realNumericWeatherVariablesList.contains(k)) {
-                d.sendEvent(name: "${k}_real", value: v , displayed: false )
+            switch(k) {
+                case ~/.*rain.*/:
+                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
+                d.sendEvent(name: "${k}_display", value: "${v} ${state.measureUnitsDisplay}")
+                break
+                case ~/^barom.*/:
+                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
+                d.sendEvent(name: "${k}_display", value: "${v}${state.baroUnitsDisplay}")
+                break
+                case ~/^tempi?n?f$|^dewPoint$|^feelsLike$/:
+                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
+                d.sendEvent(name: "${k}_display", value: "${v}${state.tempUnitsDisplay}")
+                break
+                case ~/^wind.*|^maxdailygust$/:
+                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
+                d.sendEvent(name: "${k}_display", value: "${v} ${state.windUnitsDisplay}")
+                break
+                case ~/^humidity($|1|in)/:
+                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
+                d.sendEvent(name: "${k}_display", value: "${v}%")
+                break
+                default:
+                    break
             }
 
-            okTOSendEvent = true
             // SmartThings devices automatically force a 'round down' on ALL displayed numeric values in the Tile when less than 0.1 but GT 0.
             // Therefore, when an Ambient sensor reports a sensor that is below 0.1 but greater than 0, the value will be rounded up to .1
             try {
@@ -695,6 +737,7 @@ def ambientWeatherStation() {
             catch (e) {
                 log.error("caught exception assigning ${k} : ${v} to a value of 0.1", e)
             }
+            okTOSendEvent = true
             switch (k) {
                 case 'dateutc':
                 okTOSendEvent = false
@@ -726,13 +769,13 @@ def ambientWeatherStation() {
                     case {( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0 ))} :
                         DecimalFormat df = new DecimalFormat("0.00")
                     def numberForRainLevel = df.format(state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin)
-                    scText = sprintf("%sRaining at %s in/hr at %s", state.weatherAlerts,numberForRainLevel, nowTime)
+                    scText = sprintf("%sRaining at %s %s/hr at %s", state.weatherAlerts,numberForRainLevel, state.measureUnitsDisplay, nowTime)
                     break
                     case { (v > state.ambientMap[state.weatherStationDataIndex].lastData.tempf) } :
-                        scText = sprintf("%sFeels like %sº at %s", state.weatherAlerts, v, nowTime)
+                        scText = sprintf("%sFeels like %s%s at %s", state.weatherAlerts, v, state.tempUnitsDisplay, nowTime)
                     break
                     case { ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('windspeedmph')) && (state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph.toFloat()>0)) } :
-                        scText = sprintf("%sWind is %s %s %s at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph, windUnits, degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true), nowTime)
+                        scText = sprintf("%sWind is %s %s %s at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph, state.windUnitsDisplay, degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true), nowTime)
                     break
                     default :
                     scText = sprintf("%sHumidity is %s%% at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime)
@@ -795,14 +838,14 @@ def ambientWeatherStation() {
                             break
                     }
                 d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
-                    k='illuminance'
+                k='illuminance'
                 break
                 // Weather Console Sensors
                 case 'tempinf':
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: tempUnits)
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('battout')) {
@@ -816,7 +859,8 @@ def ambientWeatherStation() {
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%")
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%", displayed: false)
+                    remoteSensorDNI.sendEvent(name: "humidity_display", value: "${v}%")
                 } else {
                     log.error "Missing ${DTHDNIRemoteSensorName()}0"
                 }
@@ -827,7 +871,7 @@ def ambientWeatherStation() {
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: tempUnits)
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[4..4]}")) {
@@ -844,7 +888,8 @@ def ambientWeatherStation() {
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%")
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%", displayed: false)
+                    remoteSensorDNI.sendEvent(name: "humidity_display", value: "${v}%")
                 } else {
                     log.error "Missing ST Device ${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]} for ${k}"
                 }
@@ -861,31 +906,31 @@ def ambientWeatherStation() {
                     sendEventOptions = [displayed : false]
                     break
                     case ~/^temp.*/:
-                    sendEventOptions = [units : tempUnits]
+                    sendEventOptions = [units : state.tempUnitsDisplay, displayed : false]
                     break
                     case ('feelsLike'):
                     case ('dewPoint'):
-                    sendEventOptions = [units : tempUnits]
-                    d.sendEvent(name: k.toLowerCase(), value: v, units : tempUnits, displayed: false )
+                    sendEventOptions = [units : state.tempUnitsDisplay, , displayed : false]
+                    d.sendEvent(name: k.toLowerCase(), value: v, units : state.tempUnitsDisplay, displayed: false )
                     break
                     case ('illuminance'):
                     sendEventOptions = [units: solarRadiationTileDisplayUnits?:'W/m²']
                     break
                     case ~/^humidity.*/:
-                    sendEventOptions = [units : '%']
+                    sendEventOptions = [units : '%', displayed : false]
                     break
                     case ~/.*rain.*/:
-                    sendEventOptions = [units : measureUnits]
+                    sendEventOptions = [units : state.measureUnitsDisplay, displayed : false]
                     break
                     case ('windir'):
                     sendEventOptions = [units : 'º']
                     break
                     case ~/^wind.*/:
                     case ('maxdailygust'):
-                    sendEventOptions = [units : windUnits]
+                    sendEventOptions = [units : state.windUnitsDisplay, displayed : false]
                     break
                     case ~/^barom.*/:
-                    sendEventOptions = [units : baroUnits]
+                    sendEventOptions = [units : state.baroUnitsDisplay, displayed : false]
                     break
                     default:
                         sendEventOptions = []
@@ -911,10 +956,10 @@ def ambientWeatherStation() {
         d.sendEvent(name: "percentPrecip", 		value : state.precipChance, unit: "%")
         d.sendEvent(name: "city", 				value : "Ambient - ${state.weatherStationName}")
         d.sendEvent(name: "location", 			value : state.cityValue, displayed: false)
-        d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: tempUnits)
+        d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: state.tempUnitsDisplay)
         d.sendEvent(name: "humidity", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.humidity, unit: "%")
-        d.sendEvent(name: "feelsLike", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.feelsLike, unit: tempUnits)
-        d.sendEvent(name: "wind",				value : state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph ?:"0", unit: windUnits)
+        d.sendEvent(name: "feelsLike", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.feelsLike, unit: state.tempUnitsDisplay)
+        d.sendEvent(name: "wind",				value : state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph ?:"0", unit: state.windUnitsDisplay)
         d.sendEvent(name: "windVector",			value : "${degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, false)} ${state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph?:""} ${windUnits}")
         d.sendEvent(name: "lastUpdate", 		value : tileLastUpdated(), displayed: false)
     }
@@ -1212,7 +1257,7 @@ def notifyEvents() {
         def msg
         def ambientWeatherStationName = "${DTHName()} - '${state.weatherStationName}'"
         if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}º <= ${notifyAlertLowTemp}º"
+            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} <= ${notifyAlertLowTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 sendNotification("${msg}", [method: "both", phone: mobilePhone])
@@ -1220,7 +1265,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}º >= ${notifyAlertHighTemp}º"
+            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} >= ${notifyAlertHighTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
@@ -1228,7 +1273,7 @@ def notifyEvents() {
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin.toFloat()>0) ){
-            msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin} in/hr"
+            msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin} ${state.measureUnitsDisplay}/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
@@ -1248,6 +1293,71 @@ def lastNotifyDT(lastDT, eventName) {
     if(infoVerbose){log.info "This '${eventName}' event was last sent on ${date}: ${days} days, ${hours} hours ago"}
     if(infoVerbose){log.info "${eventName} Alert Every ${notifyAlertFreq} hours: ${rc?'OK to SMS':'TOO EARLY TO SEND'}"}
     return rc
+}
+
+def convertStateWeatherStationData() {
+    // Check to see if Units of Measure have been defined in the preferences section, otherwise default to SmartThings Hub's location for imperial or metric
+    if (tempUnits == null) {
+        def tempUnitsSmartThingsScale = getTemperatureScale()
+        log.warn "Missing 'Units of Measure' App Preference Setting Values:  ALL Default Units of Measure will be based on SmartThings hub location temperature preference of '${tempUnitsSmartThingsScale}'"
+        log.warn "Please run '${state.weatherStationName}' SmartAPP install to select your default Units of Measure for display"
+        state.tempUnitsDisplay = "°${tempUnitsSmartThingsScale}"
+        state.windUnitsDisplay = (tempUnitsSmartThingsScale == "F") ? "mph" : "kph"
+        state.measureUnitsDisplay = (tempUnitsSmartThingsScale == "F") ? "in" : "cm"
+        state.baroUnitsDisplay = (tempUnitsSmartThingsScale == "F") ? "inHg" : "mmHg"
+    }
+    if(infoVerbose){log.info "tempUnitsDisplay 		= ${state.tempUnitsDisplay}"}
+    if(infoVerbose){log.info "windUnitsDisplay 		= ${state.windUnitsDisplay}"}
+    if(infoVerbose){log.info "measureUnitsDisplay 	= ${state.measureUnitsDisplay}"}
+    if(infoVerbose){log.info "baroUnitsDisplay 		= ${state.baroUnitsDisplay}"}
+    def tempVar
+    def newAmbientMap = [:]
+    newAmbientMap = state.ambientMap
+    newAmbientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
+        switch (k) {
+            case ~/^temp.*/:
+            case 'feelsLike':
+            case 'dewPoint':
+            if (state.tempUnitsDisplay == '°C') {
+                tempVar = String.format("%.01f",(v-32)*5/9)
+                newAmbientMap[state.weatherStationDataIndex].lastData << ["${k}": tempVar.toFloat()]
+            }
+            break
+            case ~/.*rain.*/:
+            if (state.measureUnitsDisplay == 'cm') {
+                tempVar = String.format("%.02f",v*2.54)
+                newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
+            }
+            break
+            case ~/^winddir.*/:
+            break
+            case ~/^wind.*/:
+            case ('maxdailygust'):
+            if (state.windUnitsDisplay == 'kph') {
+                tempVar = String.format("%.02f",v*1.609344)
+            } else if (state.windUnitsDisplay == 'fps') {
+                tempVar = String.format("%.02f",v*2/3)
+            } else if (state.windUnitsDisplay == 'mps') {
+                tempVar = String.format("%.02f",v*0.44704)
+            } else if (state.windUnitsDisplay == 'knotts') {
+                tempVar = String.format("%.02f",v*0.86898)
+            }
+            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
+            break
+            case ~/^barom.*/:
+            if (state.baroUnitsDisplay == 'mmHg') {
+                tempVar = String.format("%.02f",v*25.4)
+            } else if (state.baroUnitsDisplay == 'hpa') {
+                tempVar = String.format("%.02f",v*33.86389)
+            }
+            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
+            break
+            default:
+                break
+        }
+    }
+    state.ambientMap = [:]
+    state.ambientMap = newAmbientMap
 }
 
 def setStateWeatherStationData() {

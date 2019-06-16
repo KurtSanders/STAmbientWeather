@@ -57,6 +57,26 @@ metadata {
         attribute "feelsLike_real", "number"
         attribute "dewPoint_real", "number"
 
+                // Actual numeric values from Ambient Weather API non rounded
+        attribute "windspeedmph_display", "string"
+        attribute "windgustmph_display", "string"
+        attribute "maxdailygust_display", "string"
+        attribute "tempf_display", "string"
+        attribute "hourlyrainin_display", "string"
+        attribute "eventrainin_display", "string"
+        attribute "dailyrainin_display", "string"
+        attribute "weeklyrainin_display", "string"
+        attribute "monthlyrainin_display", "string"
+        attribute "totalrainin_display", "string"
+        attribute "baromrelin_display", "string"
+        attribute "baromabsin_display", "string"
+        attribute "humidity_display", "string"
+        attribute "tempinf_display", "string"
+        attribute "humidityin_display", "string"
+        attribute "solarradiation_display", "string"
+        attribute "feelsLike_display", "string"
+        attribute "dewPoint_display", "string"
+
 		// Numeric values from Ambient API are rounded to 0.1 if 0 < X < 0.1 because SmartThings Tiles cannot display values less than 0.1 and greater than zero
         attribute "baromabsin", "string"
         attribute "baromrelin", "string"
@@ -108,6 +128,7 @@ metadata {
         attribute "alertMessage", "string"
         attribute "version", "string"
         attribute "date", "string"
+        attribute "unitsOfMeasure", "string"
 
         command "refresh"
     }
@@ -214,14 +235,14 @@ metadata {
         state "28",        	label: '', icon: getMoonIcon('28')
         state "29",        	label: '', icon: getMoonIcon('29')
     }
-    valueTile("tempinf", "device.tempinf", width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Inside Temp\n${currentValue}°'
+    valueTile("tempinf_display", "device.tempinf_display", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Inside Temp\n${currentValue}'
     }
-    valueTile("humidityin", "device.humidityin", width: 3, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Inside Humidity\n${currentValue}%'
+    valueTile("humidityin_display", "device.humidityin_display", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Inside Humidity\n${currentValue}'
     }
-    valueTile("feelsLike", "device.feelsLike", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Feels Like\n${currentValue}º'
+    valueTile("feelsLike_display", "device.feelsLike_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Feels Like\n${currentValue}'
     }
     valueTile("rise", "device.localSunrise", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Sunrise\n ${currentValue}'
@@ -232,11 +253,11 @@ metadata {
     valueTile("feelslike", "device.feelslike",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Feels Like\n${currentValue}º'
     }
-    valueTile("baromrelin", "device.baromrelin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rel Pres \n${currentValue} in '
+    valueTile("baromrelin_display", "device.baromrelin_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rel Pres \n${currentValue}'
     }
-    valueTile("baromabsin", "device.baromabsin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Abs Pres\n${currentValue} in'
+    valueTile("baromabsin_display", "device.baromabsin_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Abs Pres\n${currentValue}'
     }
     valueTile("location", "device.location", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'PWS Location\n${currentValue}'
@@ -247,26 +268,26 @@ metadata {
     valueTile("moonPhase", "device.moonPhase",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
-    valueTile("humidity", "device.humidity",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Humidity\n${currentValue}%'
+    valueTile("humidity_display", "device.humidity_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Humidity\n${currentValue}'
     }
-    valueTile("eventrainin", "device.eventrainin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Event\n${currentValue} in/hr'
+    valueTile("eventrainin_display", "device.eventrainin_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Event\n${currentValue}'
     }
-    valueTile("hourlyrainin", "device.hourlyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'RainFall/Hour\n${currentValue} in'
+    valueTile("hourlyrainin_display", "device.hourlyrainin_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'RainFall/Hour\n${currentValue}'
     }
-    valueTile("dailyrainin", "device.dailyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Today\n${currentValue} in'
+    valueTile("dailyrainin_display", "device.dailyrainin_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain Today\n${currentValue}'
     }
-    valueTile("weeklyrainin", "device.weeklyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Week\n${currentValue} in'
+    valueTile("weeklyrainin_display", "device.weeklyrainin_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Week\n${currentValue}'
     }
-    valueTile("monthlyrainin", "device.monthlyrainin",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain/Month\n${currentValue} in'
+    valueTile("monthlyrainin_display", "device.monthlyrainin_display",  width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain/Month\n${currentValue}'
     }
-    valueTile("totalrainin", "device.totalrainin", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label:'Rain Total\n${currentValue} in'
+    valueTile("totalrainin_display", "device.totalrainin_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label:'Rain Total\n${currentValue}'
     }
     valueTile("lastRain", "device.lastRain", width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Last Rain Date\n${currentValue}'
@@ -296,7 +317,7 @@ metadata {
         state "active",   label: '',    icon: getAppImg('wi-windy.png')
         state "inactive", label: 'No Wind', icon: "st.Weather.weather3"
     }
-    valueTile("dewPoint", "device.dewPoint", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("dewPoint_display", "device.dewPoint_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Dew point\n${currentValue}°'
     }
     valueTile("dewpoint", "device.dewpoint", width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -327,14 +348,14 @@ metadata {
         state "NW",         label: '', icon: getAppImg('wi-direction-up-left.png')
         state "North NW",   label: '', icon: getAppImg('wi-direction-up-left.png')
     }
-    valueTile("windspeedmph", "device.windspeedmph", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Speed\n${currentValue} mph'
+    valueTile("windspeedmph_display", "device.windspeedmph_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Speed\n${currentValue}'
     }
-    valueTile("windgustmph", "device.windgustmph", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Gust\n${currentValue} mph'
+    valueTile("windgustmph_display", "device.windgustmph_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Gust\n${currentValue}'
     }
-    valueTile("maxdailygust", "device.maxdailygust", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: 'Wind Daily Gust\n${currentValue} mph'
+    valueTile("maxdailygust_display", "device.maxdailygust_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+        state "default", label: 'Wind Daily Gust\n${currentValue}'
     }
     valueTile("macAddress", "device.macAddress", width: 3, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'macAddress\n ${currentValue}'
@@ -371,36 +392,39 @@ metadata {
     valueTile("alertDescription", "device.alertDescription", width: 6, height: 6, decoration: "flat", wordWrap: true) {
         state "default", label:'${currentValue}'
     }
+    valueTile("unitsOfMeasure", "device.unitsOfMeasure", width: 5, height: 2, decoration: "flat", wordWrap: true) {
+        state "default", label:'Unit of Measure for Values\n${currentValue}'
+    }
 
     main(["temperature"])
     details(
         [
             // Inside Sensors
             "temperature",
-            "tempinf",
-            "humidityin" ,
+            "tempinf_display",
+            "humidityin_display" ,
             // Outside Sensors
             "weatherIcon",
-            "feelsLike",
+            "feelsLike_display",
             "water",
-            "eventrainin",
-            "hourlyrainin",
-            "dailyrainin",
-            "weeklyrainin",
-            "monthlyrainin",
+            "eventrainin_display",
+            "hourlyrainin_display",
+            "dailyrainin_display",
+            "weeklyrainin_display",
+            "monthlyrainin_display",
             "lastRain",
             "lastRainDuration",
             "solarradiation",
-            "totalrainin",
+            "totalrainin_display",
             "winddirection",
-            "windspeedmph",
+            "windspeedmph_display",
             "motion",
             "winddir2",
-            "windgustmph",
-            "dewPoint",
-            "baromrelin",
-            "baromabsin",
-            "humidity",
+            "windgustmph_display",
+            "dewPoint_display",
+            "baromrelin_display",
+            "baromabsin_display",
+            "humidity_display",
             "ultravioletIndexDisplay",
             "rise",
             "set",
@@ -415,30 +439,32 @@ metadata {
             "scheduleFreqMin",
             "weather",
             "alertMessage",
-            "alertDescription"
+            "alertDescription",
+            "unitsOfMeasure"
         ]
     )
 }
 
 def initialize() {
     def naStndardFields = [
-        "baromabsin",
-        "baromrelin",
-        "dailyrainin",
-        "dewPoint",
-        "eventrainin",
-        "feelsLike",
-        "hourlyrainin",
+        "baromabsin_display",
+        "baromrelin_display",
+        "dailyrainin_display",
+        "dewPoint_display",
+        "eventrainin_display",
+        "feelsLike_display",
+        "hourlyrainin_display",
         "lastRain",
         "lastRainDuration",
-        "monthlyrainin",
+        "monthlyrainin_display",
         "solarradiation",
-        "totalrainin",
+        "totalrainin_display",
         "ultravioletIndexDisplay",
-        "weeklyrainin",
-        "windgustmph",
+        "weeklyrainin_display",
+        "windgustmph_display",
         "windPhrase",
-        "windspeedmph"
+        "windspeedmph_display",
+        "unitsOfMeasure"
     ]
     naStndardFields.eachWithIndex { field, i ->
         log.debug "${i}) Setting Initial Weather Field: '${field}' to 'N/A'"
