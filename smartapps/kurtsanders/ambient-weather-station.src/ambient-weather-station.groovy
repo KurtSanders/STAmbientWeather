@@ -479,7 +479,7 @@ def localWeatherInfo() {
 
     if(infoVerbose){log.info "Getting TWC Location Info for ${zipcode}"}
     def loc = getTwcLocation(zipcode)?.location
-    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode} ${loc.countryCode}"
+    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode} ${loc?.countryCode}"
     state.latitude = "${loc?.latitude}"
     state.longitude = "${loc?.longitude}"
 
