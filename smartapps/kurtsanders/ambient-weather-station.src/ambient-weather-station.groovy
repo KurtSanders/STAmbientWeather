@@ -1310,10 +1310,11 @@ def convertStateWeatherStationData() {
     if(infoVerbose){log.info "windUnitsDisplay 		= ${state.windUnitsDisplay}"}
     if(infoVerbose){log.info "measureUnitsDisplay 	= ${state.measureUnitsDisplay}"}
     if(infoVerbose){log.info "baroUnitsDisplay 		= ${state.baroUnitsDisplay}"}
-    def tempVar
+    def tempVar = null
     def newAmbientMap = [:]
     newAmbientMap = state.ambientMap
     newAmbientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
+        tempVar = null
         switch (k) {
             case ~/^temp.*/:
             case 'feelsLike':
@@ -1342,7 +1343,6 @@ def convertStateWeatherStationData() {
             } else if (state.windUnitsDisplay == 'knotts') {
                 tempVar = String.format("%.02f",v*0.86898)
             }
-            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
             break
             case ~/^barom.*/:
             if (state.baroUnitsDisplay == 'mmHg') {
@@ -1350,10 +1350,12 @@ def convertStateWeatherStationData() {
             } else if (state.baroUnitsDisplay == 'hpa') {
                 tempVar = String.format("%.02f",v*33.86389)
             }
-            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
             break
             default:
                 break
+        }
+        if(tempVar != null) {
+            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
         }
     }
     state.ambientMap = [:]
