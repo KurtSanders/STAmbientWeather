@@ -23,7 +23,7 @@ import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
 String version()				{ return "V4.1" }
-String appModified()			{ return "Jun-16-2019"}
+String appModified()			{ return "Jun-29-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -300,7 +300,13 @@ def remoteSensorPage() {
                 remoteSensorKeyName = "temp${i}f"
                 if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
                     input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                        title: "Ambient Remote Sensor #${i}",
+                        title: "Ambient Remote Temp Sensor #${i}",
+                        required: true
+                }
+                remoteSensorKeyName = "soiltemp${i}"
+                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
+                    input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                        title: "Ambient Remote Soil Sensor #${i}",
                         required: true
                 }
             }
