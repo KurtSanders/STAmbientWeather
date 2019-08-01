@@ -1,7 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.04 (Production Master Branch - Stable)
-### Version: 4.10 (BugFix Branch - Units of Measure - Limited Testing/Feedback Phase - Do not migrate if you are not interested in metric values)
+### Version: 4.10 (Production Master Branch - Stable)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
