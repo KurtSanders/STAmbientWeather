@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.1" }
-String appModified()			{ return "Jun-29-2019"}
+String version()				{ return "V4.11" }
+String appModified()			{ return "Aug-04-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -218,7 +218,7 @@ def optionsPage () {
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
             input ( name: "zipCode", type: "text",
-                   title: "Enter a 'USA 5 digit ZipCode' for TWC Weather Forecasts, Moon Day, etc (Required)",
+                   title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
                    required: true
                   )
             input ( name: "schedulerFreq", type: "enum",
@@ -469,10 +469,12 @@ def localWeatherInfo() {
     if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
     if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
     // Verify zipCode for 5 digit numeric
-    def zipcode = zipCode
-    if (!zipcode.matches('^[0-9]{5}$')) {
-        log.error "The zipCode entered ${zipCode} is an invalid USA 5 digit zipcode NNNNN'...  Using ST Hub's defualt zipcode"
-        zipcode = ''
+    def valregex = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$|^[0-9]{5}$/
+    def zipcode = ''
+    if (zipCode ==~ valregex) {
+        zipcode = zipCode
+    } else {
+        log.error "The Zipcode or Lat,Long entered ${zipCode} entered in Ambient Weather App preferences is either not an valid USA 5 digit zipcode NNNNN or Longitutude,Latitude NNN.NN,NNN.NN format'...  Using ST Hub's default zipcode for weather"
     }
     def obs = getTwcConditions(zipcode)
     def d = getChildDevice(state.deviceId)
@@ -485,7 +487,7 @@ def localWeatherInfo() {
 
     if(infoVerbose){log.info "Getting TWC Location Info for ${zipcode}"}
     def loc = getTwcLocation(zipcode)?.location
-    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode} ${loc?.countryCode}"
+    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode?loc.adminDistrictCode+" ":''}${loc?.countryCode}"
     state.latitude = "${loc?.latitude}"
     state.longitude = "${loc?.longitude}"
 
