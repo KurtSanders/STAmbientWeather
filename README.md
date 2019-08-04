@@ -44,7 +44,7 @@ Select the following events to send Weather SMS Text Alerts for user defined val
    * Outside Low Temperature¹ 
    * Outside High Temperature¹
    * Rain Detected¹ 
-   * Severe Weather (TWC® Alerts for Zipcode) 
+   * Severe Weather (TWC® Alerts for Zipcode or lat/long coordinates) 
 
    ¹Alerts are hidden if the installed weather station does not provide a value.
 
@@ -55,7 +55,7 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 
 #### Filtering/Suppressing Selected Weather Alerts
 
-One can filter/suppress selected Weather Alerts from the Ambient Weather Station's preferences options menu by selecting one or more of the listed [Nation Weather Services' Product Identifiers](https://forecast.weather.gov/product_types.php).   The default option (nothing selected) allows all Weather Alerts to be reported for the zipcode entered.  
+One can filter/suppress selected Weather Alerts from the Ambient Weather Station's preferences options menu by selecting one or more of the listed [Nation Weather Services' Product Identifiers](https://forecast.weather.gov/product_types.php).   The default option (nothing selected) allows all Weather Alerts to be reported for the Zipcode or lat/long coordinates entered.  
 
 
 ### Requirements:
@@ -118,7 +118,7 @@ These files below are required for V4 to operate.  You will need to Update from 
 </p>
 
 * Preferences
-	- zipCode	(Your Zipcode for Weather Forecast Info)
+	- Zipcode or lat/long coordinates for Weather Forecast Info
 	- Run Weather Station Refresh ('0' is 'Off/Manual Refresh')
 	- 	(# mins for the APP to update weather values from your weather station)
 	- Select Solar Radiation Units of Measure
