@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.11" }
-String appModified()			{ return "Aug-04-2019"}
+String version()				{ return "V4.2" }
+String appModified()			{ return "Aug-27-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -31,10 +31,12 @@ String appShortName() 			{ return "STAmbientWeather ${version()}" }
 
 String DTHName() 				{ return "Ambient Weather Station" }
 String DTHRemoteSensorName() 	{ return "Ambient Weather Station Remote Sensor"}
+String DTHPMSensorName() 		{ return "Ambient Particulate Monitor"}
 String DTHDNI() 				{ return "${app.id}:MyAmbientWeatherStation" }
 String DTHDNIRemoteSensorName() { return "${app.id}:MyAmbientRemoteSensor"}
-Integer MaxNumRemoteSensors()	{ return 8 }
+String DTHDNIPMName() 			{ return "${app.id}:MyAmbientParticulateMonitor"}
 String DTHDNIActionTiles() 		{ return "${app.id}:MyAmbientSmartWeatherStationTile" }
+Integer MaxNumRemoteSensors()	{ return 8 }
 
 String DTHNameActionTiles() 	{ return "SmartWeather Station Tile" }
 String AWSNameActionTiles()		{ return "SmartWeather" }
@@ -138,7 +140,8 @@ def mainPage() {
                         required: false,
                         "Location: ${state?.ambientMap[state.weatherStationDataIndex].info.location}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
-                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}"
+                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
+                        "\nParticulate Monitor: ${state.countParticulateMonitors}"
                 }
             } else {
                 def weatherStationList = [:]
@@ -203,7 +206,7 @@ def unitsPage() {
 
 def optionsPage () {
     log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
-    def remoteSensorsExist = (state.countRemoteTempHumiditySensors>0)
+    def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
     def i = 0
     def AWSBaseNameEnum = [:]
@@ -226,17 +229,17 @@ def optionsPage () {
                    options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                    required: true
                   )
+            href(name: "Select Weather Units of Measure",
+                 title: "Select Weather Units of Measure",
+                 required: true,
+                 defaultValue: "Tap to Select",
+                 page: "unitsPage")
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
                 input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
                        title: "Weather Station Console Room Location Short Name",
                        required: true
                       )
             }
-            href(name: "Select Weather Units of Measure",
-                 title: "Select Weather Units of Measure",
-                 required: true,
-                 defaultValue: "Tap to Select",
-                 page: "unitsPage")
             input ( name: "productIdentifierFilterList", type: "enum",
                    title: "Select Weather Alert Product Identifiers to Filter (Optional)",
                    options: alertFilterList(),
@@ -285,33 +288,48 @@ def optionsPage () {
 }
 def remoteSensorPage() {
     dynamicPage(name: "remoteSensorPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
-        def i = 1
-        def remoteSensorKeyName
-        section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
-            paragraph "Ambient Remote Sensor Names"
-            paragraph image: getAppImg("blue-ball.jpg"),
-                title: "Please scroll this page to enter REQUIRED Sensor Names",
-                required: false,
-                "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
-                "If you wish to change the short name of the remote sensor, DO NOT change or rename them in the Device Tile or ST IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
-                "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
-                "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
-            for (i; i <= MaxNumRemoteSensors(); i++) {
-                remoteSensorKeyName = "temp${i}f"
-                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
-                    input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                        title: "Ambient Remote Temp Sensor #${i}",
-                        required: true
-                }
-                remoteSensorKeyName = "soiltemp${i}"
-                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
-                    input "${DTHDNIRemoteSensorName()}${i}", type: "text",
-                        title: "Ambient Remote Soil Sensor #${i}",
-                        required: true
+        if ( state?.countRemoteTempHumiditySensors > 0) {
+            def i = 1
+            def remoteSensorKeyName
+            section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
+                paragraph "Ambient Remote Sensor Names"
+                paragraph image: getAppImg("blue-ball.jpg"),
+                    title: "Please scroll this page to enter REQUIRED Sensor Names",
+                    required: false,
+                    "You MUST create short descriptive names for each remote sensor. Do not use special characters in the names.\n\n" +
+                    "If you wish to change the short name of the remote sensor, DO NOT change or rename them in the Device Tile or ST IDE 'My Devices' editor, as this app will rename them automatically when you SAVE the page.\n\n" +
+                    "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
+                    "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
+                for (i; i <= MaxNumRemoteSensors(); i++) {
+                    remoteSensorKeyName = "temp${i}f"
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
+                        input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                            title: "Ambient Remote Temp Sensor #${i}",
+                            required: true
+                    }
+                    remoteSensorKeyName = "soiltemp${i}"
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
+                        input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                            title: "Ambient Remote Soil Sensor #${i}",
+                            required: true
+                    }
                 }
             }
+        }
+        if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("pm25")) {
+            section() {
+                paragraph "Ambient Particulate Monitor Location Name"
+                paragraph image: getAppImg("ambient-weather-pm25.jpg"),
+                    title: "Provide a friendly short name for your Ambient Particulate Monitor PM25",
+                    required: false,
+                    null
+                input "${DTHDNIPMName()}", type: "text",
+                    title: "Ambient Particulate Monitor PM25",
+                    defaultValue: "PM25",
+                    required: true
+            }
+        }
     }
-}
 }
 
 def notifyPage() {
@@ -903,6 +921,27 @@ def ambientWeatherStation() {
                 }
                 okTOSendEvent = false
                 break
+                // Post values for Particle Monitor PM25
+                case ~/^pm25$/:
+                remoteSensorDNI = getChildDevice("${DTHDNIPMName()}")
+                if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
+                if (remoteSensorDNI) {
+                    if(debugVerbose){log.debug "Posted PM25 with value ${v} -> ${remoteSensorDNI}"}
+                    remoteSensorDNI.sendEvent(name: "pm25", value: v, units: 'µg/m3')
+                    remoteSensorDNI.sendEvent(name:"aqi", value: aqiCategory(v), displayed: false)
+                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+                    remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("pm25_24h")) {
+                        remoteSensorDNI.sendEvent(name:"pm25_24h", value: state.ambientMap[state.weatherStationDataIndex].lastData.pm25_24h)
+                    }
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt_25")) {
+                        remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData.batt_25.toInteger()*100, displayed: false)
+                    }
+                } else {
+                    log.error "Missing ST Device ${DTHDNIPMName()} for ${k}"
+                }
+                okTOSendEvent = false
+                break
                 default:
                     break
             }
@@ -1126,6 +1165,39 @@ def addAmbientChildDevice() {
                 log.warn "Please verify that all Ambient Remote Sensors are online and reporting to Ambient Network.  If so, please manual delete the device in the SmartThings 'My Devices' view"
             }
         }
+    }
+
+    // add Ambient Weather Particulate Monitor Device(s)
+    def PMkey = "${DTHDNIPMName()}"
+    def PMvalue = settings.find{ it.key == "${DTHDNIPMName()}" }?.value
+    if(PMvalue) {
+        remoteSensorNamePref = "${AWSBaseName}${PMvalue}"
+        remoteSensorNameDNI = getChildDevice(PMkey)
+        if (!remoteSensorNameDNI) {
+            log.info "NEW: Adding Particulate Monitor device: ${remoteSensorNamePref}"
+            try {
+                addChildDevice(DTHnamespace(), DTHPMSensorName(), "${PMkey}", null, ["name": remoteSensorNamePref, "label": remoteSensorNamePref, completedSetup: true])
+            } catch(physicalgraph.app.exception.UnknownDeviceTypeException ex) {
+                log.error "The Ambient Weather Device Handler '${DTHPMSensorName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
+                return false
+            }
+            log.info "Success Added Ambient Particulate Monitor: ${remoteSensorNamePref} with DNI: ${PMkey}"
+        } else {
+            if(infoVerbose){log.info "Verified Particulate Monitor ${state.countParticulateMonitors} Exists: ${remoteSensorNamePref} = DNI: ${PMkey}"}
+            if ( (remoteSensorNameDNI.label == remoteSensorNamePref) && (remoteSensorNameDNI.name == remoteSensorNamePref) ) {
+                if(infoVerbose){
+                    log.info "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
+                }
+            } else {
+                log.warn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
+                remoteSensorNameDNI.label = remoteSensorNamePref
+                remoteSensorNameDNI.name  = remoteSensorNamePref
+                log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
+            }
+        }
+    } else {
+        log.warn "Device DNI: ${PMkey} '${remoteSensorNameDNI.name}' exceeds # of Particulate Monitors (${state.countParticulateMonitors}) reporting from Ambient -> ACTION REQUIRED"
+        log.warn "Please verify that all Ambient Particulate Monitors are online and reporting to Ambient Network.  If so, please manual delete the device in the SmartThings 'My Devices' view"
     }
 }
 
@@ -1379,6 +1451,7 @@ def setStateWeatherStationData() {
     state.weatherStationDataIndex = state.weatherStationDataIndex?:0
     state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
     countRemoteTempHumiditySensors()
+    countParticulateMonitors()
     state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name?:state.ambientMap[state.weatherStationDataIndex].info.location
 }
 
@@ -1386,6 +1459,43 @@ def countRemoteTempHumiditySensors() {
     state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9][0-9]?f|^soiltemp[0-9]?[0-9]?') }
     return state.countRemoteTempHumiditySensors
 }
+
+def countParticulateMonitors() {
+    state.countParticulateMonitors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^pm25$') }
+    return state.countParticulateMonitors
+}
+
+def aqiCategory(v) {
+    def aqi_category
+    switch (v.toInteger()) {
+        case 0..12:
+        aqi_category = "Good"
+        break
+        case 13..35:
+        aqi_category = "Moderate"
+        break
+        case 36..55:
+        aqi_category = "Unhealthy for Sensitive Groups"
+        break
+        case 56..150:
+        aqi_category = "Unhealthy"
+        break
+        case 151..250:
+        aqi_category = "Very Unhealthy"
+        break
+        case 251..350:
+        aqi_category = "Hazardous"
+        break
+        case 351..500:
+        aqi_category = "Extremely Hazardous"
+        break
+        default:
+            aqi_category = "Nuclear Holocaust Level"
+    }
+    return "AQI: ${aqi_category}"
+}
+
+
 
 def alertFilterList() {
     def x = [
