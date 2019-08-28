@@ -31,10 +31,15 @@ Allows for multiple Ambient Weather® system models or geolocation instances<br>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient6.PNG" width=200>
 </p>
 
-### Ambient Weather® Station with multiple remote sensors
+### Ambient Weather® Station with multiple remote temp/soil sensors
 
 <p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient9.PNG" width=200>
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
+</p>
+
+### Ambient Weather® Station with Particle Monitor PM25
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/PM25-2.jpg" width=200>
 </p>
 
 ### Weather Event SMS Alerts
