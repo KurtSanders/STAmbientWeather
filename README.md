@@ -97,12 +97,13 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 **Required Files in your SmartThings IDE Repository**
 These files below are required for V4 to operate.  You will need to Update from Repo
 
-| IDE Repository    | Filename | Status | Version |
-| :---: | :----------| :---:  | :---:  |
-| My SmartApps      | kurtsanders : Ambient Weather Station | **NEW**  | 4.11 |
-| My Device Handler | kurtsanders : SmartWeather Tile Station | **NEW** | 4.11 |
-| My Device Handler | kurtsanders : Ambient Weather Station | **NEW**  | 4.11 |
-| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | **NEW** | 4.11 |
+| IDE Repository    | Filename | Status |
+| :---: | :----------| :---:  |
+| My SmartApps      | kurtsanders : Ambient Weather Station | **Updated** |
+| My Device Handler | kurtsanders : Ambient Particulate Monitor | **New** |
+| My Device Handler | kurtsanders : Ambient Weather Station | UnChanged |
+| My Device Handler | kurtsanders : SmartWeather Tile Station | UnChanged |
+| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | UnChanged |
 
 > - *It is strongly recommended that all previous versions/files of Ambient Weather Station be removed from your ST IDE and only the V4 files from the above table are listed in your SmartThings IDE.*
 > - Note: V3 cannot be updated to V4 due to the extensive re-coding to accomodate multiple instances of Ambient Weather® Station nodes and SMS alerts.  A fresh/clean install of Ambient Weather Station is only supported.
