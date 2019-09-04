@@ -13,7 +13,7 @@
 *  Ambient Particulate Monitor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*
+*  Version 4.21
 */
 
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
@@ -62,8 +62,8 @@ metadata {
         }
         standardTile("battery", "device.battery", width: 3, height: 1, decoration: "flat", wordWrap: true) {
             state "default", 	label: '', icon: getAppImg('battery-na.png')
-            state "100", 		label: '', icon: getAppImg('battery-good.png')
             state "0", 			label: '', icon: getAppImg('battery-bad.png')
+            state "100", 		label: '', icon: getAppImg('battery-good.png')
         }
         valueTile("date", "device.date", width: 3, height: 1, decoration: "flat", wordWrap: true) {
             state("default", label: 'Ambient Server DateTime\n${currentValue}')

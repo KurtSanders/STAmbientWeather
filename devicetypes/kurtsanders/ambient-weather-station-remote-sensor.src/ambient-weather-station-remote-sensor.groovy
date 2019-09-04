@@ -13,8 +13,11 @@
 *  Ambient Weather Station Remote Sensor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*
+*  Version 4.21
 */
+
+import groovy.time.*
+import java.text.SimpleDateFormat;
 
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 
@@ -54,8 +57,8 @@ metadata {
 
     standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", 	label: '', icon: getAppImg('battery-na.png')
-        state "100", 		label: '', icon: getAppImg('battery-good.png')
         state "0", 			label: '', icon: getAppImg('battery-bad.png')
+        state "100", 		label: '', icon: getAppImg('battery-good.png')
     }
     valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Ambient Server DateTime\n${currentValue}')
@@ -81,6 +84,11 @@ metadata {
     )
 }
 def refresh() {
+    Date now = new Date()
+    def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
+    log.info "User requested a 'Manual Refresh' from Ambient Weather Station device, sending refresh() request to parent smartApp"
+    sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", "displayed":false)
+    sendEvent(name: "secondaryControl", value: "Cloud Refresh Requested...", "displayed":false)
     parent.refresh()
 }
 def installed() {

@@ -13,8 +13,10 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*
+*  Version 4.21
 */
+import groovy.time.*
+import java.text.SimpleDateFormat;
 
 String getAppImg(imgName)   	{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 String getMoonIcon(imgNumber)   { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-${imgNumber}.png" }
@@ -235,10 +237,10 @@ metadata {
         state "28",        	label: '', icon: getMoonIcon('28')
         state "29",        	label: '', icon: getMoonIcon('29')
     }
-    valueTile("tempinf_display", "device.tempinf_display", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("tempinf_display", "device.tempinf_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label: 'Inside Temp\n${currentValue}'
     }
-    valueTile("humidityin_display", "device.humidityin_display", width: 3, height: 1, decoration: "flat", wordWrap: true) {
+    valueTile("humidityin_display", "device.humidityin_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", label:'Inside Humidity\n${currentValue}'
     }
     valueTile("feelsLike_display", "device.feelsLike_display", width: 2, height: 1, decoration: "flat", wordWrap: true) {
@@ -377,8 +379,8 @@ metadata {
     }
     standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
         state "default", 	label: '', icon: getAppImg('battery-na.png')
-        state "100", 		label: '', icon: getAppImg('battery-good.png')
         state "0", 			label: '', icon: getAppImg('battery-bad.png')
+        state "100", 		label: '', icon: getAppImg('battery-good.png')
     }
     valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
         state("default", label: 'Ambient Server DateTime\n${currentValue}')
@@ -402,6 +404,7 @@ metadata {
             // Inside Sensors
             "temperature",
             "tempinf_display",
+            "refresh",
             "humidityin_display" ,
             // Outside Sensors
             "weatherIcon",
@@ -480,5 +483,11 @@ def updated() {
 }
 
 def refresh() {
+    Date now = new Date()
+    def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
+    sendEvent(name: "secondaryControl", value: "Cloud Refresh Requested...", "displayed":false)
+    sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", "displayed":false)
+    log.info "User requested a 'Manual Refresh' from Ambient Weather Station device, sending refresh() request to parent smartApp"
+
     parent.refresh()
 }

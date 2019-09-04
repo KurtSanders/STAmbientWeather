@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.2" }
-String appModified()			{ return "Aug-27-2019"}
+String version()				{ return "V4.21" }
+String appModified()			{ return "Sep-04-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -85,10 +85,14 @@ def mainPage() {
     }
     def apiappSetupCompleteBool = state.apiKey?true:false
     def setupMessage = ""
-    def setupTitle = "${appNameVersion()} API Check"
+    def setupTitle = "${appNameVersion()} API Settings Check"
     def nextPageName = "optionsPage"
     state.retry = 0
-    def getAmbientStationDataRC = getAmbientStationData()
+    def getAmbientStationDataRC = (state.ambientMap)?true:false
+    if (!state.ambientMap) {
+    log.debug "Calling getAmbientStationData() routine..."
+        getAmbientStationDataRC = getAmbientStationData()
+    }
     if (apiappSetupCompleteBool && getAmbientStationDataRC) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appNameVersion()}. "
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
@@ -135,14 +139,18 @@ def mainPage() {
                 state.weatherStationMac = weatherStationMac
                 countRemoteTempHumiditySensors()
                 section ("Ambient Weather Station Information") {
+                    href(name: "Weather Station Options",
+                         page: "optionsPage",
+                         description: "Next: Complete options ->")
                     paragraph image: getAppImg("blue-ball.jpg"),
                         title: "${state.weatherStationName}",
                         required: false,
-                        "Location: ${state?.ambientMap[state.weatherStationDataIndex].info.location}" +
+                        "Location: ${state.ambientMap[state.weatherStationDataIndex].info?.coords?.location}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
                         "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
-                        "\nParticulate Monitor: ${state.countParticulateMonitors}"
+                        "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
                 }
+
             } else {
                 def weatherStationList = [:]
                 state.ambientMap.each {
@@ -205,7 +213,7 @@ def unitsPage() {
 }
 
 def optionsPage () {
-    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location}"
+    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.coords.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
     def i = 0
@@ -665,8 +673,8 @@ def ambientWeatherStation() {
             if(debugVerbose){log.debug "Weather Station has 'Last Rain Date' information...Processing"}
             def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap[state.weatherStationDataIndex].lastData.lastRain)
             use (groovy.time.TimeCategory) {
-                if(debugVerbose){log.debug ("lastRainDuration -> ${currentDT - dateRain}")}
-                def lastRainDuration = currentDT - dateRain
+                def lastRainDuration = ((currentDT - dateRain) =~ /(.+)\b,/)[0][1]
+                if(debugVerbose){log.debug ("lastRainDuration -> ${lastRainDuration}")}
                 if (lastRainDuration) {
                     d.sendEvent(name:"lastRainDuration", value: lastRainDuration, displayed: false)
                 }
@@ -770,6 +778,10 @@ def ambientWeatherStation() {
                 break
                 case 'date':
                 v = state.ambientServerDate
+                break
+                case 'battin':
+                k='battery'
+                d.sendEvent(name: k, value: v, units:'%', displayed: false)
                 break
                 case 'battout':
                 k='battery'
@@ -1013,7 +1025,7 @@ def ambientWeatherStation() {
 }
 
 def getAmbientStationData() {
-	if(!infoVerbose){log.info "Start: getAmbientStationData()"}
+	if(infoVerbose){log.info "Start: getAmbientStationData()"}
     if(!state.apiKey){
         log.error("Severe Error: The API key is UNDEFINED in ${app.name}'s IDE 'App Settings' field, fatal error now exiting")
         return false
@@ -1022,8 +1034,15 @@ def getAmbientStationData() {
     if (state?.retry.toInteger()>0) {
         log.info "Executing Retry getAmbientStationData() re-attempt #${state.retry}"
     }
+    //        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${state.apiKey}"
     def params = [
-        uri			: "http://api.ambientweather.net/v1/devices?applicationKey=${appKey()}&apiKey=${state.apiKey}"
+        uri				: "http://api.ambientweather.net",
+        path			: "/v1/devices",
+        contentType		: 'application/json',
+        query			: [
+            "applicationKey" : appKey(),
+            "apiKey"		 : state.apiKey
+        ]
     ]
     try {
         httpGet(params) { resp ->
@@ -1170,6 +1189,7 @@ def addAmbientChildDevice() {
     // add Ambient Weather Particulate Monitor Device(s)
     def PMkey = "${DTHDNIPMName()}"
     def PMvalue = settings.find{ it.key == "${DTHDNIPMName()}" }?.value
+
     if(PMvalue) {
         remoteSensorNamePref = "${AWSBaseName}${PMvalue}"
         remoteSensorNameDNI = getChildDevice(PMkey)
@@ -1195,9 +1215,6 @@ def addAmbientChildDevice() {
                 log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
             }
         }
-    } else {
-        log.warn "Device DNI: ${PMkey} '${remoteSensorNameDNI.name}' exceeds # of Particulate Monitors (${state.countParticulateMonitors}) reporting from Ambient -> ACTION REQUIRED"
-        log.warn "Please verify that all Ambient Particulate Monitors are online and reporting to Ambient Network.  If so, please manual delete the device in the SmartThings 'My Devices' view"
     }
 }
 
