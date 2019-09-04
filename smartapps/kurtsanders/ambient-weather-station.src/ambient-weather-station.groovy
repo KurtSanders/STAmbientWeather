@@ -145,7 +145,7 @@ def mainPage() {
                     paragraph image: getAppImg("blue-ball.jpg"),
                         title: "${state.weatherStationName}",
                         required: false,
-                        "Location: ${state.ambientMap[state.weatherStationDataIndex].info?.coords?.location}" +
+                        "Location: ${state.ambientMap[state.weatherStationDataIndex].info?.location?:state.ambientMap[state.weatherStationDataIndex].info?.coords.location}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
                         "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
                         "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
@@ -153,8 +153,10 @@ def mainPage() {
 
             } else {
                 def weatherStationList = [:]
+                def stationlocation
                 state.ambientMap.each {
-                    weatherStationList << [[ "${it.macAddress}" : "${it.info.name}${it.info.location?' @ ':''}${it.info.location}" ]]
+                    stationlocation = it.info.location?:it.info?.coords?.location
+                    weatherStationList << [[ "${it.macAddress}" : "${it.info.name}${stationlocation?' @ ':''}${stationlocation}" ]]
                 }
                 section ("Ambient Weather Station Information") {
                     input (name: "weatherStationMac", submitOnChange: true, type: "enum",
