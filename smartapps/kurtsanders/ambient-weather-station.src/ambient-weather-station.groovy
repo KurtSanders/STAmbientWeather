@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.21" }
-String appModified()			{ return "Sep-04-2019"}
+String version()				{ return "V4.22" }
+String appModified()			{ return "Sep-09-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -188,26 +188,31 @@ def unitsPage() {
             input ( name: "tempUnits", type: "enum",
                    title: "Select Temperature Units of Measure",
                    options: ['°F':'Fahrenheit °F','°C':'Celsius °C'],
+                   defaultValue: "°F",
                    required: true
                   )
             input ( name: "windUnits", type: "enum",
                    title: "Select Wind Speed Units of Measure",
                    options: ['mph':'Miles per Hour','fps':'Feet per Second','mps':'Meter per Second','kph':'Kilometers per Hour','knotts':'Knotts'],
+                   defaultValue: "mph",
                    required: true
                   )
             input ( name: "measureUnits", type: "enum",
                    title: "Select Rainfall Units of Measure",
                    options: ['in':'Inches','cm':'Centimeters'],
+                   defaultValue: "in",
                    required: true
                   )
             input ( name: "baroUnits", type: "enum",
                    title: "Select Barometer Units of Measure",
                    options: ['inHg':'inHg','mmHg':'mmHg', 'hPa':'hPa'],
+                   defaultValue: "inHg",
                    required: true
                   )
             input ( name: "solarRadiationTileDisplayUnits", type: "enum",
                    title: "Select Solar Radiation ('Light') Units of Measure",
                    options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
+                   defaultValue: "W/m²",
                    required: true
                   )
         }
@@ -239,10 +244,10 @@ def optionsPage () {
                    options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                    required: true
                   )
-            href(name: "Select Weather Units of Measure",
+            href(name: "Weather Units of Measure",
                  title: "Select Weather Units of Measure",
                  required: true,
-                 defaultValue: "Tap to Select",
+                 defaultValue: unitsSet(),
                  page: "unitsPage")
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
                 input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
@@ -262,6 +267,11 @@ def optionsPage () {
                        required: false
                       )
             }
+            input ( name: "showBattery", type: "bool",
+                   title: "Show battery level from sensor(s)?",
+                   defaultValue: true,
+                   required: true
+                  )
             href(name: "Define Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
@@ -481,7 +491,7 @@ def main() {
     log.info "Main (#${runID}) Section: Executing Local Weather Routines for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
 
     // TWC Local Weather
-    localWeatherInfo()
+    if (!localWeatherInfo()) return false
 
     // TWC Local Weather Alerts
     checkForSevereWeather()
@@ -502,15 +512,25 @@ def localWeatherInfo() {
     if (zipCode ==~ valregex) {
         zipcode = zipCode
     } else {
-        log.error "The Zipcode or Lat,Long entered ${zipCode} entered in Ambient Weather App preferences is either not an valid USA 5 digit zipcode NNNNN or Longitutude,Latitude NNN.NN,NNN.NN format'...  Using ST Hub's default zipcode for weather"
+        log.warn "The Zipcode or Lat,Long entered ${zipCode} entered in Ambient Weather App preferences is either not an valid USA 5 digit zipcode NNNNN or Longitutude,Latitude NNN.NN,NNN.NN format'...  Using ST Hub's default zipcode for weather"
+        zipcode = ""
     }
     def obs = getTwcConditions(zipcode)
+    if (!obs) {
+        log.warn "The Zipcode/coord you entered in the User Preferences '${zipcode}' is invalid, using the ST Hub Zipcode of '${location.zipCode}' as default"
+        zipcode=""
+        obs = getTwcConditions(zipcode)
+    }
     def d = getChildDevice(state.deviceId)
     d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
+    if (obs) {
     state.weatherIcon = obs?.iconCode as String
     state.wxPhraseShort = obs?.wxPhraseShort
-    if (obs) {
         d.sendEvent(name: "weatherIcon", value: state.weatherIcon, displayed: false)
+    } else {
+        log.error "The Zipcode '${zipcode}' is invalid, aborting..."
+        d.sendEvent(name: 'secondaryControl', value: "Error: The Zipcode entered '${zipcode}' is invalid", displayed: true )
+        return false
     }
 
     if(infoVerbose){log.info "Getting TWC Location Info for ${zipcode}"}
@@ -521,8 +541,8 @@ def localWeatherInfo() {
 
     //Getting Sunrise & Sunset
     def dtf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-    def sunriseDate = dtf.parse(obs.sunriseTimeLocal)
-    def sunsetDate = dtf.parse(obs.sunsetTimeLocal)
+    def sunriseDate = dtf.parse(obs?.sunriseTimeLocal)
+    def sunsetDate = dtf.parse(obs?.sunsetTimeLocal)
 
     def tf = new java.text.SimpleDateFormat("h:mm")
     tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
@@ -563,7 +583,10 @@ def localWeatherInfo() {
     }
     else {
         log.warn "TWC Forecast Data not provided by API"
+        d.sendEvent(name: 'secondaryControl', value: "TWC Forecast Data not provided by API", displayed: true )
+        return false
     }
+    return true
 }
 
 def checkForSevereWeather() {
@@ -758,6 +781,14 @@ def ambientWeatherStation() {
                 d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v}%")
                 break
+                case ~/^batt.*/:
+                // Change device battery level to 100% if the User preferences showBattery value has been defined and false
+                if ( (showBattery != null) && (!showBattery) ) {
+                    v = 1
+                    state.ambientMap[state.weatherStationDataIndex].lastData["${k}"] = v
+                }
+                break
+
                 default:
                     break
             }
@@ -888,7 +919,7 @@ def ambientWeatherStation() {
                     remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('battout')) {
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('battout') ) {
                         remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData.battout.toInteger()*100, displayed: false)
                     }
                 } else {
@@ -1514,7 +1545,10 @@ def aqiCategory(v) {
     return "AQI: ${aqi_category}"
 }
 
-
+def unitsSet() {
+    if ([tempUnits, windUnits, measureUnits, baroUnits, solarRadiationTileDisplayUnits].findAll({it != null}).join()=='') return "Tap to Select"
+    return sprintf("%s, %s, %s, %s, %s", tempUnits, windUnits, measureUnits, baroUnits, solarRadiationTileDisplayUnits)
+}
 
 def alertFilterList() {
     def x = [
