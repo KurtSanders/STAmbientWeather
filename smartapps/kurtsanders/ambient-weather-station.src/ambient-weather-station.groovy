@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.22" }
-String appModified()			{ return "Sep-09-2019"}
+String version()				{ return "V4.23" }
+String appModified()			{ return "Sep-11-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -275,7 +275,7 @@ def optionsPage () {
             href(name: "Define Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
-                 defaultValue: "Tap to Select",
+                 defaultValue: mobilePhone?"Activated: ${mobilePhone} ":"Tap to Activate Alerts",
                  page: "notifyPage")
             input ( name: "AWSBaseNameLength", type: "enum",
                    title: "Select the base prefix used for each weather device",
@@ -357,12 +357,13 @@ def notifyPage() {
         section("Mobile SMS Notify Options") {
             input ( name: "mobilePhone", type: "phone",
                    title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
-                   required: true
+                   required: false
                   )
             input ( name: "notifyAlertFreq", type: "enum",
-                   required: true,
+                   required: false,
                    title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
                    options: [1,2,4,6,12,24],
+                   defaultValue: 4,
                    multiple: false
                   )
         }
