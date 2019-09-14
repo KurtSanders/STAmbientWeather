@@ -22,8 +22,8 @@ import java.text.DecimalFormat
 import groovy.time.TimeCategory
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.23" }
-String appModified()			{ return "Sep-11-2019"}
+String version()				{ return "V4.24" }
+String appModified()			{ return "Sep-14-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -199,7 +199,7 @@ def unitsPage() {
                   )
             input ( name: "measureUnits", type: "enum",
                    title: "Select Rainfall Units of Measure",
-                   options: ['in':'Inches','cm':'Centimeters'],
+                   options: ['in':'Inches','mm':'Millimeters','cm':'Centimeters'],
                    defaultValue: "in",
                    required: true
                   )
@@ -1458,6 +1458,9 @@ def convertStateWeatherStationData() {
             case ~/.*rain.*/:
             if (state.measureUnitsDisplay == 'cm') {
                 tempVar = String.format("%.02f",v*2.54)
+                newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
+            } else if (state.measureUnitsDisplay == 'mm') {
+                tempVar = String.format("%.02f",v*25.4)
                 newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
             }
             break
