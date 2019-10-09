@@ -277,7 +277,7 @@ def optionsPage () {
             href(name: "Define Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
-                 defaultValue: mobilePhone?"Activated: ${mobilePhone} ":"Tap to Activate Alerts",
+                 defaultValue: (sendPushEnablbed || pushoverEnabled)?"Activated ":"Tap to Activate Alerts",
                  page: "notifyPage")
             input ( name: "AWSBaseNameLength", type: "enum",
                    title: "Select the base prefix used for each weather device",
