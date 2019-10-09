@@ -1,11 +1,11 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.24 (Production Master Branch - Testing)
+### Version: 4.3.0 (Production Master Branch)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
 
-### *The version provides device support for Ambient Particle Monitor PM25*
+#### *:new: Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)*
 
 ### Description:
 
@@ -95,12 +95,12 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 | kurtsanders | STAmbientWeather | master |
 
 **Required Files in your SmartThings IDE Repository**
-These files below are required for V4 to operate.  You will need to Update from Repo
+These files below are required for V4.3.0 to operate.  You will need to Update from Repo
 
 | IDE Repository    | Filename | Status |
 | :---: | :----------| :---:  |
 | My SmartApps      | kurtsanders : Ambient Weather Station | **Updated** |
-| My Device Handler | kurtsanders : Ambient Particulate Monitor | **New** |
+| My Device Handler | kurtsanders : Ambient Particulate Monitor | UnChanged  |
 | My Device Handler | kurtsanders : Ambient Weather Station | UnChanged |
 | My Device Handler | kurtsanders : SmartWeather Tile Station | UnChanged |
 | My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | UnChanged |

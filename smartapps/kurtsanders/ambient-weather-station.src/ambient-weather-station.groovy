@@ -20,10 +20,12 @@
 import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.24" }
-String appModified()			{ return "Sep-14-2019"}
+String version()				{ return "V4.3.0" }
+String appModified()			{ return "Oct-07-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -354,18 +356,43 @@ def remoteSensorPage() {
 
 def notifyPage() {
     dynamicPage(name: "notifyPage", title: "Weather Alerts/Notification", uninstall: false, install: false) {
+        section("Enable Pushover Service Support:") {
+            input ("pushoverEnabled", "bool", title: "Use Pushover Service Integration", required: false, submitOnChange: true)
+            if (pushoverEnabled) {
+                input "pushoverUser", "string", title: "Enter Pushover User API Key", description: "Enter User API Key", required: pushoverEnabled, submitOnChange: true
+                input "pushoverToken", "string", title: "Enter Pushover Application API Key", description: "Enter Application API Key", required: pushoverEnabled, submitOnChange: true
+                if ((pushoverUserAPI) && (pushoverUserAPI)) {
+                    input "pushoverDevices", "enum", title: "Select Pushover Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
+                }
+            }
+        }
+        section("SMS & Push Notifications for Timer On/Off activity?") {
+            input ( name    : "sendPushEnabled",
+                   type     : "bool",
+                   title    : "Send Events to ST Mobile Client Push Notification? (optional)",
+                   required : false
+                  )
+        }
         section("Mobile SMS Notify Options") {
+            input ( name	: "sendSMSEnabled",
+                   type: "bool",
+                   title: "Use SMS for Notifications (optional)",
+                   required: false,
+                   submitOnChange: true
+                  )
+            if(sendSMSEnabled) {
             input ( name: "mobilePhone", type: "phone",
                    title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
-                   required: false
+                       required: sendSMSEnabled
                   )
             input ( name: "notifyAlertFreq", type: "enum",
-                   required: false,
+                       required: sendSMSEnabled,
                    title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
                    options: [1,2,4,6,12,24],
                    defaultValue: 4,
                    multiple: false
                   )
+        }
         }
         section ("Weather Station Notify Options") {
             input ( name: "notifySevereAlert", type: "bool", required: false,
@@ -651,12 +678,11 @@ def checkForSevereWeather() {
     if(infoVerbose){log.info "Alert description: ${alertDescription}"}
     d.sendEvent(name: "alertMessage", value: informationList(alertMsg), displayed: false)
     d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
-    if ( (mobilePhone) && (notifySevereAlert) && (alerts) ) {
+    if ( (sendPushEnabled) && (notifySevereAlert) && (alerts) ) {
         if (lastNotifyDT(state.notifySevereAlertDT, "${alerts.size()} Weather Alert(s)")) {
             msg = "Ambient Weather Station ${state.weatherStationName}: SEVERE WEATHER ALERT for ${state.cityValue} at ${timeStamp}: ${alertMsg.join(', ')}"
-            if(debugVerbose){log.debug "SMS: ${msg}"}
             state.notifySevereAlertDT = now()
-            sendNotification("${msg}", [method: "both", phone: mobilePhone])
+            send_message(msg)
         }
     }
 }
@@ -1382,7 +1408,7 @@ def SMSNotifcationHistory() {
 }
 
 def notifyEvents() {
-    if (mobilePhone){
+    if (sendPushEnabled || pushoverEnabled || sendPushEnabled){
         def now = now()
         //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
@@ -1390,25 +1416,22 @@ def notifyEvents() {
         if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf<=notifyAlertLowTemp.toInteger()) ) {
             msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} <= ${notifyAlertLowTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
-                if(debugVerbose){log.debug "SMS: ${msg}"}
-                sendNotification("${msg}", [method: "both", phone: mobilePhone])
+                send_message(msg)
                 state.notifyAlertLowTempDT = now
             }
         }
         if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf.toInteger()>=notifyAlertHighTemp) ) {
             msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} >= ${notifyAlertHighTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
-                if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyAlertHighTempDT = now
-                sendNotification("${msg}", [method: "both", phone: mobilePhone])
+                send_message(msg)
             }
         }
         if ( (notifyRain) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin) && (state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin.toFloat()>0) ){
             msg = "${ambientWeatherStationName}: RAIN DETECTED ALERT: Current hourly rain sensor reading of ${state.ambientMap[state.weatherStationDataIndex].lastData.hourlyrainin} ${state.measureUnitsDisplay}/hr"
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
-                if(debugVerbose){log.debug "SMS: ${msg}"}
                 state.notifyRainDT = now
-                sendNotification("${msg}", [method: "both", phone: mobilePhone])
+                send_message(msg)
             }
         }
     }
@@ -1893,4 +1916,91 @@ def alertFilterList() {
         "ZFP":"ZFP - Zone Forecast Product"
     ]
     return x
+}
+// ======= Pushover Routines ============
+
+def send_message(msgData) {
+    if (sendPushEnabled) 	{sendPush(msgData)}
+    if (mobilePhone) 		{sendSms(mobilePhone, msgData)}
+    if (pushoverEnabled) 	{sendPushoverMessage(msgData)}
+}
+
+def sendPushoverMessage(msgData) {
+    log.info "sendPushoverMessage() ${random()} at ${timestamp()}"
+    Map params = [
+        uri					: "https://api.pushover.net/1/messages.json",
+        requestContentType	: "application/json"
+    ]
+    Map bodyx = [
+        token			: pushoverToken.trim() as String,
+        user			: pushoverUser.trim() as String,
+        title			: app.name as String,
+        message			: msgData as String,
+        html			: "1",
+        device			: pushoverDevices.join(',') as String
+    ]
+    params.body = new JsonOutput().toJson(bodyx)
+    include 'asynchttp_v1'
+    asynchttp_v1.post(pushoverResponse, params)
+    return
+}
+
+def findMyPushoverDevices() {
+    Boolean validated = false
+    List pushoverDevices = []
+    Map params = [
+        uri: "https://api.pushover.net",
+        path: "/1/users/validate.json",
+        contentType: "application/json",
+        requestContentType: "application/json",
+        body: [token: pushoverToken.trim() as String, user: pushoverUser.trim() as String] as Map
+    ]
+    try {
+        httpPostJson(params) { resp ->
+            if(resp?.status != 200) {
+                log.error "Received HTTP error ${resp.status}. Check your User and App Pushover keys!"
+            } else {
+                if(resp?.data) {
+                    if(resp?.data?.status && resp?.data?.status == 1) validated = true
+                    if(resp?.data?.devices) {
+                        log.debug "Found (${resp?.data?.devices?.size()}) Pushover Devices..."
+                        pushoverDevices = resp?.data?.devices
+                    } else {
+                        log.error "Device List is empty"
+                        pushoverDevices ['No devices found, Check your User and App Pushover keys!']
+                    }
+                } else { validated = false }
+            }
+            log.debug "findMyPushoverDevices | Validated: ${validated} | Resp | status: ${resp?.status} | data: ${resp?.data}"
+        }
+    } catch (Exception ex) {
+        if(ex instanceof groovyx.net.http.HttpResponseException && ex?.response) {
+            log.error "findMyPushoverDevices HttpResponseException | Status: (${ex?.response?.status}) | Data: ${ex?.response?.data}"
+        } else log.error "An invalid key was probably entered. PushOver Server Returned: ${ex}"
+    }
+    return pushoverDevices
+}
+
+def pushoverResponse(resp, data) {
+    try {
+        Map headers = resp?.getHeaders()
+        def limit = headers["X-Limit-App-Limit"]
+        def remain = headers["X-Limit-App-Remaining"]
+        def resetDt = headers["X-Limit-App-Reset"]
+        if(resp?.status == 200) {
+            log.debug "Message Received by Pushover Server ${(remain && limit) ? " | Monthly Messages Remaining (${remain} of ${limit})" : ""}"
+        } else if (resp?.status == 429) {
+            log.warn "Couldn't Send Pushover Notification... You have reached your (${limit}) notification limit for the month"
+        } else {
+            if(resp?.hasError()) {
+                log.error "pushoverResponse: status: ${resp.status} | errorMessage: ${resp?.getErrorMessage()}"
+                log.error "Received HTTP error ${resp?.status}. Check your keys!"
+            }
+        }
+    } catch (ex) {
+        if(ex instanceof groovyx.net.http.HttpResponseException && ex?.response) {
+            def rData = (ex?.response?.data && ex?.response?.data != "") ? " | Data: ${ex?.response?.data}" : ""
+            log.error "pushoverResponse() HttpResponseException | Status: (${ex?.response?.status})${rData}"
+        } else { log.error "pushoverResponse() Exception:", ex }
+    }
 }
