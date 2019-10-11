@@ -363,7 +363,7 @@ def notifyPage() {
                 input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
                 required: pushoverEnabled, submitOnChange: true,  defaultValue: false
 
-                if ((pushoverUserAPI) && (pushoverUserAPI)) {
+                if ((pushoverUser) && (pushoverToken))) {
                     input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
                 }
             }
