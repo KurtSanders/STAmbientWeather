@@ -24,7 +24,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.3.0" }
+String version()				{ return "V4.3.1" }
 String appModified()			{ return "Oct-07-2019"}
 
 //*************************************** Constants ***************************************
@@ -274,10 +274,10 @@ def optionsPage () {
                    defaultValue: true,
                    required: true
                   )
-            href(name: "Define Weather Alerts/Notification",
+            href(name: "Activate Weather Alerts/Notification",
                  title: "Weather Alerts/Notification",
                  required: false,
-                 defaultValue: (sendPushEnablbed || pushoverEnabled)?"Activated ":"Tap to Activate Alerts",
+                 defaultValue: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"Alerts Activated ":"Tap to Activate Alerts",
                  page: "notifyPage")
             input ( name: "AWSBaseNameLength", type: "enum",
                    title: "Select the base prefix used for each weather device",
@@ -356,20 +356,24 @@ def remoteSensorPage() {
 
 def notifyPage() {
     dynamicPage(name: "notifyPage", title: "Weather Alerts/Notification", uninstall: false, install: false) {
-        section("Enable Pushover Service Support:") {
-            input ("pushoverEnabled", "bool", title: "Use Pushover Service Integration", required: false, submitOnChange: true)
+        section("Enable Pushover™ Service Support (Must have an account):") {
+            input ("pushoverEnabled", "bool", title: "Use Pushover™ Service Integration for Notifications", required: false, submitOnChange: true)
             if (pushoverEnabled) {
-                input "pushoverUser", "string", title: "Enter Pushover User API Key", description: "Enter User API Key", required: pushoverEnabled, submitOnChange: true
-                input "pushoverToken", "string", title: "Enter Pushover Application API Key", description: "Enter Application API Key", required: pushoverEnabled, submitOnChange: true
+                input "pushoverUser", "string", title: "Enter Pushover™ User Key", description: "Enter User Key", required: pushoverEnabled, submitOnChange: true
+                input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
+                required: pushoverEnabled, submitOnChange: true,  defaultValue: false
+
                 if ((pushoverUserAPI) && (pushoverUserAPI)) {
-                    input "pushoverDevices", "enum", title: "Select Pushover Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
+                    input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
                 }
             }
         }
-        section("SMS & Push Notifications for Timer On/Off activity?") {
+        section("ST Mobile Client Push Notifications") {
             input ( name    : "sendPushEnabled",
                    type     : "bool",
                    title    : "Send Events to ST Mobile Client Push Notification? (optional)",
+                   defaultValue: false,
+                   submitOnChange: true,
                    required : false
                   )
         }
@@ -378,40 +382,45 @@ def notifyPage() {
                    type: "bool",
                    title: "Use SMS for Notifications (optional)",
                    required: false,
+                   defaultValue: false,
                    submitOnChange: true
                   )
             if(sendSMSEnabled) {
-            input ( name: "mobilePhone", type: "phone",
-                   title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
-                       required: sendSMSEnabled
-                  )
-            input ( name: "notifyAlertFreq", type: "enum",
+                input ( name: "mobilePhone", type: "phone",
+                       title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
                        required: sendSMSEnabled,
-                   title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
-                   options: [1,2,4,6,12,24],
-                   defaultValue: 4,
-                   multiple: false
-                  )
-        }
-        }
-        section ("Weather Station Notify Options") {
-            input ( name: "notifySevereAlert", type: "bool", required: false,
-                   title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
-                  )
-            if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
-                input ( name: "notifyAlertLowTemp", type: "number", required: false,
-                       title: "Notify when a temperature value is EQUAL OR BELOW this value. Leave field blank to cancel notification."
+                       submitOnChange: true
                       )
             }
-            if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
-                input ( name: "notifyAlertHighTemp", type: "number", required: false,
-                       title: "Notify when a temperature value is EQUAL OR ABOVE this value.  Leave field blank to cancel notification."
+        }
+        if (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])) {
+            section ("Weather Station Notify Options") {
+                input ( name: "notifyAlertFreq", type: "enum",
+                       required: checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]),
+                       title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
+                       options: [0,1,2,4,6,12,24],
+                       defaultValue: 24,
+                       submitOnChange: true,
+                       multiple: false
                       )
-            }
-            if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) ) {
-                input ( name: "notifyRain", type: "bool", required: false,
-                       title: "Notify when RAIN is detected"
+                input ( name: "notifySevereAlert", type: "bool", required: false,
+                       title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
                       )
+                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
+                    input ( name: "notifyAlertLowTemp", type: "number", required: false,
+                           title: "Notify when a temperature value is EQUAL OR BELOW this value. Leave field blank to cancel notification."
+                          )
+                }
+                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
+                    input ( name: "notifyAlertHighTemp", type: "number", required: false,
+                           title: "Notify when a temperature value is EQUAL OR ABOVE this value.  Leave field blank to cancel notification."
+                          )
+                }
+                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) ) {
+                    input ( name: "notifyRain", type: "bool", required: false,
+                           title: "Notify when RAIN is detected"
+                          )
+                }
             }
         }
         section (hideable: true, hidden: true, "Last SMS Notifications") {
@@ -421,6 +430,20 @@ def notifyPage() {
         }
     }
 }
+
+def checkRequired(vars) {
+    log.debug "vars = ${vars}"
+    def rc = false
+    vars.each {
+    log.debug "it = ${it}"
+        if ((it) || it==true) {
+            rc = true
+        }
+    }
+    log.debug "rc = ${rc}"
+    return rc
+}
+
 
 
 def initialize() {
@@ -552,8 +575,8 @@ def localWeatherInfo() {
     def d = getChildDevice(state.deviceId)
     d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
     if (obs) {
-    state.weatherIcon = obs?.iconCode as String
-    state.wxPhraseShort = obs?.wxPhraseShort
+        state.weatherIcon = obs?.iconCode as String
+        state.wxPhraseShort = obs?.wxPhraseShort
         d.sendEvent(name: "weatherIcon", value: state.weatherIcon, displayed: false)
     } else {
         log.error "The Zipcode '${zipcode}' is invalid, aborting..."
@@ -678,7 +701,7 @@ def checkForSevereWeather() {
     if(infoVerbose){log.info "Alert description: ${alertDescription}"}
     d.sendEvent(name: "alertMessage", value: informationList(alertMsg), displayed: false)
     d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
-    if ( (sendPushEnabled) && (notifySevereAlert) && (alerts) ) {
+    if ( (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])) && (notifySevereAlert) && (alerts) ) {
         if (lastNotifyDT(state.notifySevereAlertDT, "${alerts.size()} Weather Alert(s)")) {
             msg = "Ambient Weather Station ${state.weatherStationName}: SEVERE WEATHER ALERT for ${state.cityValue} at ${timeStamp}: ${alertMsg.join(', ')}"
             state.notifySevereAlertDT = now()
@@ -1408,7 +1431,7 @@ def SMSNotifcationHistory() {
 }
 
 def notifyEvents() {
-    if (sendPushEnabled || pushoverEnabled || sendPushEnabled){
+    if (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])){
         def now = now()
         //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
@@ -1921,7 +1944,7 @@ def alertFilterList() {
 
 def send_message(msgData) {
     if (sendPushEnabled) 	{sendPush(msgData)}
-    if (mobilePhone) 		{sendSms(mobilePhone, msgData)}
+    if (sendSMSEnabled) 	{sendSms(mobilePhone, msgData)}
     if (pushoverEnabled) 	{sendPushoverMessage(msgData)}
 }
 
