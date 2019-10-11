@@ -363,7 +363,7 @@ def notifyPage() {
                 input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
                 required: pushoverEnabled, submitOnChange: true,  defaultValue: false
 
-                if ((pushoverUser) && (pushoverToken))) {
+                if ((pushoverUser) && (pushoverToken)) {
                     input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
                 }
             }
@@ -432,19 +432,14 @@ def notifyPage() {
 }
 
 def checkRequired(vars) {
-    log.debug "vars = ${vars}"
     def rc = false
     vars.each {
-    log.debug "it = ${it}"
         if ((it) || it==true) {
             rc = true
         }
     }
-    log.debug "rc = ${rc}"
     return rc
 }
-
-
 
 def initialize() {
     def now = now()
