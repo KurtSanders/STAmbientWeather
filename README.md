@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.3.0 (Production Master Branch)
+### Version: 4.3.1 (Testing 'bugfix' Branch)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
@@ -92,7 +92,7 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 
 | Owner | Name | Branch |
 |------|:-------:|--------|
-| kurtsanders | STAmbientWeather | master |
+| kurtsanders | STAmbientWeather | bugfix |
 
 **Required Files in your SmartThings IDE Repository**
 These files below are required for V4.3.0 to operate.  You will need to Update from Repo
