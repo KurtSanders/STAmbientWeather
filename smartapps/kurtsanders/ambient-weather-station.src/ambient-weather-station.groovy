@@ -443,10 +443,10 @@ def checkRequired(vars) {
 def initialize() {
     def now = now()
     // Initialize/Reset Alert Warnings DateTime values
-    state.notifyAlertLowTempDT 		= state.notifyAlertLowTempDT?:now
-    state.notifyAlertHighTempDT 	= state.notifyAlertHighTempDT?:now
-    state.notifyRainDT 				= state.notifyRainDT?:now
-    state.notifySevereAlertDT 		= state.notifySevereAlertDT?:now
+    state.notifyAlertLowTempDT 		= 0
+    state.notifyAlertHighTempDT 	= 0
+    state.notifyRainDT 				= 0
+    state.notifySevereAlertDT 		= 0
     state.notifyAlertFreq 			= notifyAlertFreq?:24
     state.tempUnitsDisplay 			= tempUnits
     state.windUnitsDisplay 			= windUnits
