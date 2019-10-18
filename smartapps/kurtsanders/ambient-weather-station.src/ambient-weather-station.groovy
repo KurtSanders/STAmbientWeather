@@ -1960,7 +1960,7 @@ def sendPushoverMessage(msgData) {
         "RAIN DETECTED ALERT"
     ]
     keySearchPhrases.each {
-        msgData.replace(it,"<b><font color='red'>${it}</font></b>")
+        msgData = msgData.replace(it,"<b><font color='red'>${it}</font></b>")
     }
 
     Map params = [
