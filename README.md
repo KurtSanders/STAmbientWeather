@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.3.1 (Testing 'bugfix' Branch)
+### Version: 4.3.2 (Testing 'bugfix' Branch)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
@@ -56,6 +56,15 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 	Weather SMS Alerts are sent per user preferences for once every {1,2,4,6,12,24} hours. 
 
 <p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/Weather Event Alerts.PNG" width=300>
+</p>
+
+### Weather Event Pushover™ Alerts
+
+Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch).  The Pushover™ service allows one to receive application messages anywhere without using SMS which SmartThings is beginning to limit. 
+
+If you have a [Pushover™ account](https://pushover.net/), you can enter your user key and application token in the Ambient Weather Station user preferences for Weather Notifications and receive highlighted messages as below: 
+ 
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/bugfix/images/pushover.jpeg" width=300>
 </p>
 
 #### Filtering/Suppressing Selected Weather Alerts
