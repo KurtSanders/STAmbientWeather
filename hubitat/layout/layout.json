@@ -1,0 +1,238 @@
+{
+  "roundedCorners": 0,
+  "dateFormat": "DD/MM/YYYY",
+  "hideLabels": false,
+  "customColors": [],
+  "colWidth": 200,
+  "cloudRefresh": 5,
+  "hsmPin": "",
+  "hide3dot": false,
+  "clockMode": true,
+  "gridGap": 8,
+  "tiles": [
+    {
+      "rowSpan": 1,
+      "template": "weather",
+      "col": 1,
+      "colSpan": 1,
+      "id": 0,
+      "row": 1,
+      "device": "17"
+    },
+    {
+      "rowSpan": 1,
+      "template": "weather",
+      "col": 2,
+      "colSpan": 1,
+      "id": 1,
+      "row": 1,
+      "device": "18",
+      "templateExtra": null
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 1,
+      "colSpan": 1,
+      "id": 2,
+      "row": 2,
+      "device": "17",
+      "templateExtra": "baromabsin_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 2,
+      "colSpan": 1,
+      "id": 4,
+      "row": 2,
+      "device": "17",
+      "templateExtra": "dailyrainin"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 4,
+      "colSpan": 1,
+      "id": 5,
+      "row": 1,
+      "device": "17",
+      "templateExtra": "dewPoint_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 3,
+      "colSpan": 1,
+      "id": 6,
+      "row": 2,
+      "device": "17",
+      "templateExtra": "eventrainin_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "water",
+      "col": 3,
+      "colSpan": 1,
+      "id": 7,
+      "row": 1,
+      "device": "17",
+      "templateExtra": "water"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 1,
+      "colSpan": 1,
+      "id": 8,
+      "row": 3,
+      "device": "17",
+      "templateExtra": "feelsLike_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "humidity",
+      "col": 2,
+      "colSpan": 1,
+      "id": 9,
+      "row": 3,
+      "device": "17",
+      "templateExtra": "humidity_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 3,
+      "colSpan": 1,
+      "id": 10,
+      "row": 3,
+      "device": "17",
+      "templateExtra": "lastRain"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 4,
+      "colSpan": 1,
+      "id": 11,
+      "row": 3,
+      "device": "17",
+      "templateExtra": "lastRainDuration"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 1,
+      "colSpan": 1,
+      "id": 12,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "maxdailygust_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 2,
+      "colSpan": 1,
+      "id": 13,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "monthlyrainin_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "motion",
+      "col": 5,
+      "colSpan": 1,
+      "id": 14,
+      "row": 1,
+      "device": "17",
+      "templateExtra": "motion"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 3,
+      "colSpan": 1,
+      "id": 15,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "pwsName"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 5,
+      "colSpan": 1,
+      "id": 17,
+      "row": 2,
+      "device": "17",
+      "templateExtra": "totalrainin_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 5,
+      "colSpan": 1,
+      "id": 18,
+      "row": 3,
+      "device": "17",
+      "templateExtra": "ultravioletIndexDisplay"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 4,
+      "colSpan": 1,
+      "id": 20,
+      "row": 2,
+      "device": "17",
+      "templateExtra": "winddir"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 4,
+      "colSpan": 1,
+      "id": 22,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "windspeedmph_display"
+    },
+    {
+      "rowSpan": 1,
+      "template": "attribute",
+      "col": 6,
+      "colSpan": 1,
+      "id": 23,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "lastSTupdate"
+    },
+    {
+      "rowSpan": 1,
+      "template": "illuminance",
+      "col": 5,
+      "colSpan": 1,
+      "id": 24,
+      "row": 4,
+      "device": "17",
+      "templateExtra": "illuminance"
+    }
+  ],
+  "goBack": true,
+  "modePin": "",
+  "bgColor": "blue",
+  "lanRefresh": 2,
+  "iconSize": 42,
+  "cols": 7,
+  "rowHeight": 160,
+  "hideEvents": false,
+  "tempScale": "F",
+  "noColors": false,
+  "readOnly": null,
+  "rows": 4,
+  "hideIconText": false,
+  "name": "Ambient Weather",
+  "fontSize": 14
+}
