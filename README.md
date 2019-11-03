@@ -5,7 +5,9 @@
 
 ---
 
-#### *:new: Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)*
+#### :new: Updates 
+1. Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)
+2. Added Hubitat™ compatible apps and drivers for alpha testing
 
 ### Description:
 
@@ -308,6 +310,27 @@ The following device capabilities, attributes and commands are available for you
 
         command "refresh"
         
+## Hubitat Installation
+
+1. Install/paste the raw code from the links below into the respective Hubitat **'Apps Code'** and **'Drivers Code'** views.
+2. Select Ambient Weather Station from the **'+Add User App'** of the Hubitat **'Apps View'**
+3. Create a new Dashboard named 'Ambient Weather Station' and add the Ambient Weather Station devices that was created with the name of your Ambient Weather Station and Console.
+4. Add additional data tiles to your Ambient Weather Station dashboard using the 'attribute' template of your Ambient Weather Station. 
+5. If you want the layout below, copy the layout.json from the link below and past into the advanced section labled layout of the gear icon in your Ambient Weather Station dashboard.  
+
+| Type |  Name   | Link |
+|------------|:-------------------:|-------------------|
+| Apps | Ambient Weather Station | [Raw Apps Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/apps/ambient-weather-station.app) |
+| Drivers | Ambient Weather Station | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station.driver) |
+| Drivers | Ambient Weather Station Remote Sensor | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station%20remote-sensor.driver) |
+| Drivers | SmartWeather Station Tile | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/smartweather-station-tile.driver) |
+| Drivers | Ambient Particulate Monitor | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-particulate-monitor.driver) |
+| JSON  | Example Layout | [Raw Layout Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/layout/layout.json) |
+
+<br>
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/hubitat-dashboard.jpg">
+</p>
 
 ## Known Issues
 1. As of release 4.10, the 'Units of Measure' for Temperature, Wind, Rain and Barometric values shown on the DTH are set from the Ambient Weather Station SmartApp and NOT your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings).  If you have not re-run the Ambient Weather Station SmartApp setup when migrating to release 4.10 or higher, the units of measure will be set from your SmartThings hub's location Temperature Setting as either all imperial (F) or all metric (C).
