@@ -297,6 +297,20 @@ def optionsPage () {
                    defaultValue: "${state.weatherStationName}",
                    required: true
                   )
+            if (HE) {
+                if (!app.label) {
+                    app.updateLabel(app.name)
+                    state.appDisplayName = app.name
+                } else if (app.label.contains('<span')) {
+                    if (state?.appDisplayName != null) {
+                        app.updateLabel(state.appDisplayName)
+                    } else {
+                        def myLabel = app.label.substring(0, app.label.indexOf('<span'))
+                        state.appDisplayName = myLabel
+                        app.updateLabel(state.appDisplayName)
+                    }
+                }
+            }
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
             input (name: "debugVerbose", type: "bool",
@@ -505,8 +519,8 @@ def scheduleCheckReset(quiet=false) {
             end = start + schedulerFreq.toInteger().minutes
         }
         log.info "Reset the next CRON Refresh to ~${schedulerFreq} mins from now (${end.format("h:mm:ss a", location.timeZone)}) to avoid excessive HTTP requests"
+        }
     }
-}
 }
 
 def appTouchHandler(evt="") {
@@ -524,6 +538,7 @@ def appTouchHandler(evt="") {
 }
 
 def refresh() {
+    updateMyLabel('refreshing')
     log.info "Device: 'Refresh ALL'"
     def runID = new Random().nextInt(10000)
     main(runID)
@@ -552,11 +567,13 @@ def main(runID) {
 
     // Notify Events Check
     notifyEvents()
+    updateMyLabel('updated')
 }
 
 def retryQuick(data) {
     log.info "retryQuick #${state.retry} RunID: ${data.runID}"
     // Ambient Weather Station API
+    updateMyLabel('retry')
     ambientWeatherStation(data.runID)
 
     // Notify Events Check
@@ -921,6 +938,7 @@ def ambientWeatherStation(runID="missing runID") {
                 d.sendEvent(name: "power", value: v,  displayed: false)
                 // Send windSpeed as wind for Hubitat™
                 d.sendEvent(name: "wind"   , value: v , displayed: false)
+                d.sendEvent(name: "windSpeed"   , value: v , displayed: false)
                 break
                 case 'maxdailygust':
                 // Send maxdailygust as energy for pseudo tiles in ActionTiles™
@@ -930,9 +948,11 @@ def ambientWeatherStation(runID="missing runID") {
                 def winddirectionState = degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true)
                 if(debugVerbose){log.debug "Wind Direction -> ${winddirectionState}"}
                 d.sendEvent(name:'winddirection', value: winddirectionState, displayed: false)
+                d.sendEvent(name:'wind_cardinal', value: degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, false), displayed: false)
                 d.sendEvent(name:'winddir2', value: winddirectionState + " (" + state.ambientMap[state.weatherStationDataIndex].lastData.winddir + "º)")
                 // Send winddir as windVector for Hubitat™
                 d.sendEvent(name:'windVector', value: state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, displayed: false)
+                d.sendEvent(name:'windDirection', value: state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, displayed: false)
                 break
                 case 'uv':
                 def UVInumRange
@@ -1161,6 +1181,7 @@ def AmbientStationData(runID="????") {
             if (state.retry.toInteger()>0) {
                 log.info "SUCCESS: Retry AmbientStationData re-attempt #${state.retry} for runID: ${runID}"
                 state.retry = 0
+                updateMyLabel('updated')
             }
         }
     } catch (e) {
@@ -1171,16 +1192,19 @@ def AmbientStationData(runID="????") {
             }
         state.httpError = e.toString()
         if (e.toString().contains("Unauthorized")) {
+            updateMyLabel('unauthorized')
             return false
         }
         state.retry = state.retry.toInteger() + 1
         if (state.retry.toInteger()<4) {
             log.info("Waiting 10 seconds to Try HttpGet Again runID ${runID}: Attempt #${state.retry}")
+            updateMyLabel('retry')
             runIn(10, 'retryQuick', [data: [runID: "${runID}"]])
         }
         return false
     }
-    if(infoVerbose){log.info "End: AmbientStationData"}
+    log.info "SUCCESS: AmbientStationData successfully updated for runID: ${runID}"
+    updateMyLabel('updated')
     return true
 }
 
@@ -1331,7 +1355,7 @@ def degToCompass(num,longTitles=true) {
         if (longTitles) {
             arr = ["N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"]
         } else {
-            arr = ["N", "N NE", "NE", "E NE", "E", "E SE", "SE", "S SE", "S", "S SW", "SW", "W SW", "W", "W NW", "NW", "N NW"]
+            arr = ["N", "N NE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
         }
         return arr[(val % 16)]
     }
@@ -2075,3 +2099,36 @@ String getHubPlatform() {
 }
 boolean getIsSTHub() { return state.isST }					// if (isSTHub) ...
 boolean getIsHEHub() { return state.isHE }					// if (isHEHub) ...
+
+void updateMyLabel(key=null) {
+	if (isST) return
+    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
+
+	String myLabel = state.appDisplayName
+	if ((myLabel == null) || !app.label.startsWith(myLabel)) {
+		myLabel = app.label
+		if (!myLabel.contains('<span')) state.appDisplayName = myLabel
+	}
+	if (myLabel.contains('<span')) {
+		myLabel = myLabel.substring(0, myLabel.indexOf('<span'))
+		state.appDisplayName = myLabel
+	}
+	switch (key) {
+        case 'unauthorized':
+            newLabel = myLabel + "<span style=\"color:red\"> Unauthorized at ${timeStamp} </span>"
+            break;
+		case 'updated':
+            newLabel = myLabel + "<span style=\"color:green\"> Updated at ${timeStamp} </span>"
+			break;
+		case 'refreshing':
+			newLabel = myLabel + "<span style=\"color:orange\"> Refreshing at ${timeStamp}</span>"
+			break;
+		case 'retry':
+        newLabel = myLabel + "<span style=\"color:red\"> Re-trying #${state.retry} at ${timeStamp}</span>"
+			break;
+		default:
+			newLabel = myLabel
+			break;
+	}
+	if (newLabel && (app.label != newLabel)) app.updateLabel(newLabel)
+}

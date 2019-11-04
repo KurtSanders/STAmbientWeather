@@ -58,6 +58,10 @@ metadata {
         attribute "solarradiation_real", "number"
         attribute "feelsLike_real", "number"
         attribute "dewPoint_real", "number"
+        attribute "wind", "number"              //SharpTool.io
+        attribute "windDirection", "number"     //Hubitat  OpenWeather
+        attribute "windSpeed", "number"         //Hubitat  OpenWeather
+        attribute "wind_cardinal", "string"
 
         // Display values from Ambient Weather API rounded and with {optional} units
         attribute "windspeedmph_display", "string"
@@ -106,7 +110,6 @@ metadata {
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
         attribute "weeklyrainin", "string"
-        attribute "wind", "string"
         attribute "windVector", "string"
         attribute "winddir", "string"
         attribute "winddirection", "string"
