@@ -340,7 +340,7 @@ The following device capabilities, attributes and commands are available for you
 3. SmartThings devices force a 'round down' on ALL displayed numeric values in the devices' Tile less than 0.1 to GT 0. Therefore, when an Ambient sensor reports a sensor that is below 0.1 and GT 0, this app will round the numeric value up to .1.  To get at the unrounded values, please use the attribute names with a suffix of '_real'.
 4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude, longitude coordinates in the Zipcode field.
 
-## Hubitat™
+### Hubitat™
 1. Local Weather data is not provided by Ambient Weather Station App in this version for Hubitat™.  Please install the built-in Hubitat Openweather™ device to generate local weather data.
 
 
