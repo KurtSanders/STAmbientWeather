@@ -333,10 +333,15 @@ The following device capabilities, attributes and commands are available for you
 </p>
 
 ## Known Issues
+### SmartThings™
+
 1. As of release 4.10, the 'Units of Measure' for Temperature, Wind, Rain and Barometric values shown on the DTH are set from the Ambient Weather Station SmartApp and NOT your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings).  If you have not re-run the Ambient Weather Station SmartApp setup when migrating to release 4.10 or higher, the units of measure will be set from your SmartThings hub's location Temperature Setting as either all imperial (F) or all metric (C).
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
 3. SmartThings devices force a 'round down' on ALL displayed numeric values in the devices' Tile less than 0.1 to GT 0. Therefore, when an Ambient sensor reports a sensor that is below 0.1 and GT 0, this app will round the numeric value up to .1.  To get at the unrounded values, please use the attribute names with a suffix of '_real'.
-4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude,longitude coordinates in the Zipcode field.
+4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude, longitude coordinates in the Zipcode field.
+
+## Hubitat™
+1. Local Weather data is not provided by Ambient Weather Station App in this version for Hubitat™.  Please install the built-in Hubitat Openweather™ device to generate local weather data.
 
 
 ## Previous Old/Legacy Versions
