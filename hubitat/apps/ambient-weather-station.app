@@ -242,7 +242,6 @@ def optionsPage () {
     log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.coords.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
-    def AWSPrefixOptions = [app.name,"AWS","Ambient","Weather Station",state.weatherStationName].sort()
     if (isHE) {
         if (app.label.contains('<span')) {
             app.updateLabel(app.label.substring(0, app.label.indexOf('<span')))
@@ -265,12 +264,18 @@ def optionsPage () {
                   )
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) ) {
                 input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
-                       title: "Where is your Ambient Weather Station console located inside the house?",
+                       title: "Enter a location name for your Ambient Weather Station console located inside the house?",
                        required: true,
                        defaultValue: 'Kitchen',
                        submitOnChange: true
                       )
             }
+            input ( name: "AWSPrefix", type: "text",
+                   title: "Enter a short PREFIX to preceed each weather device's name",
+                   defaultValue: state.weatherStationName,
+                   submitOnChange: true,
+                   required: true
+                  )
             if (isST) {
                 input ( name: "productIdentifierFilterList", type: "enum",
                        title: "Select Weather Alert Product Identifiers to Filter (Optional)",
@@ -286,25 +291,19 @@ def optionsPage () {
                 }
             }
             input ( name: "showBattery", type: "bool",
-                   title: "Show battery level from sensor(s)?",
+                   title: "Show battery level from sensor(s)? (Ambient only reports 0% and 100%)",
                    defaultValue: true,
-                   required: true
-                  )
-            input ( name: "AWSPrefix", type: "enum",
-                   title: "Select the PREFIX used for each weather device full name",
-                   options: AWSPrefixOptions,
-                   defaultValue: "${state.weatherStationName}",
                    required: true
                   )
             label ( name: "name",
                    title: "This SmartApp's Name",
                    state: (name ? "complete" : null),
                    defaultValue: state.weatherStationName,
-                   required: true
+                   required: false
                   )
             href(name: "Weather Units of Measure",
                  title: "Select Weather Units of Measure",
-                 required: true,
+                 required: false,
                  defaultValue: "<span style=\"color:green\">${unitsSet()}</span>",
                  description:  "<span style=\"color:red\">${unitsSet()}</span>",
                  page: "unitsPage")
@@ -383,11 +382,11 @@ def remoteSensorPage() {
 }
 
 def notifyPage() {
-    dynamicPage(name: "notifyPage", title: "Weather Alerts/Notification", uninstall: false, install: false) {
-        section("Enable Pushover™ Service (Must have a Pushover™ account):") {
-            input ("pushoverEnabled", "bool", title: "Use Pushover™ Service Integration for Notifications", required: false, submitOnChange: true)
-            if (pushoverEnabled) {
-                if (isST) {
+    dynamicPage(name: "notifyPage", title: "Weather Alerts/Notifications", uninstall: false, install: false) {
+        if (isST) {
+            section("Enable Pushover™ Service (Must have a Pushover™ account):") {
+                input ("pushoverEnabled", "bool", title: "Use Pushover™ Service Integration for Notifications", required: false, submitOnChange: true)
+                if (pushoverEnabled) {
                     input "pushoverUser", "string", title: "Enter Pushover™ User Key", description: "Enter User Key", required: pushoverEnabled, submitOnChange: true
                     input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
                         required: pushoverEnabled, submitOnChange: true,  defaultValue: false
@@ -395,36 +394,40 @@ def notifyPage() {
                         input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
                     }
                 }
-                else {
-                    input(name: "pushoverDevices", type: "capability.notification", title: "", required: false, multiple: true,
-                          description: "Select notification devices", submitOnChange: true)
-                    paragraph ""
-                }
             }
-        }
-        section("ST Mobile Client Push Notifications") {
-            input ( name    : "sendPushEnabled",
-                   type     : "bool",
-                   title    : "Send Events to ST Mobile Client Push Notification? (optional)",
-                   defaultValue: false,
-                   submitOnChange: true,
-                   required : false
-                  )
-        }
-        section("Mobile SMS Notify Options") {
-            input ( name	: "sendSMSEnabled",
-                   type: "bool",
-                   title: "Use SMS for Notifications (optional)",
-                   required: false,
-                   defaultValue: false,
-                   submitOnChange: true
-                  )
-            if(sendSMSEnabled) {
-                input ( name: "mobilePhone", type: "phone",
-                       title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
-                       required: sendSMSEnabled,
+            section("ST Mobile Client Push Notifications") {
+                input ( name    : "sendPushEnabled",
+                       type     : "bool",
+                       title    : "Send Events to Mobile Client Push Notification? (optional)",
+                       defaultValue: false,
+                       submitOnChange: true,
+                       required : false
+                      )
+            }
+            section("Mobile SMS Notify Options") {
+                input ( name	: "sendSMSEnabled",
+                       type: "bool",
+                       title: "Use SMS for Notifications (optional)",
+                       required: false,
+                       defaultValue: false,
                        submitOnChange: true
                       )
+                if(sendSMSEnabled) {
+                    input ( name: "mobilePhone", type: "phone",
+                           title: "Required: Enter the mobile phone number to receive SMS weather events. Leave field blank to cancel all notifications",
+                           required: sendSMSEnabled,
+                           submitOnChange: true
+                          )
+                }
+            }
+        } else {
+            section("Enable Pushover™ and/or Twilio™ service(s). (Must install virtual device(s) and have an active service account):") {
+                input ("pushoverEnabled", "bool", title: "Use Pushover™ and/or Twilio™ Service(s) for Alert Notifications", required: false, submitOnChange: true)
+                if (pushoverEnabled) {
+                    input(name: "pushoverDevices", type: "capability.notification", title: "", required: false, multiple: true,
+                          description: "Select notification device(s)", submitOnChange: true)
+                    paragraph ""
+                }
             }
         }
 
@@ -432,7 +435,7 @@ def notifyPage() {
             section ("Weather Station Notify Options") {
                 input ( name: "notifyAlertFreq", type: "enum",
                        required: checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]),
-                       title: "Notify via SMS once every NUMBER of hours (Default is 24, Once/day)",
+                       title: "Restrict notification(s) per event type to once every NUMBER of hours (Default is 24, Once/day)",
                        options: [0,1,2,4,6,12,24],
                        defaultValue: 24,
                        submitOnChange: true,
@@ -458,7 +461,7 @@ def notifyPage() {
                 }
             }
         }
-        section (hideable: true, hidden: true, "Last SMS Notifications") {
+        section (hideable: true, hidden: true, "Last Notification Times") {
             paragraph image: "",
                 required: false,
                 SMSNotifcationHistory()
