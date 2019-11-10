@@ -1,13 +1,14 @@
 # Ambient Weather® Station™ 
-*SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.3.0 (Production Master Branch)
+*SmartThings® & Hubitat™ Integration for Ambient Weather® Stations by SanderSoft™*
+### Version: 4.3.0 (SmartThings™ Production Master Branch)
+### Version: 5.0.1 (Hubitat™ Master Branch)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
 
 #### :new: Updates 
 1. Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)
-2. Added Hubitat™ compatible apps and drivers for alpha testing
+2. Added Hubitat™ compatible apps and drivers for alpha code testing.  Please review the [install instructions](https://github.com/KurtSanders/STAmbientWeather#hubitat-installation) and [known issues](https://github.com/KurtSanders/STAmbientWeather#known-issues) for the Hubitat™ platform.
 
 ### Description:
 
@@ -339,9 +340,11 @@ The following device capabilities, attributes and commands are available for you
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
 3. SmartThings devices force a 'round down' on ALL displayed numeric values in the devices' Tile less than 0.1 to GT 0. Therefore, when an Ambient sensor reports a sensor that is below 0.1 and GT 0, this app will round the numeric value up to .1.  To get at the unrounded values, please use the attribute names with a suffix of '_real'.
 4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude, longitude coordinates in the Zipcode field.
+5. 2. During the initialization of the Ambient Weather Station App, you may encounter a "groovyx.net.http.HttpResponseException: Too Many Requests" condition in the log, please just press done and re-try.
 
 ### Hubitat™
 1. Local Weather data is not provided by Ambient Weather Station App in this version for Hubitat™.  Please install the built-in Hubitat Openweather™ device to generate local weather data.
+2. During the initialization of the Ambient Weather Station App, you may encounter a "groovyx.net.http.HttpResponseException: Too Many Requests" condition in the log, please just refresh the page and it will attempt to connect to Ambient's web servers again.
 
 
 ## Previous Old/Legacy Versions
