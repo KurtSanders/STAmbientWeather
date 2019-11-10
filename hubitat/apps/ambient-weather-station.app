@@ -23,8 +23,8 @@ import groovy.time.TimeCategory
 import groovy.json.JsonOutput
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.0.0" }
-String appModified()			{ return "Nov-3-2019"}
+String version()				{ return "V5.0.2" }
+String appModified()			{ return "Nov-10-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -58,12 +58,12 @@ definition(
     name: 			"Ambient Weather Station",
     namespace: 		"kurtsanders",
     author: 		"kurt@kurtsanders.com",
-    description: 	"Connect your Ambient™ Weather Station and remote sensors to SmartThings.  Get local forecast weather along with real-time data from your PWS",
+    description: 	"Connect your Ambient™ Weather Station and remote sensors to Hubitat™",
     category: 		"My Apps",
-    iconUrl:   		AppImg("blue-ball-100.jpg"),
-    iconX2Url: 		AppImg("blue-ball-200.jpg"),
-    iconX3Url: 		AppImg("blue-ball-200.jpg"),
-    singleInstance: false
+    iconUrl:   		"https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/blue-ball-100.jpg",
+    iconX2Url: 		"https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/blue-ball-100.jpg",
+	singleInstance: false,
+	pausable:		false
 )
 preferences {
     page(name: "apiPage")
@@ -116,30 +116,41 @@ def mainPage() {
                 title: "Required API Key",
                 required: false,
                 informationList("apiHelp")
-            href(name: "hrefReadme",
-                 title: "${appNameVersion()} Setup/Read Me Page",
-                 required: false,
-                 style: "external",
-                 url: "https://github.com/KurtSanders/STAmbientWeather",
-                 description: "tap to view the Setup/Read Me page")
+            if (isST) {
+                href(name: "hrefReadme",
+                     title: "${appNameVersion()} Setup/Read Me Page",
+                     required: false,
+                     style: "external",
+                     url: "https://github.com/KurtSanders/STAmbientWeather",
+                     description: "tap to view the Setup/Read Me page")
+                href(name: "hrefUSA",
+                     title: "SmartThings IDE USA",
+                     required: false,
+                     style: "external",
+                     url: "https://graph.api.smartthings.com/",
+                     description: "tap to view the US SmartThings IDE website in mobile browser")
+                href(name: "hrefEurope",
+                     title: "SmartThings IDE Europe",
+                     required: false,
+                     style: "external",
+                     url: "https://graph-eu01-euwest1.api.smartthings.com/",
+                     description: "tap to view the Europe SmartThings IDE website in mobile browser")
+
+            }
+            else {
+                href(name: "hrefReadme",
+                     title: "${appNameVersion()} Setup/Read Me Page",
+                     required: false,
+                     style: "external",
+                     url: "https://github.com/KurtSanders/STAmbientWeather#hubitat-installation",
+                     description: "tap to view the Setup/Read Me page")
+            }
             href(name: "hrefAmbient",
                  title: "Ambient Weather Dashboard Account Page for API Key",
                  required: false,
                  style: "external",
                  url: "https://dashboard.ambientweather.net/account",
                  description: "tap to login and view your Ambient Weather's dashboard")
-            href(name: "hrefUSA",
-                 title: "SmartThings IDE USA",
-                 required: false,
-                 style: "external",
-                 url: "https://graph.api.smartthings.com/",
-                 description: "tap to view the US SmartThings IDE website in mobile browser")
-            href(name: "hrefEurope",
-                 title: "SmartThings IDE Europe",
-                 required: false,
-                 style: "external",
-                 url: "https://graph-eu01-euwest1.api.smartthings.com/",
-                 description: "tap to view the Europe SmartThings IDE website in mobile browser")
         }
         if (apiappSetupCompleteBool && AmbientStationDataRC) {
             if (weatherStationMac) {
@@ -154,9 +165,9 @@ def mainPage() {
                         title: "${state.weatherStationName}",
                         required: false,
                         "Location: ${state.ambientMap[state.weatherStationDataIndex].info?.location?:state.ambientMap[state.weatherStationDataIndex].info?.coords.location}" +
-                        "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
-                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
-                        "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
+                            "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
+                            "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
+                            "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
                 }
 
             } else {
@@ -231,11 +242,10 @@ def optionsPage () {
     log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.coords.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
-    def i = 0
-    def AWSBaseNameEnum = [:]
-    for (i; i <= state.weatherStationName.length(); i++) {
-        if (state.weatherStationName.substring(0,i)==state.weatherStationName.substring(0,i).trim()) {
-            AWSBaseNameEnum << ["${i}":"${(i==0)?'No Prefix':state.weatherStationName.substring(0,i)}"]
+    def AWSPrefixOptions = [app.name,"AWS","Ambient","Weather Station",state.weatherStationName].sort()
+    if (isHE) {
+        if (app.label.contains('<span')) {
+            app.updateLabel(app.label.substring(0, app.label.indexOf('<span')))
         }
     }
     dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
@@ -250,67 +260,61 @@ def optionsPage () {
             input ( name: "schedulerFreq", type: "enum",
                    title: "Run Ambient Weather Station Refresh Every (X mins)?",
                    options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
-                   required: true
+                   required: true,
+                   defaultValue: '5 mins',
                   )
-            href(name: "Weather Units of Measure",
-                 title: "Select Weather Units of Measure",
-                 required: true,
-                 defaultValue: unitsSet(),
-                 page: "unitsPage")
-            if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) ) {
+            if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) ) {
                 input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
-                       title: "Weather Station Console Room Location Short Name",
-                       required: true
+                       title: "Where is your Ambient Weather Station console located inside the house?",
+                       required: true,
+                       defaultValue: 'Kitchen',
+                       submitOnChange: true
                       )
             }
-            input ( name: "productIdentifierFilterList", type: "enum",
-                   title: "Select Weather Alert Product Identifiers to Filter (Optional)",
-                   options: alertFilterList(),
-                   multiple: true,
-                   required: false
-                  )
-            if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
-                input ( name: "createActionTileDevice", type: "bool",
-                       title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
+            if (isST) {
+                input ( name: "productIdentifierFilterList", type: "enum",
+                       title: "Select Weather Alert Product Identifiers to Filter (Optional)",
+                       options: alertFilterList(),
+                       multiple: true,
                        required: false
                       )
+                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
+                    input ( name: "createActionTileDevice", type: "bool",
+                           title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
+                           required: false
+                          )
+                }
             }
             input ( name: "showBattery", type: "bool",
                    title: "Show battery level from sensor(s)?",
                    defaultValue: true,
                    required: true
                   )
-            href(name: "Activate Weather Alerts/Notification",
-                 title: "Weather Alerts/Notification",
-                 required: false,
-                 defaultValue: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"Alerts Activated ":"Tap to Activate Alerts",
-                 page: "notifyPage")
-            input ( name: "AWSBaseNameLength", type: "enum",
-                   title: "Select the base prefix used for each weather device",
-                   options: AWSBaseNameEnum,
+            input ( name: "AWSPrefix", type: "enum",
+                   title: "Select the PREFIX used for each weather device full name",
+                   options: AWSPrefixOptions,
                    defaultValue: "${state.weatherStationName}",
                    required: true
                   )
             label ( name: "name",
                    title: "This SmartApp's Name",
                    state: (name ? "complete" : null),
-                   defaultValue: "${state.weatherStationName}",
+                   defaultValue: state.weatherStationName,
                    required: true
                   )
-            if (HE) {
-                if (!app.label) {
-                    app.updateLabel(app.name)
-                    state.appDisplayName = app.name
-                } else if (app.label.contains('<span')) {
-                    if (state?.appDisplayName != null) {
-                        app.updateLabel(state.appDisplayName)
-                    } else {
-                        def myLabel = app.label.substring(0, app.label.indexOf('<span'))
-                        state.appDisplayName = myLabel
-                        app.updateLabel(state.appDisplayName)
-                    }
-                }
-            }
+            href(name: "Weather Units of Measure",
+                 title: "Select Weather Units of Measure",
+                 required: true,
+                 defaultValue: "<span style=\"color:green\">${unitsSet()}</span>",
+                 description:  "<span style=\"color:red\">${unitsSet()}</span>",
+                 page: "unitsPage")
+
+            href(name: "Activate Weather Alerts/Notification",
+                 title: "Weather Alerts/Notification",
+                 required: false,
+                 defaultValue: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
+                 description: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
+                 page: "notifyPage")
         }
         section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
             input (name: "debugVerbose", type: "bool",
@@ -330,9 +334,9 @@ def optionsPage () {
 }
 def remoteSensorPage() {
     dynamicPage(name: "remoteSensorPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
+        def i = 1
+        def lastData = state.ambientMap[state.weatherStationDataIndex].lastData
         if ( state?.countRemoteTempHumiditySensors > 0) {
-            def i = 1
-            def remoteSensorKeyName
             section("Provide Location names for your ${state?.countRemoteTempHumiditySensors} remote temperature/hydro sensors") {
                 paragraph "Ambient Remote Sensor Names"
                 paragraph image: AppImg("blue-ball.jpg"),
@@ -343,48 +347,58 @@ def remoteSensorPage() {
                     "Please note that remote sensors are numbered based in the bit switch on the sensor (1-8) and reported on Ambient Network API as 'tempNf' where N is an integer 1-8.  " +
                     "If a remote sensor is deleted from your network or non responsive from your group of Ambient remote sensors, you may have to re-verify and/or rename the remainder of the remote sensors in this app and manually delete that sensor from the IDE 'My Devices' editor."
                 for (i; i <= MaxNumRemoteSensors(); i++) {
-                    remoteSensorKeyName = "temp${i}f"
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
-                        input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                    if (lastData["temp${i}f"]) {
+                        input (
+                            name: "${DTHDNIRemoteSensorName()}${i}",
+                            type: "text",
                             title: "Ambient Remote Temp Sensor #${i}",
                             required: true
+                        )
                     }
-                    remoteSensorKeyName = "soiltemp${i}"
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(remoteSensorKeyName)) {
-                        input "${DTHDNIRemoteSensorName()}${i}", type: "text",
+                    if (lastData["soiltemp${i}"]) {
+                        input (
+                            name: "${DTHDNIRemoteSensorName()}${i}",
+                            type: "text",
                             title: "Ambient Remote Soil Sensor #${i}",
                             required: true
+                        )
                     }
                 }
             }
         }
-        if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("pm25")) {
+        if (lastData?.pm25) {
             section() {
                 paragraph "Ambient Particulate Monitor Location Name"
                 paragraph image: AppImg("ambient-weather-pm25.jpg"),
                     title: "Provide a friendly short name for your Ambient Particulate Monitor PM25",
                     required: false,
                     null
-                input "${DTHDNIPMName()}", type: "text",
-                    title: "Ambient Particulate Monitor PM25",
-                    defaultValue: "PM25",
-                    required: true
             }
+            input "${DTHDNIPMName()}", type: "text",
+                title: "Ambient Particulate Monitor PM25",
+                defaultValue: "PM25",
+                required: true
         }
     }
 }
 
 def notifyPage() {
     dynamicPage(name: "notifyPage", title: "Weather Alerts/Notification", uninstall: false, install: false) {
-        section("Enable Pushover™ Service Support (Must have an account):") {
+        section("Enable Pushover™ Service (Must have a Pushover™ account):") {
             input ("pushoverEnabled", "bool", title: "Use Pushover™ Service Integration for Notifications", required: false, submitOnChange: true)
             if (pushoverEnabled) {
-                input "pushoverUser", "string", title: "Enter Pushover™ User Key", description: "Enter User Key", required: pushoverEnabled, submitOnChange: true
-                input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
-                required: pushoverEnabled, submitOnChange: true,  defaultValue: false
-
-                if ((pushoverUser) && (pushoverToken)) {
-                    input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
+                if (isST) {
+                    input "pushoverUser", "string", title: "Enter Pushover™ User Key", description: "Enter User Key", required: pushoverEnabled, submitOnChange: true
+                    input "pushoverToken", "string", title: "Enter Pushover™ Token Key", description: "Enter Application Token Key",
+                        required: pushoverEnabled, submitOnChange: true,  defaultValue: false
+                    if ((pushoverUser) && (pushoverToken)) {
+                        input "pushoverDevices", "enum", title: "Select Pushover™ Devices", description: "Tap to select", options: findMyPushoverDevices(), multiple: true, required: pushoverEnabled
+                    }
+                }
+                else {
+                    input(name: "pushoverDevices", type: "capability.notification", title: "", required: false, multiple: true,
+                          description: "Select notification devices", submitOnChange: true)
+                    paragraph ""
                 }
             }
         }
@@ -413,6 +427,7 @@ def notifyPage() {
                       )
             }
         }
+
         if (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])) {
             section ("Weather Station Notify Options") {
                 input ( name: "notifyAlertFreq", type: "enum",
@@ -423,20 +438,20 @@ def notifyPage() {
                        submitOnChange: true,
                        multiple: false
                       )
-                input ( name: "notifySevereAlert", type: "bool", required: false,
-                       title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
-                      )
-                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
+                if (isST) {
+                    input ( name: "notifySevereAlert", type: "bool", required: false,
+                           title: "Notify when a SEVERE weather related ALERT is issued for your zipcode"
+                          )
+                }
+                if (state.ambientMap[state.weatherStationDataIndex].lastData.keySet().grep(~/^temp1?f$/))  {
                     input ( name: "notifyAlertLowTemp", type: "number", required: false,
                            title: "Notify when a temperature value is EQUAL OR BELOW this value. Leave field blank to cancel notification."
                           )
-                }
-                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
                     input ( name: "notifyAlertHighTemp", type: "number", required: false,
                            title: "Notify when a temperature value is EQUAL OR ABOVE this value.  Leave field blank to cancel notification."
                           )
                 }
-                if ( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) ) {
+                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin'))  {
                     input ( name: "notifyRain", type: "bool", required: false,
                            title: "Notify when RAIN is detected"
                           )
@@ -451,7 +466,7 @@ def notifyPage() {
     }
 }
 
-def checkRequired(vars) {
+private static boolean checkRequired(vars) {
     def rc = false
     vars.each {
         if ((it) || it==true) {
@@ -550,7 +565,8 @@ def autoScheduleHandler() {
     main(runID)
     }
 
-def main(runID) {
+def main(runID=null) {
+    runID = (runID)?:new Random().nextInt(10000)
     if (isST) {
         log.info "${platform} Main (#${runID}) Section: Executing Local Weather Routines for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
         // TWC Local Weather
@@ -1146,7 +1162,12 @@ def AmbientStationData(runID="????") {
 	def currentGETAmbientStationData = now()
     state.lastGETAmbientStationData = state.lastGETAmbientStationData?:now()
     log.info "Start: AmbientStationData runID: ${runID} at ${df.format(new Date())}"
-    log.info "AmbientStationData Time difference is ${((currentGETAmbientStationData - state.lastGETAmbientStationData)/1000).toInteger()} secs between last execution"
+    def timeSecsLastRun = (((currentGETAmbientStationData - state.lastGETAmbientStationData)/1000).toInteger())
+    log.info "AmbientStationData Time difference is ${timeSecsLastRun} secs between last execution"
+    if (runID!=0 && timeSecsLastRun < 2) {
+        log.warn "Aborting AmbientStationData run ${runID}:  Too Short for API Limits"
+        return
+    }
     state.lastGETAmbientStationData = currentGETAmbientStationData
     if(!state.apiKey){
         log.error("Severe Error: The API key is UNDEFINED in ${app.name}'s IDE 'App Settings' field, fatal error now exiting")
@@ -1186,7 +1207,6 @@ def AmbientStationData(runID="????") {
         }
     } catch (e) {
         log.debug("Ambient Weather Station API Data runID ${runID}: ${e}")
-        log.info "resp = ${resp}"
         resp?.headers.each {
                 log.trace "${it.name}: ${it.value}"
             }
@@ -1199,7 +1219,7 @@ def AmbientStationData(runID="????") {
         if (state.retry.toInteger()<4) {
             log.info("Waiting 10 seconds to Try HttpGet Again runID ${runID}: Attempt #${state.retry}")
             updateMyLabel('retry')
-            runIn(10, 'retryQuick', [data: [runID: "${runID}"]])
+            runIn(10, 'retryQuick', [overwrite: true, data: [runID: "${runID}"]])
         }
         return false
     }
@@ -1211,18 +1231,9 @@ def AmbientStationData(runID="????") {
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station devices
     // Derive a Short Name for the Weather Station and Remote Sensors
-    def AWSBaseName = state.weatherStationName?:"${app.name}"
-    def AWSBaseNameLengthNum
-    try {
-        AWSBaseNameLengthNum = AWSBaseNameLength?AWSBaseNameLength.toInteger().abs():AWSBaseNameLength.length()
-    } catch (e) {
-        log.warn "Invalid AWSBaseNameLength '${AWSBaseNameLength}' ${e}: Using '${AWSBaseName.length()}' as default prefix length"
-        AWSBaseNameLengthNum = AWSBaseName.length()
-    }
-    AWSBaseName = "${AWSBaseName.substring(0,AWSBaseNameLengthNum<=AWSBaseName.length()?AWSBaseNameLengthNum:AWSBaseName.length())}"
-    AWSBaseName = AWSBaseNameLengthNum==0?'':"${AWSBaseName} - "
+    def AWSBaseName = "${state.weatherStationName}"
     // Create/Validate Weather Console Device
-    def AWSName =  "${AWSBaseName}${AWSBaseNameLengthNum==0?'Weather Console':'Console'}"
+    def AWSName = (state.weatherStationName.equalsIgnoreCase(AWSPrefix))?"${AWSBaseName}-Console":"${AWSPrefix}-${AWSName}-Console"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
@@ -1282,7 +1293,7 @@ def addAmbientChildDevice() {
     def remoteSensorNumber
     settings.each { key, value ->
         if ( key.startsWith(DTHDNIRemoteSensorName()) ) {
-            remoteSensorNamePref = "${AWSBaseName}${value}"
+            remoteSensorNamePref = "${AWSBaseName}-${value}"
             remoteSensorNameDNI = getChildDevice(key)
             remoteSensorNumber = key.reverse()[0..0]
 //            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
@@ -1454,7 +1465,7 @@ def SMSNotifcationHistory() {
     def today = new Date(date).format("MMM-DD-YYYY", location.timeZone)
     def msg = ""
     def notifyVars = ["Severe Weather"	: state.notifySevereAlertDT ]
-    if ( (state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) ) {
+    if ( (state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.keySet().grep(~/^temp1?f$/)) ) {
         notifyVars << ["Low Temp" : state.notifyAlertLowTempDT, "High Temp" : state.notifyAlertHighTempDT]
     }
     if ( (state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) ) {
@@ -1481,16 +1492,17 @@ def notifyEvents() {
         def now = now()
         //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
+        def tempCheck = state.ambientMap[state.weatherStationDataIndex].lastData.tempf?:state.ambientMap[state.weatherStationDataIndex].lastData.temp1f
         def ambientWeatherStationName = "${DTHName()} - '${state.weatherStationName}'"
-        if ( (notifyAlertLowTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf<=notifyAlertLowTemp.toInteger()) ) {
-            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} <= ${notifyAlertLowTemp}${state.tempUnitsDisplay}"
+        if ( (notifyAlertLowTemp) && (tempCheck) && (tempCheck.toInteger()<=notifyAlertLowTemp) ) {
+            msg = "${ambientWeatherStationName}: LOW TEMP ALERT:  Current temperature of ${tempCheck}${state.tempUnitsDisplay} <= ${notifyAlertLowTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertLowTempDT, "Low Temp")) {
                 send_message(msg)
                 state.notifyAlertLowTempDT = now
             }
         }
-        if ( (notifyAlertHighTemp) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf) && (state.ambientMap[state.weatherStationDataIndex].lastData.tempf.toInteger()>=notifyAlertHighTemp) ) {
-            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${state.ambientMap[state.weatherStationDataIndex].lastData.tempf}${state.tempUnitsDisplay} >= ${notifyAlertHighTemp}${state.tempUnitsDisplay}"
+        if ( (notifyAlertHighTemp) && (tempCheck) && (tempCheck.toInteger()>=notifyAlertHighTemp) ) {
+            msg = "${ambientWeatherStationName}: HIGH TEMP ALERT:  Current temperature of ${tempCheck}${state.tempUnitsDisplay} >= ${notifyAlertHighTemp}${state.tempUnitsDisplay}"
             if (lastNotifyDT(state.notifyAlertHighTempDT, "High Temp")) {
                 state.notifyAlertHighTempDT = now
                 send_message(msg)
@@ -1995,32 +2007,39 @@ def send_message(msgData) {
 }
 
 def sendPushoverMessage(msgData) {
-    def keySearchPhrases = [
-        "SEVERE WEATHER ALERT",
-        "HIGH TEMP ALERT",
-        "LOW TEMP ALERT",
-        "RAIN DETECTED ALERT"
-    ]
-    keySearchPhrases.each {
-        msgData = msgData.replace(it,"<b><font color='red'>${it}</font></b>")
-    }
+    if (isST) {
+        def keySearchPhrases = [
+            "SEVERE WEATHER ALERT",
+            "HIGH TEMP ALERT",
+            "LOW TEMP ALERT",
+            "RAIN DETECTED ALERT"
+        ]
+        keySearchPhrases.each {
+            msgData = msgData.replace(it,"<b><font color='red'>${it}</font></b>")
+        }
 
-    Map params = [
-        uri					: "https://api.pushover.net/1/messages.json",
-        requestContentType	: "application/json"
-    ]
-    Map bodyx = [
-        token			: pushoverToken.trim() as String,
-        user			: pushoverUser.trim() as String,
-        title			: app.name as String,
-        message			: msgData as String,
-        html			: "1",
-        device			: pushoverDevices.join(',') as String
-    ]
-    params.body = new JsonOutput().toJson(bodyx)
-    include 'asynchttp_v1'
-    asynchttp_v1.post(pushoverResponse, params)
-    return
+        Map params = [
+            uri					: "https://api.pushover.net/1/messages.json",
+            requestContentType	: "application/json"
+        ]
+        Map bodyx = [
+            token			: pushoverToken.trim() as String,
+            user			: pushoverUser.trim() as String,
+            title			: app.name as String,
+            message			: msgData as String,
+            html			: "1",
+            device			: pushoverDevices.join(',') as String
+        ]
+        params.body = new JsonOutput().toJson(bodyx)
+        include 'asynchttp_v1'
+        asynchttp_v1.post(pushoverResponse, params)
+    } else {
+        if (settings.pushoverDevices != null) {
+            settings.pushoverDevices.each {							// Use notification devices on Hubitat
+                it.deviceNotification(msgData)
+            }
+        }
+    }
 }
 
 def findMyPushoverDevices() {
@@ -2104,14 +2123,14 @@ void updateMyLabel(key=null) {
 	if (isST) return
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
 
-	String myLabel = state.appDisplayName
+	String myLabel = state.weatherStationName
 	if ((myLabel == null) || !app.label.startsWith(myLabel)) {
 		myLabel = app.label
-		if (!myLabel.contains('<span')) state.appDisplayName = myLabel
+		if (!myLabel.contains('<span')) state.weatherStationName = myLabel
 	}
 	if (myLabel.contains('<span')) {
 		myLabel = myLabel.substring(0, myLabel.indexOf('<span'))
-		state.appDisplayName = myLabel
+		state.weatherStationName = myLabel
 	}
 	switch (key) {
         case 'unauthorized':
