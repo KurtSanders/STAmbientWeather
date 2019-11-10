@@ -317,7 +317,10 @@ The following device capabilities, attributes and commands are available for you
 2. Select Ambient Weather Station from the **'+Add User App'** of the Hubitat **'Apps View'**
 3. Create a new Dashboard named 'Ambient Weather Station' and add the Ambient Weather Station devices that were created with the name of your Ambient Weather Station and Console.
 4. Add additional data tiles to your Ambient Weather Station dashboard using the 'attribute' template of your selected Ambient Weather Station.
-5. If you want to start with the standard tile layout below, copy the layout.json from the link below and past the JSON String into the advanced section labeled layout of the gear icon (Settings) in your Ambient Weather Station dashboard.  
+5. Create service accounts on the following Hubitat™ supported notification platforms & respective child devices per instructions for:
+   * [Twillo](https://docs.hubitat.com/index.php?title=Twilio)
+   * [Pushover](https://docs.hubitat.com/index.php?title=Pushover) 
+7. If you want to start with the standard tile layout below, copy the layout.json from the link below and past the JSON String into the advanced section labeled layout of the gear icon (Settings) in your Ambient Weather Station dashboard.  
 
 | Type |  Name   | Link |
 |------------|:-------------------:|-------------------|
