@@ -890,7 +890,7 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 case 'battin':
                 k='battery'
-                d.sendEvent(name: k, value: v, units:'%', displayed: false)
+                d.sendEvent(name: k, value: v.toInteger()*100, units:'%', displayed: false)
                 break
                 case 'battout':
                 k='battery'
@@ -1028,7 +1028,8 @@ def ambientWeatherStation(runID="missing runID") {
                     remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[4..4]}")) {
+
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt" + k[4..4])) {
                         remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData."batt${k[4..4]}".toInteger()*100, displayed: false)
                     }
 
@@ -1977,6 +1978,7 @@ def alertFilterList() {
     ]
     return x
 }
+
 // ======= Pushover Routines ============
 
 def send_message(msgData) {
