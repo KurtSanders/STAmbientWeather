@@ -242,26 +242,30 @@ def optionsPage () {
     log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.coords.location}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
-    if (isHE) {
+    boolean ST = isST
+    boolean HE = !ST
+    if (HE) {
         if (app.label.contains('<span')) {
             app.updateLabel(app.label.substring(0, app.label.indexOf('<span')))
         }
     }
-    dynamicPage(name: "optionsPage", title: "Ambient Tile Settings for: '${state.weatherStationName}'",
+    dynamicPage(name: "optionsPage", title: "Ambient preference settings for: '${state.weatherStationName}'",
                 nextPage: lastPageName,
                 uninstall:false,
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
-            input ( name: "zipCode", type: "text",
-                   title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
-                   required: true,
-                   submitOnChange: true
-                  )
+            if (ST) {
+                input ( name: "zipCode", type: "text",
+                       title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
+                       required: true,
+                       submitOnChange: true
+                      )
+            }
             input ( name: "schedulerFreq", type: "enum",
-                   title: "Run Ambient Weather Station Refresh Every (X mins)?",
+                   title: "Run The Ambient Weather Station Refresh Every (X mins)?",
                    options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                    required: true,
-                   defaultValue: '5 mins',
+                   defaultValue: '5 mins'
                   )
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) ) {
                 input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
@@ -275,12 +279,6 @@ def optionsPage () {
                    title: "Show battery level from sensor(s)? (Ambient only reports 0% and 100%)",
                    defaultValue: true,
                    required: true
-                  )
-            label ( name: "name",
-                   title: "This SmartApp's Name",
-                   state: (name ? "complete" : null),
-                   defaultValue: state.weatherStationName,
-                   required: false
                   )
             href(name: "Weather Units of Measure",
                  title: "Select Weather Units of Measure",
@@ -296,22 +294,34 @@ def optionsPage () {
                  description: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
                  page: "notifyPage")
         }
+        section ((HE?'<b>':'') + "Name this instance of Ambient Weather Station" + (HE?'</b>':'')) {
+            label ( name: "name",
+                   title: "Assign a name to this SmartApp",
+                   state: (name ? "complete" : null),
+                   defaultValue: state.weatherStationName,
+                   required: false,
+                   submitOnChange: true
+                  )
+        }
         section(hideable: true, hidden: true, "Optional: Logging Levels") {
             input (name: "debugVerbose", type: "bool",
-                   title: "Show Debug Messages in Live Logging IDE",
+                   title: "Show Debug Messages in Logging View",
                    required: false
                   )
             input ( name: "infoVerbose", type: "bool",
-                   title: "Show Info Messages in Live Logging IDE",
+                   title: "Show Info Messages in Logging View",
                    required: false
                   )
-            input ( name: "WUVerbose", type: "bool",
-                   title: "Show Local Weather Info Messages in Live Logging IDE",
-                   required: false
-                  )
+            if(ST) {
+                input ( name: "WUVerbose", type: "bool",
+                       title: "Show Local Weather Info Messages in Logging View",
+                       required: false
+                      )
+            }
         }
     }
 }
+
 def remoteSensorPage() {
     dynamicPage(name: "remoteSensorPage", title: "Ambient Tile Settings", uninstall:false, install : true ) {
         def i = 1
@@ -1240,35 +1250,36 @@ def addAmbientChildDevice() {
             log.warn "Successfully Renamed Device Label for: ${AWSDNI} to ${AWSName}"
         }
     }
-
-    // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
-    def actionTileDNI = getChildDevice(DTHDNIActionTiles())
-    def AWSSmartWeatherName = "${AWSBaseName}${AWSNameActionTiles()}"
-    if (createActionTileDevice) {
-        if (!actionTileDNI) {
-            log.info "NEW: Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
-            try {
-                addChildDevice(DTHnamespace(), DTHNameActionTiles(), DTHDNIActionTiles(), null, ["name": AWSSmartWeatherName, "label": AWSSmartWeatherName, isComponent: AWSNameActionTilesHide(), completedSetup: true])
-            } catch(ex) {
-                log.error "The Ambient Weather ActionTiles™ Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
-                return false
-            }
-            log.info "Success: Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
-        } else {
-            log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"
-            if ( (actionTileDNI.label == AWSSmartWeatherName) && (actionTileDNI.name == AWSSmartWeatherName) ) {
-                log.info "Device Label/Name Pref Match: Name: ${actionTileDNI.name} = Label: ${actionTileDNI.label} -> NO CHANGE"
+    if (isST) {
+        // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
+        def actionTileDNI = getChildDevice(DTHDNIActionTiles())
+        def AWSSmartWeatherName = "${AWSBaseName}${AWSNameActionTiles()}"
+        if (createActionTileDevice) {
+            if (!actionTileDNI) {
+                log.info "NEW: Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
+                try {
+                    addChildDevice(DTHnamespace(), DTHNameActionTiles(), DTHDNIActionTiles(), null, ["name": AWSSmartWeatherName, "label": AWSSmartWeatherName, isComponent: AWSNameActionTilesHide(), completedSetup: true])
+                } catch(ex) {
+                    log.error "The Ambient Weather ActionTiles™ Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
+                    return false
+                }
+                log.info "Success: Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
             } else {
-                log.warn "Device Label/Name Pref Mis-Match: Name: ${actionTileDNI.name} <> Label: ${actionTileDNI.label} <> Device Label: ${AWSSmartWeatherName} -> RENAMING"
-                actionTileDNI.label = AWSSmartWeatherName
-                actionTileDNI.name  = AWSSmartWeatherName
-                log.warn "Successfully Renamed Device Label for: ${actionTileDNI}"
+                log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"
+                if ( (actionTileDNI.label == AWSSmartWeatherName) && (actionTileDNI.name == AWSSmartWeatherName) ) {
+                    log.info "Device Label/Name Pref Match: Name: ${actionTileDNI.name} = Label: ${actionTileDNI.label} -> NO CHANGE"
+                } else {
+                    log.warn "Device Label/Name Pref Mis-Match: Name: ${actionTileDNI.name} <> Label: ${actionTileDNI.label} <> Device Label: ${AWSSmartWeatherName} -> RENAMING"
+                    actionTileDNI.label = AWSSmartWeatherName
+                    actionTileDNI.name  = AWSSmartWeatherName
+                    log.warn "Successfully Renamed Device Label for: ${actionTileDNI}"
+                }
             }
-        }
-    } else {
-        if (actionTileDNI) {
-            log.info "Deleting ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
-            deleteChildDevice(actionTileDNI)
+        } else {
+            if (actionTileDNI) {
+                log.info "Deleting ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
+                deleteChildDevice(actionTileDNI)
+            }
         }
     }
 
@@ -1281,7 +1292,7 @@ def addAmbientChildDevice() {
             remoteSensorNamePref = "${AWSBaseName}-${value}"
             remoteSensorNameDNI = getChildDevice(key)
             remoteSensorNumber = key.reverse()[0..0]
-//            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
+            //            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
             if (remoteSensorNumber.toInteger() <= MaxNumRemoteSensors()) {
                 if (!remoteSensorNameDNI) {
                     log.info "NEW: Adding Remote Sensor #${remoteSensorNumber}: ${remoteSensorNamePref}"
@@ -1300,8 +1311,8 @@ def addAmbientChildDevice() {
                         }
                     } else {
                         log.warn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
-                        remoteSensorNameDNI.label = remoteSensorNamePref
                         remoteSensorNameDNI.name  = remoteSensorNamePref
+                        remoteSensorNameDNI.label = remoteSensorNamePref
                         log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
                     }
                 }
@@ -1336,8 +1347,8 @@ def addAmbientChildDevice() {
                 }
             } else {
                 log.warn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
-                remoteSensorNameDNI.label = remoteSensorNamePref
                 remoteSensorNameDNI.name  = remoteSensorNamePref
+                remoteSensorNameDNI.label = remoteSensorNamePref
                 log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
             }
         }
@@ -2107,11 +2118,11 @@ void updateMyLabel(key=null) {
 	String myLabel = state.weatherStationName
 	if ((myLabel == null) || !app.label.startsWith(myLabel)) {
 		myLabel = app.label
-		if (!myLabel.contains('<span')) state.weatherStationName = myLabel
+//		if (!myLabel.contains('<span')) state.weatherStationName = myLabel
 	}
 	if (myLabel.contains('<span')) {
 		myLabel = myLabel.substring(0, myLabel.indexOf('<span'))
-		state.weatherStationName = myLabel
+//		state.weatherStationName = myLabel
 	}
 	switch (key) {
         case 'unauthorized':
