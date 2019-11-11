@@ -106,7 +106,7 @@ def mainPage() {
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
         setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
     } else {
-        setupMessage = "Ambient API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup in the SmartThings IDE (App Settings Section) for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
+        setupMessage = "Ambient API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
         nextPageName = null
     }
     dynamicPage(name: "mainPage", title: setupTitle, submitOnChange: true, nextPage: nextPageName, uninstall:true, install:false) {
@@ -254,7 +254,8 @@ def optionsPage () {
         section("Weather Station Options") {
             input ( name: "zipCode", type: "text",
                    title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
-                   required: true
+                   required: true,
+                   submitOnChange: true
                   )
             input ( name: "schedulerFreq", type: "enum",
                    title: "Run Ambient Weather Station Refresh Every (X mins)?",
@@ -270,26 +271,6 @@ def optionsPage () {
                        submitOnChange: true
                       )
             }
-            input ( name: "AWSPrefix", type: "text",
-                   title: "Enter a short PREFIX to preceed each weather device's name",
-                   defaultValue: state.weatherStationName,
-                   submitOnChange: true,
-                   required: true
-                  )
-            if (isST) {
-                input ( name: "productIdentifierFilterList", type: "enum",
-                       title: "Select Weather Alert Product Identifiers to Filter (Optional)",
-                       options: alertFilterList(),
-                       multiple: true,
-                       required: false
-                      )
-                if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
-                    input ( name: "createActionTileDevice", type: "bool",
-                           title: "Create ${DTHNameActionTiles()} for use as an ActionTiles™ SmartWeather Station Tile?",
-                           required: false
-                          )
-                }
-            }
             input ( name: "showBattery", type: "bool",
                    title: "Show battery level from sensor(s)? (Ambient only reports 0% and 100%)",
                    defaultValue: true,
@@ -304,8 +285,8 @@ def optionsPage () {
             href(name: "Weather Units of Measure",
                  title: "Select Weather Units of Measure",
                  required: false,
-                 defaultValue: "<span style=\"color:green\">${unitsSet()}</span>",
-                 description:  "<span style=\"color:red\">${unitsSet()}</span>",
+                 defaultValue: "<span style=\"color:red\">Tap to Select Units</span>",
+                 description:  tempUnits?"<span style=\"color:green\">${unitsSet()}</span>":"<span style=\"color:red\">Tap to Select Units</span>",
                  page: "unitsPage")
 
             href(name: "Activate Weather Alerts/Notification",
@@ -315,7 +296,7 @@ def optionsPage () {
                  description: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
                  page: "notifyPage")
         }
-        section(hideable: true, hidden: true, "Optional: SmartThings IDE Live Logging Levels") {
+        section(hideable: true, hidden: true, "Optional: Logging Levels") {
             input (name: "debugVerbose", type: "bool",
                    title: "Show Debug Messages in Live Logging IDE",
                    required: false
@@ -1236,7 +1217,7 @@ def addAmbientChildDevice() {
     // Derive a Short Name for the Weather Station and Remote Sensors
     def AWSBaseName = "${state.weatherStationName}"
     // Create/Validate Weather Console Device
-    def AWSName = (state.weatherStationName.equalsIgnoreCase(AWSPrefix))?"${AWSBaseName}-Console":"${AWSPrefix}-${AWSName}-Console"
+    def AWSName = "${AWSBaseName}-Console"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
@@ -1253,9 +1234,9 @@ def addAmbientChildDevice() {
             log.info "Device Label/Name Pref Match: Name: ${AWSDNI.name} = Label: ${AWSDNI.label} -> NO CHANGE"
         } else {
             log.warn "Device Label/Name Pref Mis-Match: Name: ${AWSDNI.name} <> Label: ${AWSDNI.label} <> Device Label: ${AWSName} -> RENAMING"
-            AWSDNI.label = AWSName
             AWSDNI.name  = AWSName
-            log.warn "Successfully Renamed Device Label for: ${AWSDNI}"
+            AWSDNI.label = AWSName
+            log.warn "Successfully Renamed Device Label for: ${AWSDNI} to ${AWSName}"
         }
     }
 
@@ -1325,7 +1306,7 @@ def addAmbientChildDevice() {
                 }
             } else {
                 log.warn "Device ${remoteSensorNumber} DNI: ${key} '${remoteSensorNameDNI.name}' exceeds # of remote sensors (${state.countRemoteTempHumiditySensors}) reporting from Ambient -> ACTION REQUIRED"
-                log.warn "Please verify that all Ambient Remote Sensors are online and reporting to Ambient Network.  If so, please manual delete the device in the SmartThings 'My Devices' view"
+                log.warn "Please verify that all Ambient Remote Sensors are online and reporting to Ambient Network.  If so, please manual delete the device in the 'Devices' view"
             }
         }
     }
@@ -1430,16 +1411,11 @@ def informationList(variable) {
         case ("apiHelp") :
         // Help Text for API Key
         variable =  [
-            "You MUST enter your Ambient Weather API key in the ${appNameVersion()} SmartApp Settings section.",
+            "You MUST enter your Ambient Weather API key in the ${appNameVersion()}.",
             "Visit your Ambient Weather Dashboards's Account page.",
             "Create/Copy your API key from the bottom of the page",
-            "Return to your SmartThings IDE 'My SmartApps' browser page.",
-            "EDIT the ${appNameVersion()} SmartApp.",
-            "Press the App Settings button at the top right of the page.",
-            "Scroll down the page, expand the 'Settings' section.",
-            "Enter or paste your Ambient API key in the API value input box.",
-            "Press Update on bottom of page to save.",
-            "Exit the SmartApp and Start ${appNameVersion()} Setup again on your mobile phone."
+            "Return to your Hubitat App.",
+            "Exit the SmartApp and Start ${appNameVersion()} Setup again."
         ]
         break
         default:
@@ -1534,10 +1510,10 @@ def lastNotifyDT(lastDT, eventName) {
 }
 
 def convertStateWeatherStationData() {
-    // Check to see if Units of Measure have been defined in the preferences section, otherwise default to SmartThings Hub's location for imperial or metric
+    // Check to see if Units of Measure have been defined in the preferences section, otherwise default to Hub's location for imperial or metric
     if (tempUnits == null) {
         def tempUnitsSmartThingsScale = getTemperatureScale()
-        log.warn "Missing 'Units of Measure' App Preference Setting Values:  ALL Default Units of Measure will be based on SmartThings hub location temperature preference of '${tempUnitsSmartThingsScale}'"
+        log.warn "Missing 'Units of Measure' App Preference Setting Values:  ALL Default Units of Measure will be based on your hub's location temperature preference of '${tempUnitsSmartThingsScale}'"
         log.warn "Please run '${state.weatherStationName}' SmartAPP install to select your default Units of Measure for display"
         state.tempUnitsDisplay = "°${tempUnitsSmartThingsScale}"
         state.windUnitsDisplay = (tempUnitsSmartThingsScale == "F") ? "mph" : "kph"
