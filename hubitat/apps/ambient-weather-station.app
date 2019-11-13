@@ -158,23 +158,24 @@ def mainPage() {
                 state.weatherStationMac = weatherStationMac
                 countRemoteTempHumiditySensors()
                 section ("Ambient Weather Station Information") {
-                    href(name: "Weather Station Options",
-                         page: "optionsPage",
-                         description: "Next: Complete options ->")
                     paragraph image: AppImg("blue-ball-100.jpg"),
                         title: "${state.weatherStationName}",
                         required: false,
-                        "Location: ${state.ambientMap[state.weatherStationDataIndex].info?.location?:state.ambientMap[state.weatherStationDataIndex].info?.coords.location}" +
-                            "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
-                            "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
-                            "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
+                        "Name: ${state.weatherStationName}" +
+                        "\nLocation: ${state.weatherStationLocation?:'Not Provided'}" +
+                        "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
+                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
+                        "\nPM25 Particulate Monitor: ${state.countParticulateMonitors}"
+                    href(name: "Weather Station Options",
+                         page: "optionsPage",
+                         description: "<span style=\"color:red\"Next: Complete options -></span>")
                 }
 
             } else {
                 def weatherStationList = [:]
                 def stationlocation
                 state.ambientMap.each {
-                    stationlocation = it.info.location?:it.info?.coords?.location
+                    stationlocation = it.info.location?:it.info.containsKey("coords")?it.info.coords.location:''
                     weatherStationList << [[ "${it.macAddress}" : "${it.info.name}${stationlocation?' @ ':''}${stationlocation}" ]]
                 }
                 section ("Ambient Weather Station Information") {
@@ -190,7 +191,7 @@ def mainPage() {
         section ("STAmbientWeather™ - ${appAuthor()}") {
             href(name: "hrefVersions",
                  image: AppImg("readme.png"),
-                 title: "${version()} : ${appModified()}",
+                 title: "Release Notes for ${version()} : ${appModified()}",
                  required: false,
                  style:"embedded",
                  url: wikiURL("Features-by-Version")
@@ -239,7 +240,7 @@ def unitsPage() {
 }
 
 def optionsPage () {
-    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.coords.location}"
+    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.weatherStationLocation}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
     boolean ST = isST
@@ -499,7 +500,9 @@ def initialize() {
 def installed() {
     state.deviceId = DTHDNI()
     initialize()
-    subscribe(app, appTouchHandler)
+    if (isST) {
+        subscribe(app, appTouchHandler)
+    }
     runIn(10, main)
 }
 
@@ -538,7 +541,7 @@ def appTouchHandler(evt="") {
     if (debugVerbose) {
         def children = app.getChildDevices()
         def thisdevice
-        log.debug "SmartApp $app.name has ${children.size()} child devices"
+        log.debug "'$app.name' has ${children.size()} child devices"
         thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
             log.info "${it} <-> DNI: ${it.deviceNetworkId}"
         }
@@ -840,12 +843,15 @@ def ambientWeatherStation(runID="missing runID") {
 
         state.ambientMap[state.weatherStationDataIndex].info.each{ k, v ->
             if(k=='name'){k='pwsName'}
-            if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
-            d.sendEvent(name: k, value: v, displayed: false)
+            if (v) {
+                if(debugVerbose){log.debug "sendEvent(name: ${k}, value: ${v})"}
+                d.sendEvent(name: k, value: v, displayed: false)
+            }
         }
 
         // Send display & real numeric weather values to the devices with _display & _real suffix
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
+            if(debugVerbose){log.debug "k=${k}, v=${v}"}
             switch(k) {
                 case ~/.*rain.*/:
                 d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
@@ -1031,7 +1037,8 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 // Post values for remote temperature & humidity sensors
                 case ~/^temp[0-9][0-9]?f$|^soiltemp[0-9][0-9]?$/:
-                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
+                def remoteIndexNumber = k.findAll( /\d+/ )[0]
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${remoteIndexNumber}")
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
@@ -1039,8 +1046,12 @@ def ambientWeatherStation(runID="missing runID") {
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
 
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt" + k[4..4])) {
-                        remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData."batt${k[4..4]}".toInteger()*100, displayed: false)
+                    String batteryFieldName = "batt" + remoteIndexNumber.toString()
+                    if(debugVerbose){log.debug "batteryFieldName for '${k}' = ${batteryFieldName}"}
+                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey(batteryFieldName)) {
+                        def battValue = state.ambientMap[state.weatherStationDataIndex].lastData."${batteryFieldName}".toInteger()*100
+                        if(debugVerbose){log.debug "batteryFieldName = ${batteryFieldName} = ${battValue}%"}
+                        remoteSensorDNI.sendEvent(name:"battery", value: battValue, displayed: false)
                     }
 
                 } else {
@@ -1131,7 +1142,7 @@ def ambientWeatherStation(runID="missing runID") {
     } else {
         if(debugVerbose){log.debug "AmbientStationData did not return any weather data"}
     }
-    if (createActionTileDevice) {
+    if (isST && createActionTileDevice) {
         // Update kurtsanders:SmartWeather Station Tile device for ActionTiles™
         d = getChildDevice(DTHDNIActionTiles())
         d.sendEvent(name: "localSunrise", 		value : state.localSunrise, displayed: false)
@@ -1226,9 +1237,8 @@ def AmbientStationData(runID="????") {
 def addAmbientChildDevice() {
     // add Ambient Weather Reporter Station devices
     // Derive a Short Name for the Weather Station and Remote Sensors
-    def AWSBaseName = "${state.weatherStationName}"
     // Create/Validate Weather Console Device
-    def AWSName = "${AWSBaseName}-Console"
+    def AWSName = "${state.weatherStationName}-Console"
     def AWSDNI = getChildDevice(state.deviceId)
     if (!AWSDNI) {
         log.info "NEW: Adding Ambient Device: ${AWSName} with DNI: ${state.deviceId}"
@@ -1241,47 +1251,19 @@ def addAmbientChildDevice() {
         log.info "Success: Added ${AWSName} with DNI: ${DTHDNI()}"
     } else {
         log.info "Verified Weather Station '${getChildDevice(state.deviceId)}' = DNI: '${DTHDNI()}'"
-        if ( (AWSDNI.label == AWSName) && (AWSDNI.name == AWSName) ) {
-            log.info "Device Label/Name Pref Match: Name: ${AWSDNI.name} = Label: ${AWSDNI.label} -> NO CHANGE"
-        } else {
-            log.warn "Device Label/Name Pref Mis-Match: Name: ${AWSDNI.name} <> Label: ${AWSDNI.label} <> Device Label: ${AWSName} -> RENAMING"
-            AWSDNI.name  = AWSName
-            AWSDNI.label = AWSName
-            log.warn "Successfully Renamed Device Label for: ${AWSDNI} to ${AWSName}"
+        /*
+        if (!AWSDNI.name.equalsIgnoreCase(AWSName)) {
+            log.info "Device NAME MIS-MATCH: Device Name: ${AWSDNI.name} <> ${AWSName}"
+            AWSDNI.name = AWSName
         }
-    }
-    if (isST) {
-        // add Ambient Weather SmartWeather Station Tile for ActionTiles™ Integration
-        def actionTileDNI = getChildDevice(DTHDNIActionTiles())
-        def AWSSmartWeatherName = "${AWSBaseName}${AWSNameActionTiles()}"
-        if (createActionTileDevice) {
-            if (!actionTileDNI) {
-                log.info "NEW: Adding Ambient ActionTiles™ Device: '${AWSSmartWeatherName}' with DNI: '${DTHDNIActionTiles()}'"
-                try {
-                    addChildDevice(DTHnamespace(), DTHNameActionTiles(), DTHDNIActionTiles(), null, ["name": AWSSmartWeatherName, "label": AWSSmartWeatherName, isComponent: AWSNameActionTilesHide(), completedSetup: true])
-                } catch(ex) {
-                    log.error "The Ambient Weather ActionTiles™ Device Handler '${DTHName()}' was not found in your 'My Device Handlers', Error-> '${ex}'.  Please install this in the IDE's 'My Device Handlers'"
-                    return false
-                }
-                log.info "Success: Added ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
-            } else {
-                log.info "Verified Weather Station '${getChildDevice(DTHDNIActionTiles())}' = DNI: '${DTHDNIActionTiles()}'"
-                if ( (actionTileDNI.label == AWSSmartWeatherName) && (actionTileDNI.name == AWSSmartWeatherName) ) {
-                    log.info "Device Label/Name Pref Match: Name: ${actionTileDNI.name} = Label: ${actionTileDNI.label} -> NO CHANGE"
-                } else {
-                    log.warn "Device Label/Name Pref Mis-Match: Name: ${actionTileDNI.name} <> Label: ${actionTileDNI.label} <> Device Label: ${AWSSmartWeatherName} -> RENAMING"
-                    actionTileDNI.label = AWSSmartWeatherName
-                    actionTileDNI.name  = AWSSmartWeatherName
-                    log.warn "Successfully Renamed Device Label for: ${actionTileDNI}"
-                }
-            }
-        } else {
-            if (actionTileDNI) {
-                log.info "Deleting ${AWSSmartWeatherName} with DNI: ${DTHDNIActionTiles()}"
-                deleteChildDevice(actionTileDNI)
-            }
+        if (!AWSDNI.label.equalsIgnoreCase(AWSName)) {
+            log.info "Device LABEL MIS-MATCH: Device Label: ${AWSDNI.label} <> ${AWSName}"
+            deleteChildDevice(AWSDNI)
+            addChildDevice(DTHnamespace(), DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
         }
+        */
     }
+
 
     // add Ambient Weather Remote Sensor Device(s)
     def remoteSensorNamePref
@@ -1289,7 +1271,7 @@ def addAmbientChildDevice() {
     def remoteSensorNumber
     settings.each { key, value ->
         if ( key.startsWith(DTHDNIRemoteSensorName()) ) {
-            remoteSensorNamePref = "${AWSBaseName}-${value}"
+            remoteSensorNamePref = "${state.weatherStationName}-${value}"
             remoteSensorNameDNI = getChildDevice(key)
             remoteSensorNumber = key.reverse()[0..0]
             //            if (remoteSensorNumber.toInteger() <= state.countRemoteTempHumiditySensors.toInteger()) {
@@ -1304,17 +1286,19 @@ def addAmbientChildDevice() {
                     }
                     log.info "Success Added Ambient Remote Sensor: ${remoteSensorNamePref} with DNI: ${key}"
                 } else {
-                    if(infoVerbose){log.info "Verified Remote Sensor #${remoteSensorNumber} of ${state.countRemoteTempHumiditySensors} Exists: ${remoteSensorNamePref} = DNI: ${key}"}
-                    if ( (remoteSensorNameDNI.label == remoteSensorNamePref) && (remoteSensorNameDNI.name == remoteSensorNamePref) ) {
-                        if(infoVerbose){
-                            log.info "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
-                        }
-                    } else {
-                        log.warn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
+                    log.info "Verified Remote Sensor #${remoteSensorNumber} of ${state.countRemoteTempHumiditySensors} Exists: ${remoteSensorNamePref} = DNI: ${key}"
+                    /*
+                    if (!remoteSensorNameDNI.name.equalsIgnoreCase(remoteSensorNamePref)) {
+                        log.info "Device NAME MIS-MATCH: Device Name: ${remoteSensorNameDNI.name} <> ${remoteSensorNamePref}"
                         remoteSensorNameDNI.name  = remoteSensorNamePref
-                        remoteSensorNameDNI.label = remoteSensorNamePref
-                        log.warn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
                     }
+                    if (!remoteSensorNameDNI.label.equalsIgnoreCase(remoteSensorNamePref)) {
+                        log.info "Device LABEL MIS-MATCH: Device Label: ${remoteSensorNameDNI.label} <> ${remoteSensorNamePref}"
+                        log.debug "remoteSensorNameDNI.deviceNetworkId = ${remoteSensorNameDNI.deviceNetworkId}"
+                        deleteChildDevice(remoteSensorNameDNI.deviceNetworkId)
+                        addChildDevice(DTHnamespace(), DTHRemoteSensorName(), "${key}", null, ["name": remoteSensorNamePref, "label": remoteSensorNamePref, completedSetup: true])
+                    }
+                    */
                 }
             } else {
                 log.warn "Device ${remoteSensorNumber} DNI: ${key} '${remoteSensorNameDNI.name}' exceeds # of remote sensors (${state.countRemoteTempHumiditySensors}) reporting from Ambient -> ACTION REQUIRED"
@@ -1328,7 +1312,7 @@ def addAmbientChildDevice() {
     def PMvalue = settings.find{ it.key == "${DTHDNIPMName()}" }?.value
 
     if(PMvalue) {
-        remoteSensorNamePref = "${AWSBaseName}${PMvalue}"
+        remoteSensorNamePref = "${state.weatherStationName}${PMvalue}"
         remoteSensorNameDNI = getChildDevice(PMkey)
         if (!remoteSensorNameDNI) {
             log.info "NEW: Adding Particulate Monitor device: ${remoteSensorNamePref}"
@@ -1597,11 +1581,12 @@ def setStateWeatherStationData() {
             it.macAddress in [weatherStationMac]
         }
     }
-    state.weatherStationDataIndex = state.weatherStationDataIndex?:0
-    state.weatherStationMac = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
+    state.weatherStationDataIndex  = state.weatherStationDataIndex?:0
+    state.weatherStationMac        = state.weatherStationMac?:state.ambientMap[state.weatherStationDataIndex].macAddress
+    state.weatherStationName       = state.ambientMap[state.weatherStationDataIndex].info.name
+    state.weatherStationLocation   = state.ambientMap[state.weatherStationDataIndex].info.location?:state.ambientMap[state.weatherStationDataIndex].info.containsKey("coords")?state.ambientMap[state.weatherStationDataIndex].info.coords.location:''
     countRemoteTempHumiditySensors()
     countParticulateMonitors()
-    state.weatherStationName = state.ambientMap[state.weatherStationDataIndex].info.name?:state.ambientMap[state.weatherStationDataIndex].info.location
 }
 
 def countRemoteTempHumiditySensors() {
