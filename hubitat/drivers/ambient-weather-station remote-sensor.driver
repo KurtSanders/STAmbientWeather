@@ -22,7 +22,11 @@ import java.text.SimpleDateFormat;
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 
 metadata {
-    definition (name: "Ambient Weather Station Remote Sensor", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Weather Station Remote Sensor",
+    namespace: "kurtsanders",
+    author: "kurt@kurtsanders.com",
+    importUrl: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station%20remote-sensor.driver"
+    ) {
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
         capability "Sensor"

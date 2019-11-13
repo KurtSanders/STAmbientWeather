@@ -19,7 +19,11 @@
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 
 metadata {
-    definition (name: "Ambient Particulate Monitor", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (name: "Ambient Particulate Monitor",
+    namespace: "kurtsanders",
+    author: "kurt@kurtsanders.com",
+    importUrl: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-particulate-monitor.driver"
+    ) {
         capability "Sensor"
         capability "Battery"
         capability "Refresh"
