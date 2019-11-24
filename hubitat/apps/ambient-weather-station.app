@@ -488,7 +488,7 @@ def initialize() {
     addAmbientChildDevice()
     // Set user defined refresh rate
     if(state.schedulerFreq!=schedulerFreq) {
-        log.info "Updating your Cron REFRESH schedule from ${state.schedulerFreq} mins to ${schedulerFreq} mins"
+        log.info "Updating your Cron REFRESH schedule from ${state.schedulerFreq?:0} mins to ${schedulerFreq} mins"
         state.schedulerFreq = schedulerFreq
         if(debugVerbose){log.debug "state.schedulerFreq->${state.schedulerFreq}"}
         setScheduler(schedulerFreq)
@@ -1531,16 +1531,13 @@ def convertStateWeatherStationData() {
             case 'dewPoint':
             if (state.tempUnitsDisplay == '°C') {
                 tempVar = String.format("%.01f",(v-32)*5/9)
-                newAmbientMap[state.weatherStationDataIndex].lastData << ["${k}": tempVar.toFloat()]
             }
             break
             case ~/.*rain.*/:
             if (state.measureUnitsDisplay == 'cm') {
                 tempVar = String.format("%.02f",v*2.54)
-                newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
             } else if (state.measureUnitsDisplay == 'mm') {
                 tempVar = String.format("%.02f",v*25.4)
-                newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
             }
             break
             case ~/^winddir.*/:
@@ -1568,7 +1565,8 @@ def convertStateWeatherStationData() {
                 break
         }
         if(tempVar != null) {
-            newAmbientMap[state.weatherStationDataIndex].lastData  << ["${k}" : tempVar.toFloat()]
+            if(debugVerbose){log.debug "tempVar k=${k}, v=${v} tempVar=${tempVar}"}
+            newAmbientMap[state.weatherStationDataIndex].lastData."${k}" = tempVar.toFloat()
         }
     }
     state.ambientMap = [:]
