@@ -547,7 +547,7 @@ def main(runID) {
 def retryQuick(data) {
     log.info "retryQuick #${state.retry} RunID: ${data.runID}"
     // Ambient Weather Station API
-    ambientWeatherStation(runID)
+    ambientWeatherStation(data.runID)
 
     // Notify Events Check
     notifyEvents()
