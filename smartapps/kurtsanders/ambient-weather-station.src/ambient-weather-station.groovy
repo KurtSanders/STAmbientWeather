@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V4.3.2" }
-String appModified()			{ return "Oct-18-2019"}
+String version()				{ return "V5.0.0" }
+String appModified()			{ return "Nov-25-2019"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -1459,9 +1459,9 @@ def notifyEvents() {
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 state.notifyRainDT = now
                 send_message(msg)
-            }
         }
     }
+}
 }
 
 def lastNotifyDT(lastDT, eventName) {
