@@ -1,14 +1,11 @@
 # Ambient Weather® Station™ 
-*SmartThings® & Hubitat™ Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 4.3.0 (SmartThings™ Production Master Branch)
-### Version: 5.0.1 (Hubitat™ Master Branch)
+*SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
+### Version: 5.0.0 (Production)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
 
-#### :new: Updates 
-1. Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)
-2. Added Hubitat™ compatible apps and drivers for alpha code testing.  Please review the [install instructions](https://github.com/KurtSanders/STAmbientWeather#hubitat-installation) and [known issues](https://github.com/KurtSanders/STAmbientWeather#known-issues) for the Hubitat™ platform.
+#### *:new: Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)*
 
 ### Description:
 
@@ -61,6 +58,15 @@ Select the following events to send Weather SMS Text Alerts for user defined val
 <p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/Weather Event Alerts.PNG" width=300>
 </p>
 
+### Weather Event Pushover™ Alerts
+
+Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch).  The Pushover™ service allows one to receive application messages anywhere without using SMS which SmartThings is beginning to limit. 
+
+If you have a [Pushover™ account](https://pushover.net/), you can enter your user key and application token in the Ambient Weather Station user preferences for Weather Notifications and receive highlighted messages as below: 
+ 
+<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/bugfix/images/pushover.jpeg" width=300>
+</p>
+
 #### Filtering/Suppressing Selected Weather Alerts
 
 One can filter/suppress selected Weather Alerts from the Ambient Weather Station's preferences options menu by selecting one or more of the listed [Nation Weather Services' Product Identifiers](https://forecast.weather.gov/product_types.php).   The default option (nothing selected) allows all Weather Alerts to be reported for the Zipcode or lat/long coordinates entered.  
@@ -98,15 +104,15 @@ Create a new SmartThings Repository entry in your SmartThings IDE under 'Setting
 | kurtsanders | STAmbientWeather | master |
 
 **Required Files in your SmartThings IDE Repository**
-These files below are required for V4.3.0 to operate.  You will need to Update from Repo
+These files below are required for this version to operate.  You will need to Update from Repo
 
-| IDE Repository    | Filename | Status |
-| :---: | :----------| :---:  |
-| My SmartApps      | kurtsanders : Ambient Weather Station | **Updated** |
-| My Device Handler | kurtsanders : Ambient Particulate Monitor | UnChanged  |
-| My Device Handler | kurtsanders : Ambient Weather Station | UnChanged |
-| My Device Handler | kurtsanders : SmartWeather Tile Station | UnChanged |
-| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | UnChanged |
+| IDE Repository    | Filename | Status | Version |
+| :---: | :----------| :---:  | :-: |
+| My SmartApps      | kurtsanders : Ambient Weather Station | :new: **Updated** | **5.0.0** |
+| My Device Handler | kurtsanders : Ambient Particulate Monitor | Unchanged | 4.21  |
+| My Device Handler | kurtsanders : Ambient Weather Station | Unchanged | 4.21 |
+| My Device Handler | kurtsanders : SmartWeather Tile Station | Unchanged | 4.21 |
+| My Device Handler | kurtsanders : Ambient Weather Station Remote Sensor | Unchanged | 4.21 |
 
 > - *It is strongly recommended that all previous versions/files of Ambient Weather Station be removed from your ST IDE and only the V4 files from the above table are listed in your SmartThings IDE.*
 > - Note: V3 cannot be updated to V4 due to the extensive re-coding to accomodate multiple instances of Ambient Weather® Station nodes and SMS alerts.  A fresh/clean install of Ambient Weather Station is only supported.
@@ -311,43 +317,12 @@ The following device capabilities, attributes and commands are available for you
 
         command "refresh"
         
-## Hubitat Installation
-
-1. Install/paste the raw code from the links below into the respective Hubitat **'Apps Code'** and **'Drivers Code'** views.
-2. Select Ambient Weather Station from the **'+Add User App'** of the Hubitat **'Apps View'**
-3. Create a new Dashboard named 'Ambient Weather Station' and add the Ambient Weather Station devices that were created with the name of your Ambient Weather Station and Console.
-4. Add additional data tiles to your Ambient Weather Station dashboard using the 'attribute' template of your selected Ambient Weather Station.
-5. Create service accounts on the following Hubitat™ supported notification platforms & respective child devices per instructions for:
-   * [Twillo](https://docs.hubitat.com/index.php?title=Twilio)
-   * [Pushover](https://docs.hubitat.com/index.php?title=Pushover) 
-7. If you want to start with the standard tile layout below, copy the layout.json from the link below and past the JSON String into the advanced section labeled layout of the gear icon (Settings) in your Ambient Weather Station dashboard.  
-
-| Type |  Name   | Link |
-|------------|:-------------------:|-------------------|
-| Apps | Ambient Weather Station | [Raw Apps Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/apps/ambient-weather-station.app) |
-| Drivers | Ambient Weather Station | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station.driver) |
-| Drivers | Ambient Weather Station Remote Sensor | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station%20remote-sensor.driver) |
-| Drivers | SmartWeather Station Tile | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/smartweather-station-tile.driver) |
-| Drivers | Ambient Particulate Monitor | [Raw Drivers Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-particulate-monitor.driver) |
-| JSON  | Example Layout | [Raw Layout Code Link](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/layout/layout.json) |
-
-<br>
-<p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/hubitat-dashboard.jpg">
-</p>
 
 ## Known Issues
-### SmartThings™
-
 1. As of release 4.10, the 'Units of Measure' for Temperature, Wind, Rain and Barometric values shown on the DTH are set from the Ambient Weather Station SmartApp and NOT your [Ambient Dashboard Unit Settings](https://dashboard.ambientweather.net/settings).  If you have not re-run the Ambient Weather Station SmartApp setup when migrating to release 4.10 or higher, the units of measure will be set from your SmartThings hub's location Temperature Setting as either all imperial (F) or all metric (C).
 2. Setting this application's Refresh rate to 1 minute may cause an occasional ST console debug log "excessive http requests" debug error from ST.  ST rate limits their external http calls to avoid blacklisting.  The application will re-send the Ambient Weather® API http request when it encounters a ST rate limiting error.
 3. SmartThings devices force a 'round down' on ALL displayed numeric values in the devices' Tile less than 0.1 to GT 0. Therefore, when an Ambient sensor reports a sensor that is below 0.1 and GT 0, this app will round the numeric value up to .1.  To get at the unrounded values, please use the attribute names with a suffix of '_real'.
-4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude, longitude coordinates in the Zipcode field.
-5. 2. During the initialization of the Ambient Weather Station App, you may encounter a "groovyx.net.http.HttpResponseException: Too Many Requests" condition in the log, please just press done and re-try.
-
-### Hubitat™
-1. Local Weather data is not provided by Ambient Weather Station App in this version for Hubitat™.  Please install the built-in Hubitat Openweather™ device to generate local weather data.
-2. During the initialization of the Ambient Weather Station App, you may encounter a "groovyx.net.http.HttpResponseException: Too Many Requests" condition in the log, please just refresh the page and it will attempt to connect to Ambient's web servers again.
+4. Only enter +-NNNNN.NNNN,+-NNNNN.NNNN for latitude and longitude coordinates.  Do not enter a degree symbol or spaces for latitude,longitude coordinates in the Zipcode field.
 
 
 ## Previous Old/Legacy Versions
