@@ -269,7 +269,7 @@ def optionsPage () {
                       )
             }
             input ( name: "waterSensorBool", type: "bool",
-                   title: "Report 'hourly rain > 0' as 'Wet/Dry' ST Water Sensor?",
+                   title: "Report 'hourly rain > 0' as a Water Sensor 'Wet' event?",
                    defaultValue: true,
                    required: true
                   )
