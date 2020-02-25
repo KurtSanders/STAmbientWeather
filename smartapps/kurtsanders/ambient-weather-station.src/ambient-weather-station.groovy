@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.0" }
-String appModified()			{ return "Feb-24-2020"}
+String version()				{ return "V5.0.1" }
+String appModified()			{ return "Feb-25-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -268,6 +268,11 @@ def optionsPage () {
                        required: false
                       )
             }
+            input ( name: "waterSensorBool", type: "bool",
+                   title: "Report 'hourly rain > 0' as 'Wet/Dry' ST Water Sensor?",
+                   defaultValue: true,
+                   required: true
+                  )
             input ( name: "showBattery", type: "bool",
                    title: "Show battery level from sensor(s)?",
                    defaultValue: true,
@@ -880,8 +885,15 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 case 'hourlyrainin':
                 def waterState = state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin?.toFloat()>0?'wet':'dry'
-                if(debugVerbose){log.debug "water -> ${waterState}"}
-                d.sendEvent(name:'water', value: waterState)
+                if ((waterSensorBool == null) || (waterSensorBool)) {
+                    if(debugVerbose){log.debug "Hourly rain value > 0, Water Sensor -> ${waterState}"}
+                    d.sendEvent(name:'water', value: waterState)
+                } else {
+                    if (waterState == 'wet') {
+                        log.warn "Hourly rain value > 0 reported by API, but will not be reported to ST Device as 'wet' because Water Sensor device capability is '${waterSensorBool}' in preferences!"
+                    }
+                    d.sendEvent(name:'water', value: 'dry', displayed: false)
+                }
                 break
                 case 'feelsLike':
                 def scText
@@ -1459,9 +1471,9 @@ def notifyEvents() {
             if (lastNotifyDT(state.notifyRainDT, "Rain")) {
                 state.notifyRainDT = now
                 send_message(msg)
+            }
         }
     }
-}
 }
 
 def lastNotifyDT(lastDT, eventName) {
