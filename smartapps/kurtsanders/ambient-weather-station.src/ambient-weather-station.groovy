@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.1" }
-String appModified()			{ return "Feb-25-2020"}
+String version()				{ return "V5.0.2" }
+String appModified()			{ return "Mar-20-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -751,8 +751,14 @@ def ambientWeatherStation(runID="missing runID") {
         if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('lastRain')) {
             if(debugVerbose){log.debug "Weather Station has 'Last Rain Date' information...Processing"}
             def dateRain = Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap[state.weatherStationDataIndex].lastData.lastRain)
+            def lastRainDuration
             use (groovy.time.TimeCategory) {
-                def lastRainDuration = ((currentDT - dateRain) =~ /(.+)\b,/)[0][1]
+                try {
+                    lastRainDuration = ((currentDT - dateRain) =~ /(.+)\b,/)[0][1]
+                    }
+                catch (e) {
+                    lastRainDuration = 'a few seconds ago'
+                }
                 if(debugVerbose){log.debug ("lastRainDuration -> ${lastRainDuration}")}
                 if (lastRainDuration) {
                     d.sendEvent(name:"lastRainDuration", value: lastRainDuration, displayed: false)
