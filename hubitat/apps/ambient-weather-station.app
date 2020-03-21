@@ -21,10 +21,12 @@ import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
 import groovy.json.JsonOutput
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.2" }
-String appModified()			{ return "Nov-10-2019"}
+String version()				{ return "V5.0.3" }
+String appModified()			{ return "Mar-21-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -839,7 +841,7 @@ def ambientWeatherStation(runID="missing runID") {
             }
         }
 
-        state.ambientServerDate=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", state.ambientMap[state.weatherStationDataIndex].lastData.date).format('EEE MMM d, h:mm:ss a',location.timeZone)
+        state.ambientServerDate=convertToCurrentTimeZone(state.ambientMap[state.weatherStationDataIndex].lastData.date)
 
         state.ambientMap[state.weatherStationDataIndex].info.each{ k, v ->
             if(k=='name'){k='pwsName'}
@@ -916,7 +918,10 @@ def ambientWeatherStation(runID="missing runID") {
                 okTOSendEvent = false
                 break
                 case 'lastRain':
-                v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)
+                // log.debug "convertToCurrentTimeZone = " +  convertToCurrentTimeZone(v)
+                // v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)
+                v=convertToCurrentTimeZone(v)
+                // log.debug "lastRain = ${v}"
                 break
                 case 'tempf':
                 k='temperature'
@@ -2125,4 +2130,23 @@ void updateMyLabel(key=null) {
 			break;
 	}
 	if (newLabel && (app.label != newLabel)) app.updateLabel(newLabel)
+}
+
+public String convertToCurrentTimeZone(String dateStr) {
+
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+    SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    SimpleDateFormat destFormat = new SimpleDateFormat('EEE MMM d, h:mm a');
+    sourceFormat.setTimeZone(utc);
+    Date convertedDate = sourceFormat.parse(dateStr);
+    return destFormat.format(convertedDate);
+
+}
+
+
+//get the current time zone
+
+public String getCurrentTimeZone(){
+    TimeZone tz = Calendar.getInstance().getTimeZone();
+    return tz.getID();
 }
