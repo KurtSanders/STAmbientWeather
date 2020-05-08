@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.2" }
-String appModified()			{ return "Mar-20-2020"}
+String version()				{ return "V5.0.3" }
+String appModified()			{ return "May-8-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -787,10 +787,10 @@ def ambientWeatherStation(runID="missing runID") {
         // Update Main Weather Device with Remote Sensor 1 values if tempf does not exist, same with humidity
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
-                d.sendEvent(name:"temperature", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: state.tempUnitsDisplay)
+                d.sendEvent(name:"temperature", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, unit: state.tempUnitsDisplay[1])
             }
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
-                d.sendEvent(name:"humidity", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%", displayed: false)
+                d.sendEvent(name:"humidity", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, unit: "%", displayed: false)
                 d.sendEvent(name:"humidity_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.humidity1}%")
             }
         }
@@ -798,14 +798,14 @@ def ambientWeatherStation(runID="missing runID") {
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempinf')) {
             if(debugVerbose){log.debug "Fixing Main Station for inside temp"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
-                d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, units: state.tempUnitsDisplay, displayed: false)
+                d.sendEvent(name:"tempinf", value: state.ambientMap[state.weatherStationDataIndex].lastData.temp1f, unit: state.tempUnitsDisplay[1], displayed: false)
                 d.sendEvent(name:"tempinf_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.temp1f}${state.tempUnitsDisplay}")
             }
         }
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidityin')) {
             if(debugVerbose){log.debug "Fixing Main Station for inside humidity"}
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
-                d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, units: "%", displayed: false)
+                d.sendEvent(name:"humidityin", value: state.ambientMap[state.weatherStationDataIndex].lastData.humidity1, unit: "%", displayed: false)
                 d.sendEvent(name:"humidityin_display", value: "${state.ambientMap[state.weatherStationDataIndex].lastData.humidity1}%")
             }
         }
@@ -874,7 +874,7 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 case 'battin':
                 k='battery'
-                d.sendEvent(name: k, value: v, units:'%', displayed: false)
+                d.sendEvent(name: k, value: v, unit:'%', displayed: false)
                 break
                 case 'battout':
                 k='battery'
@@ -975,7 +975,7 @@ def ambientWeatherStation(runID="missing runID") {
                         default:
                             break
                     }
-                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), unit: solarRadiationTileDisplayUnits?:'W/m²')
                 k='illuminance'
                 break
                 // Weather Console Sensors
@@ -983,7 +983,7 @@ def ambientWeatherStation(runID="missing runID") {
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v, unit: state.tempUnitsDisplay[1])
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('battout') ) {
@@ -997,7 +997,7 @@ def ambientWeatherStation(runID="missing runID") {
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}0")
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%", displayed: false)
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v, unit: "%", displayed: false)
                     remoteSensorDNI.sendEvent(name: "humidity_display", value: "${v}%")
                 } else {
                     log.error "Missing ${DTHDNIRemoteSensorName()}0"
@@ -1009,7 +1009,7 @@ def ambientWeatherStation(runID="missing runID") {
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted temperature with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "temperature", value: v, units: state.tempUnitsDisplay)
+                    remoteSensorDNI.sendEvent(name: "temperature", value: v, unit: state.tempUnitsDisplay[1])
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt${k[4..4]}")) {
@@ -1026,7 +1026,7 @@ def ambientWeatherStation(runID="missing runID") {
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted humidity with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%", displayed: false)
+                    remoteSensorDNI.sendEvent(name: "humidity", value: v, unit: "%", displayed: false)
                     remoteSensorDNI.sendEvent(name: "humidity_display", value: "${v}%")
                 } else {
                     log.error "Missing ST Device ${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]} for ${k}"
@@ -1039,7 +1039,7 @@ def ambientWeatherStation(runID="missing runID") {
                 if(debugVerbose){log.debug "${k} = ${remoteSensorDNI}"}
                 if (remoteSensorDNI) {
                     if(debugVerbose){log.debug "Posted PM25 with value ${v} -> ${remoteSensorDNI}"}
-                    remoteSensorDNI.sendEvent(name: "pm25", value: v, units: 'µg/m3')
+                    remoteSensorDNI.sendEvent(name: "pm25", value: v, unit: 'µg/m3')
                     remoteSensorDNI.sendEvent(name:"aqi", value: aqiCategory(v), displayed: false)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
@@ -1065,31 +1065,31 @@ def ambientWeatherStation(runID="missing runID") {
                     sendEventOptions = [displayed : false]
                     break
                     case ~/^temp.*/:
-                    sendEventOptions = [units : state.tempUnitsDisplay, displayed : false]
+                    sendEventOptions = [unit: state.tempUnitsDisplay[1], displayed : false]
                     break
                     case ('feelsLike'):
                     case ('dewPoint'):
-                    sendEventOptions = [units : state.tempUnitsDisplay, , displayed : false]
-                    d.sendEvent(name: k.toLowerCase(), value: v, units : state.tempUnitsDisplay, displayed: false )
+                    sendEventOptions = [unit : state.tempUnitsDisplay[1], , displayed : false]
+                    d.sendEvent(name: k.toLowerCase(), value: v, unit : state.tempUnitsDisplay[1], displayed: false )
                     break
                     case ('illuminance'):
-                    sendEventOptions = [units: solarRadiationTileDisplayUnits?:'W/m²']
+                    sendEventOptions = [unit: solarRadiationTileDisplayUnits?:'W/m²']
                     break
                     case ~/^humidity.*/:
-                    sendEventOptions = [units : '%', displayed : false]
+                    sendEventOptions = [unit : '%', displayed : false]
                     break
                     case ~/.*rain.*/:
-                    sendEventOptions = [units : state.measureUnitsDisplay, displayed : false]
+                    sendEventOptions = [unit : state.measureUnitsDisplay, displayed : false]
                     break
                     case ('windir'):
-                    sendEventOptions = [units : 'º']
+                    sendEventOptions = [unit : 'º']
                     break
                     case ~/^wind.*/:
                     case ('maxdailygust'):
-                    sendEventOptions = [units : state.windUnitsDisplay, displayed : false]
+                    sendEventOptions = [unit : state.windUnitsDisplay, displayed : false]
                     break
                     case ~/^barom.*/:
-                    sendEventOptions = [units : state.baroUnitsDisplay, displayed : false]
+                    sendEventOptions = [unit : state.baroUnitsDisplay, displayed : false]
                     break
                     default:
                         sendEventOptions = []
@@ -1115,9 +1115,9 @@ def ambientWeatherStation(runID="missing runID") {
         d.sendEvent(name: "percentPrecip", 		value : state.precipChance, unit: "%")
         d.sendEvent(name: "city", 				value : "Ambient - ${state.weatherStationName}")
         d.sendEvent(name: "location", 			value : state.cityValue, displayed: false)
-        d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: state.tempUnitsDisplay)
+        d.sendEvent(name: "temperature", 		value : state.ambientMap[state.weatherStationDataIndex].lastData?.tempf, unit: state.tempUnitsDisplay[1])
         d.sendEvent(name: "humidity", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.humidity, unit: "%")
-        d.sendEvent(name: "feelsLike", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.feelsLike, unit: state.tempUnitsDisplay)
+        d.sendEvent(name: "feelsLike", 			value : state.ambientMap[state.weatherStationDataIndex].lastData?.feelsLike, unit: state.tempUnitsDisplay[1])
         d.sendEvent(name: "wind",				value : state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph ?:"0", unit: state.windUnitsDisplay)
         d.sendEvent(name: "windVector",			value : "${degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, false)} ${state.ambientMap[state.weatherStationDataIndex].lastData.windspeedmph?:""} ${windUnits}")
         d.sendEvent(name: "lastUpdate", 		value : tileLastUpdated(), displayed: false)
