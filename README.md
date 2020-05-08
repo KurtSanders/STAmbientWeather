@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 5.0.2 (Production)
+### Version: 5.0.3 (Production)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
@@ -108,7 +108,7 @@ These files below are required for this version to operate.  You will need to Up
 
 | IDE Repository    | Filename | Status | Version |
 | :---: | :----------| :---:  | :-: |
-| My SmartApps      | kurtsanders : Ambient Weather Station | :new: **Updated** | **5.0.0** |
+| My SmartApps      | kurtsanders : Ambient Weather Station | :new: **Updated** | **5.03** |
 | My Device Handler | kurtsanders : Ambient Particulate Monitor | Unchanged | 4.21  |
 | My Device Handler | kurtsanders : Ambient Weather Station | Unchanged | 4.21 |
 | My Device Handler | kurtsanders : SmartWeather Tile Station | Unchanged | 4.21 |
