@@ -10,14 +10,32 @@
 *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
 *  for the specific language governing permissions and limitations under the License.
 *
-*  SmartWeather Station
-*
+*  SmartWeather Station Tile
+*  Copyright 2018, 2019, 2020 SanderSoft
 *  Author: Kurt Sanders, SanderSoft™
 *
+*  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License. You may obtain a copy of the License at:
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+*  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+*  for the specific language governing permissions and limitations under the License.*
+*
+*  Version 	: 5.00
+*  Date		: 5-14-2020
 */
 
 metadata {
-    definition (name: "SmartWeather Station Tile", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (
+        name		: "SmartWeather Station Tile",
+        namespace	: "kurtsanders",
+        author		: "kurt@kurtsanders.com",
+        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
+        mnmn		: "SmartThings"          // for the new Samsung (Connect) app
+    )
+    {
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
         capability "Sensor"
