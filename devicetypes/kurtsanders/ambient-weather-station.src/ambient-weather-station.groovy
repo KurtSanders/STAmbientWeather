@@ -13,7 +13,8 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 4.21
+*  Version 	: 5.00
+*  Date		: 5-14-2020
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
@@ -22,7 +23,14 @@ String getAppImg(imgName)   	{ return "https://raw.githubusercontent.com/KurtSan
 String getMoonIcon(imgNumber)   { return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/moon-phase-symbol-${imgNumber}.png" }
 
 metadata {
-    definition (name: "Ambient Weather Station", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (
+        name		: "Ambient Weather Station",
+        namespace	: "kurtsanders",
+        author		: "kurt@kurtsanders.com",
+        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
+        mnmn		: "SmartThings"          // for the new Samsung (Connect) app
+    )
+    {
         capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"

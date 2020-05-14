@@ -13,7 +13,8 @@
 *  Ambient Weather Station Remote Sensor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 4.21
+*  Version:	5.00
+*  Date:	5-14-2020
 */
 
 import groovy.time.*
@@ -22,7 +23,14 @@ import java.text.SimpleDateFormat;
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }
 
 metadata {
-    definition (name: "Ambient Weather Station Remote Sensor", namespace: "kurtsanders", author: "kurt@kurtsanders.com") {
+    definition (
+        name		: "Ambient Weather Station Remote Sensor",
+        namespace	: "kurtsanders",
+        author		: "kurt@kurtsanders.com",
+        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
+        mnmn		: "SmartThings",          // for the new Samsung (Connect) app
+    )
+    {
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
         capability "Sensor"
