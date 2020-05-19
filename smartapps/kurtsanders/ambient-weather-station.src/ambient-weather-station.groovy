@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.3" }
-String appModified()			{ return "May-8-2020"}
+String version()				{ return "V5.0.4" }
+String appModified()			{ return "May-18-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -510,12 +510,17 @@ def scheduleCheckReset(quiet=false) {
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
     log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
-    if (debugVerbose) {
-        def children = app.getChildDevices()
-        def thisdevice
-        log.debug "SmartApp $app.name has ${children.size()} child devices"
-        thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-            log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+    def children = app.getChildDevices()
+    def thisdevice
+    log.info "SmartApp $app.name has ${children.size()} child devices"
+    log.info "Checking Battery Values and Reseting if Missing/Null"
+    thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
+        def d = getChildDevice(it.deviceNetworkId)
+        if (d.currentBattery) {
+            log.info "${it} - Valid Battery Value: ${d.currentBattery}."
+        } else {
+            log.warn "${it} - Bad Battery Value: ${d.currentBattery}.  Changing null or missing battery value from API to 100%"
+            d.sendEvent(name: "battery", value: 100, unit:'%', displayed: false)
         }
     }
     refresh()
