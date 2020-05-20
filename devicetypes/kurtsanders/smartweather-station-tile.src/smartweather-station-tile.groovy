@@ -31,9 +31,7 @@ metadata {
     definition (
         name		: "SmartWeather Station Tile",
         namespace	: "kurtsanders",
-        author		: "kurt@kurtsanders.com",
-        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
-        mnmn		: "SmartThings"          // for the new Samsung (Connect) app
+        author		: "kurt@kurtsanders.com"
     )
     {
         capability "Temperature Measurement"

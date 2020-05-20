@@ -13,8 +13,8 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 	: 5.00
-*  Date		: 5-14-2020
+*  Version 	: 5.01
+*  Date		: 5-20-2020
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
@@ -26,9 +26,7 @@ metadata {
     definition (
         name		: "Ambient Weather Station",
         namespace	: "kurtsanders",
-        author		: "kurt@kurtsanders.com",
-        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
-        mnmn		: "SmartThings"          // for the new Samsung (Connect) app
+        author		: "kurt@kurtsanders.com"
     )
     {
         capability "Illuminance Measurement"
