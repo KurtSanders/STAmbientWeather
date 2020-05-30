@@ -1,0 +1,43 @@
+{
+	"packageName": "Ambient Weather Station",
+	"minimumHEVersion": "2.2.0",
+	"author": "Kurt Sanders",
+	"version": "5.0.3",
+	"dateReleased": "2020-05-29",
+	"documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
+	"licenseFile": "",
+	"releaseNotes": "Ambient Weather Station for Hubitat",
+	"apps" : [
+		{
+			"id" : "81c44d2b-623a-4428-9229-765370eabc97",
+			"name": "Ambient Weather Station",
+			"namespace": "kurtsanders",
+			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/apps/ambient-weather-station.app",
+			"required": true,
+			"oauth": false
+		}
+	],
+	"drivers" : [
+		{
+			"id": "5cf77327-f54d-4c2b-be9a-4ec31a3bfcd6",
+			"name": "Ambient Weather Station",
+			"namespace": "kurtsanders",
+			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station.driver",
+			"required": true
+		},
+		{
+			"id": "ce03d310-92cc-4848-8ba3-42255efe3a1b",
+			"name": "Ambient Weather Station Remote Sensor",
+			"namespace": "kurtsanders",
+			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station%20remote-sensor.driver",
+			"required": true
+		},
+		{
+			"id": "237364e5-039c-4b7b-ad81-dec3cb251659",
+			"name": "Ambient Particulate Monitor",
+			"namespace": "kurtsanders",
+			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-particulate-monitor.driver",
+			"required": false
+		}
+	]
+}

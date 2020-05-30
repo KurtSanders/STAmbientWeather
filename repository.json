@@ -1,0 +1,13 @@
+{
+	"author": "Kurt Sanders",
+	"gitHubUrl": "https://github.com/KurtSanders",
+	"payPalUrl": "https://www.paypal.me/kurtsanders",
+	"packages": [
+		{
+			"name": "Ambient Weather Station",
+			"category": "Weather",
+			"location": "https://github.com/KurtSanders/STAmbientWeather/tree/master/hubitat/packageManifest.json",
+			"description": "Ambient Weather Station"
+		}
+	]
+}
