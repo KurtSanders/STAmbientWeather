@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.4" }
-String appModified()			{ return "May-18-2020"}
+String version()				{ return "V5.0.5" }
+String appModified()			{ return "Jun-4-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -980,7 +980,7 @@ def ambientWeatherStation(runID="missing runID") {
                         default:
                             break
                     }
-                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), unit: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'))
                 k='illuminance'
                 break
                 // Weather Console Sensors
@@ -1078,7 +1078,7 @@ def ambientWeatherStation(runID="missing runID") {
                     d.sendEvent(name: k.toLowerCase(), value: v, unit : state.tempUnitsDisplay[1], displayed: false )
                     break
                     case ('illuminance'):
-                    sendEventOptions = [unit: solarRadiationTileDisplayUnits?:'W/m²']
+                    sendEventOptions = [unit: 'lux']
                     break
                     case ~/^humidity.*/:
                     sendEventOptions = [unit : '%', displayed : false]
