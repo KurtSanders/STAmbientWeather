@@ -72,7 +72,7 @@ If you have a [Pushover™ account](https://pushover.net/), you can enter your u
 One can filter/suppress selected Weather Alerts from the Ambient Weather Station's preferences options menu by selecting one or more of the listed [Nation Weather Services' Product Identifiers](https://forecast.weather.gov/product_types.php).   The default option (nothing selected) allows all Weather Alerts to be reported for the Zipcode or lat/long coordinates entered.  
 
 
-### Requirements:
+## Requirements:
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50"> **YOU DO NOT NEED AN AMBIENT DEVELOPERS APP KEY**
 
@@ -86,10 +86,12 @@ One can filter/suppress selected Weather Alerts from the Ambient Weather Station
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/V2-APIKey2.jpg" width="400">
 </p>
 
-1. A personal [Ambient Weather® Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather® Network: (e.g., Model 2902A for example) and optionally up to 99 Ambient remote temperature/hydro sensor(s).
-2. SmartThings Hub
-3. Supported mobile device with **ST Legacy Client**. *This app will not work in the new Samsung SmartThings App*. 
-4. A working knowledge of the SmartThings IDE
+1. A personal [Ambient Weather® Station](https://www.ambientweather.com/ambientnet.html) which connects to the Ambient Weather® Network: (e.g., Model 2902A for example) and optionally up to 99 Ambient remote temperature/hydro sensor(s).  
+2. Complete all [AWS location information](https://ambientweather.net/devices) for your weather station.
+<br><br><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/AWS-location.jpg" width="500"><br>
+3. SmartThings Hub
+4. Supported mobile device with **ST Legacy Client**. *This app will not work in the new Samsung SmartThings App*. 
+5. A working knowledge of the SmartThings IDE
 	* Installing a SmartApp & DTH from a GitHub repository (see [SmartThings GitHub IDE integration documentation](https://docs.smartthings.com/en/latest/tools-and-ide/github-integration.html?highlight=github) for example instructions and use the Repository Owner, Name and Branch from installation instructions below)
 
 		 
