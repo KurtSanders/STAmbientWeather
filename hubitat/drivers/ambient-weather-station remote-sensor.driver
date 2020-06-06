@@ -13,7 +13,7 @@
 *  Ambient Weather Station Remote Sensor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 4.21
+*  Version 5.0.0
 */
 
 import groovy.time.*

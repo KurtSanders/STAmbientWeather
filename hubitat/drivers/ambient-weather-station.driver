@@ -13,7 +13,7 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 4.21
+*  Version 5.0.0
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
