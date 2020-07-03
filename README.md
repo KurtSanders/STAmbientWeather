@@ -208,7 +208,9 @@ ActionTiles™
 
 </p>
 
-## WebCore Tiles Dashboard
+## WebCore 
+
+### Tiles Dashboard
 
 You can import this WebCore piston template into your WebCore using the backup code: **6dj8**.  Remember to: 
 
@@ -222,6 +224,37 @@ You can import this WebCore piston template into your WebCore using the backup c
 </p>
 
 </p>
+
+### Reporting Historical Rainfall
+
+Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user that is interested in displaying their AWS rainfall over a defined period of days.  You can create a new Webcore piston with the backup code of **'47dmq'**.    When installed and configured successfully, it will run each day after midnight to update a global WebCore variable of the rainfall in inches for n days.
+
+### Requirements:
+* You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
+    * [macAddress](https://ambientweather.net/devices)
+![](https://aws1.discourse-cdn.com/smartthings/original/3X/c/0/c0dd23531f62ff196cee61b3f286e3d0bb5d0322.png)
+    * [apiKey](https://ambientweather.net/account)
+    * [applicationKey](https://ambientweather.net/account)
+![](https://aws1.discourse-cdn.com/smartthings/optimized/3X/3/4/3413396e7d5d59cb45c8d939d6d23d4d9d750286_2_1380x326.jpeg)
+* Knowledge of [creating/editing a WebCore Piston from a backup code](https://wiki.webcore.co/webCoRE) and [creating/updating local and global variables](https://wiki.webcore.co/Variable#Variable_scopes).
+
+### Optional 
+* Create a new WebCore pistons that reads the [WebCore's global '@AWSrainfall' variable](https://wiki.webcore.co/Variable#Variable_scopes) and performs needed actions.
+
+### Configuration
+1. Create a new WebCore Piston from the backup code  **'47dmq'**
+2. Enter your AWS macAddress, apiKey string and AWS applicationKey into the predefined [local WebCore variables](https://wiki.webcore.co/Variable#Variable_scopes) at the top of the WebCore piston.  
+   * I have chosen to [create new global variables](https://wiki.webcore.co/Variable#Variable_scopes) in this shared public piston to store these same AWS private data keys, but you can choose to enter your private strings directly into the WebCore local variables as well depending on your personal preference. 
+3. Enter an integer for the number of days to summarize your AWS daily rainfall, ie '7' for 7 days from yesterday.
+4. [Create a new WebCore global variable](https://wiki.webcore.co/Variable#Variable_scopes) named '@AWSrainfall' with a data type of either decimal or dynamic.  
+    * This [global variable](https://wiki.webcore.co/Variable#Variable_scopes) will report the number of inches of rainfall over the defined number of days.  One can use this same [global variable](https://wiki.webcore.co/Variable#Variable_scopes) in another WebCore piston (that you can create) that can read and act on this data to subsequently automate a routine or devices, like an irrigation system, echo speaks audio reminder,  SMS message, etc.
+5. Test the WebCore piston and verify that the piston's state message is successfully updated with the text message, as exampled below:
+
+   > Piston state: Total rainfall is X.X inches over the last Y days at {datetime stamp}
+
+### Public WebCore Piston Image
+
+![](https://aws1.discourse-cdn.com/smartthings/optimized/3X/3/a/3aac5f35e7f2823d5fd83855c9828db980fe9c9b_2_760x1000.png)
 
 
 ## Capabilities, Attributes & Commands
