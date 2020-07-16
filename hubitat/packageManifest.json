@@ -14,6 +14,7 @@
 			"namespace": "kurtsanders",
 			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
 			"required": true,
+			"primary": true,
 			"oauth": false
 		}
 	],
