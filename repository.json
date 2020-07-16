@@ -7,7 +7,8 @@
 			"name": "Ambient Weather Station",
 			"category": "Weather",
 			"location": "https://github.com/KurtSanders/STAmbientWeather/tree/master/hubitat/packageManifest.json",
-			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment."
+			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment.",
+			"tags": [ "Notifications","Monitoring", "Weather" ]
 		}
 	]
 }
