@@ -1,13 +1,13 @@
 {
 	"author": "Kurt Sanders",
 	"gitHubUrl": "https://github.com/KurtSanders",
-	"payPalUrl": "https://www.paypal.me/kurtsanders",
+	"payPalUrl": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PNTZKVP4NLDU6&source=url",
 	"packages": [
 		{
 			"name": "Ambient Weather Station",
 			"category": "Weather",
 			"location": "https://github.com/KurtSanders/STAmbientWeather/tree/master/hubitat/packageManifest.json",
-			"description": "Ambient Weather Station"
+			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment."
 		}
 	]
 }
