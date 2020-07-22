@@ -1,7 +1,7 @@
 {
 	"author": "Kurt Sanders",
 	"gitHubUrl": "https://github.com/KurtSanders",
-	"payPalUrl": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PNTZKVP4NLDU6&source=url",
+	"payPalUrl": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TJDQJASTD8JKU&source=url",
 	"packages": [
 		{
 			"name": "Ambient Weather Station",
@@ -9,6 +9,13 @@
 			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/packageManifest.json",
 			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment.",
 			"tags": [ "Integrations","Monitoring", "Weather","Temperature & Humidity" ]
+		},
+		{
+			"name": "BitBar Output App",
+			"category": "Utility",
+			"location": "https://raw.githubusercontent.com/KurtSanders/STBitBarApp-V2/master/hubitat/packageManifest.json",
+			"description": "Monitor and control Hubitat devices, sensors, Hubitat Safety Monitor, Modes & Routines from the Apple MacOS Menu Bar.",
+			"tags": [ "Integrations","Monitoring" ]
 		}
 	]
 }
