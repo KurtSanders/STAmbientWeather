@@ -8,14 +8,14 @@
 			"category": "Weather",
 			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/packageManifest.json",
 			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment.",
-			"tags": [ "Integrations","Monitoring", "Weather","Temperature & Humidity" ]
+			"tags": [ "Monitoring", "Weather","Temperature & Humidity" ]
 		},
 		{
 			"name": "BitBar Output App",
-			"category": "Utility",
+			"category": "Convenience",
 			"location": "https://raw.githubusercontent.com/KurtSanders/STBitBarApp-V2/master/hubitat/packageManifest.json",
 			"description": "Monitor and control Hubitat devices, sensors, Hubitat Safety Monitor, Modes & Routines from the Apple MacOS Menu Bar.",
-			"tags": [ "Integrations","Monitoring" ]
+			"tags": [ "Monitoring","Tools & Utilities", "Notifications" ]
 		}
 	]
 }
