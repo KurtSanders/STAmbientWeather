@@ -227,7 +227,7 @@ You can import this WebCore piston template into your WebCore using the backup c
 
 ### Reporting Historical Rainfall
 
-Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user that is interested in displaying their AWS rainfall over a defined period of days.  You can create a new Webcore piston with the backup code of **'47dmq'**.    When installed and configured successfully, it will run each day after midnight to update a global WebCore variable of the rainfall in inches for n days.
+Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user that is interested in displaying their [Ambient Weather Station Increment Rainfall](https://help.ambientweather.net/help/rain-increment-definitions/) over a defined period of days.  You can create a new Webcore piston with the backup code of **'47dmq'**.    When installed and configured successfully, it will run each day after midnight to update a global WebCore variable of the rainfall in inches for n days.
 
 ### Requirements:
 * You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
