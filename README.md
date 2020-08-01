@@ -254,7 +254,7 @@ Here is a WebCore piston that will collect one's daily reported rainfall [Ambien
 
 ### Public WebCore Piston Image
 
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/webcore_rainhistory.png" width="600">
+![](https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/webcore_rainhistory.png)
 
 ## Capabilities, Attributes & Commands
 The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or a custom smartApp.
