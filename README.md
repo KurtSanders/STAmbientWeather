@@ -227,7 +227,7 @@ You can import this WebCore piston template into your WebCore using the backup c
 
 ### Reporting Historical Rainfall
 
-Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user that is interested in displaying their [Ambient Weather Station Increment Rainfall](https://help.ambientweather.net/help/rain-increment-definitions/) over a defined period of days.  You can create a new Webcore piston with the backup code of **'47dmq'**.    When installed and configured successfully, it will run each day after midnight to update a global WebCore variable of the rainfall in inches for n days.
+Here is a WebCore piston that will collect one's daily reported rainfall [Ambient Weather Station Increment Rainfall](https://help.ambientweather.net/help/rain-increment-definitions/) over a defined period of days.  You can create a new Webcore piston with the backup code of **'825p'**.    When installed and configured successfully, the piston will execute each day after midnight to update a global WebCore variable of the rainfall in inches for n days.
 
 ### Requirements:
 * You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
@@ -242,7 +242,7 @@ Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user 
 * Create a new WebCore pistons that reads the [WebCore's global '@AWSrainfall' variable](https://wiki.webcore.co/Variable#Variable_scopes) and performs needed actions.
 
 ### Configuration
-1. Create a new WebCore Piston from the backup code  **'47dmq'**
+1. Create a new WebCore Piston from the backup code  **'825p'**
 2. Enter your AWS macAddress, apiKey string and AWS applicationKey into the predefined [local WebCore variables](https://wiki.webcore.co/Variable#Variable_scopes) at the top of the WebCore piston.  
    * I have chosen to [create new global variables](https://wiki.webcore.co/Variable#Variable_scopes) in this shared public piston to store these same AWS private data keys, but you can choose to enter your private strings directly into the WebCore local variables as well depending on your personal preference. 
 3. Enter an integer for the number of days to summarize your AWS daily rainfall, ie '7' for 7 days from yesterday.
@@ -254,8 +254,7 @@ Here is a WebCore piston for you & any other Ambient Weather Station (AWS) user 
 
 ### Public WebCore Piston Image
 
-![](https://aws1.discourse-cdn.com/smartthings/optimized/3X/3/a/3aac5f35e7f2823d5fd83855c9828db980fe9c9b_2_760x1000.png)
-
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/webcore_rainhistory.png" width="600">
 
 ## Capabilities, Attributes & Commands
 The following device capabilities, attributes and commands are available for your own subscriptions from WebCore(tm) or a custom smartApp.
