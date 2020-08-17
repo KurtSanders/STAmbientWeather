@@ -242,7 +242,7 @@ Here is a WebCore piston that will collect one's daily reported rainfall [Ambien
 * Create a new WebCore pistons that reads the [WebCore's global '@AWSrainfall' variable](https://wiki.webcore.co/Variable#Variable_scopes) and performs needed actions.
 
 ### Configuration
-1. Create a new WebCore Piston from the backup code  **'825p'**
+1. Create a new WebCore Piston from the backup code  '**07ye**'
 2. Enter your AWS macAddress, apiKey string and AWS applicationKey into the predefined [local WebCore variables](https://wiki.webcore.co/Variable#Variable_scopes) at the top of the WebCore piston.  
    * I have chosen to [create new global variables](https://wiki.webcore.co/Variable#Variable_scopes) in this shared public piston to store these same AWS private data keys, but you can choose to enter your private strings directly into the WebCore local variables as well depending on your personal preference. 
 3. Enter an integer for the number of days to summarize your AWS daily rainfall, ie '7' for 7 days from yesterday.
