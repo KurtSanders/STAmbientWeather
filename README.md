@@ -9,23 +9,20 @@
 * Displays temperature and refresh on the Dashboard tile.
 * Displays a limited number of standard capabilities in the detailed view.
 
-	```
-"Temperature Measurement"
-"Relative Humidity Measurement"
-"Illuminance Measurement"
-"Water Sensor"
-"Ultraviolet Index"
-"Sensor"
-"Refresh"
-"Battery"
-
- // Wind Motion Detection (Active = Wind Speed > 0)
-"Motion Sensor"
- // Wind Speed Psuedo Capability
-"Power Meter" (Wind Speed)
-"Energy Meter" (Wind Speed)
+  * Temperature Measurement
+  * Relative Humidity Measurement
+  * Illuminance Measurement
+  * Water Sensor
+  * Ultraviolet Index
+  * Sensor
+  * Refresh
+  * Battery
+  * Wind Motion Sensor (Active = Wind Speed > 0)
+  * Wind Speed 'Psuedo' Capabilities for display in 3rd party applications
+     * "Power Meter" (Wind Speed)
+     * "Energy Meter" (Wind Speed)
         
-	```
+### Main and Detail Tiles:
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_MainTile.PNG" width=200>
