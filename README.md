@@ -21,6 +21,8 @@
   * Wind Speed 'Psuedo' Capabilities for display in 3rd party applications
      * "Power Meter" (Wind Speed)
      * "Energy Meter" (Wind Speed)
+
+* [WebCore](https://wiki.webcore.co/), [ActionTiles](https://www.actiontiles.com/) and/or [Sharptools](https://sharptools.io/) is highly recommended to view and act on Weather Station sensor events & values. 
         
 ### Main and Detail Tiles:
 
