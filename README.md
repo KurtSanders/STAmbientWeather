@@ -1,11 +1,39 @@
 # Ambient Weather® Station™ 
 *SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Version: 5.0.3 (Production)
+### Version: 6.0.0 (Production)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 ---
 
-#### *:new: Added **[Pushover™ Service](https://pushover.net/)** as an additional means for event notifications, along with SMS and ST Push. Pushover™ makes it easy to get real-time notifications on your Android, iPhone, iPad, and Desktop (Android Wear and Apple Watch, too!)*
+#### *:new: Updated Device Tile Handlers (DTH) to support the new ST Mobile Client! *
+* Displays temperature and refresh on the Dashboard tile.
+* Displays a limited number of standard capabilities in the detailed view.
+
+	```
+"Temperature Measurement"
+"Relative Humidity Measurement"
+"Illuminance Measurement"
+"Water Sensor"
+"Ultraviolet Index"
+"Sensor"
+"Refresh"
+"Battery"
+
+ // Wind Motion Detection (Active = Wind Speed > 0)
+"Motion Sensor"
+ // Wind Speed Psuedo Capability
+"Power Meter" (Wind Speed)
+"Energy Meter" (Wind Speed)
+        
+	```
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_MainTile.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_AWS.PNG" width=150>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_AWSRS.PNG" width=150>
+</p>
+
+
 
 ### Description:
 
@@ -17,24 +45,19 @@ This SmartThings® application provides access to your [Ambientweather.net](http
 
 ### Multiple Ambient Weather® Station Instances of Independent Operating Nodes
 
-<p align="center">
 Allows for multiple Ambient Weather® system models or geolocation instances<br>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient2.PNG" width=300>
-</p>
 
-### Screenshots of Device Attributes
+## Screenshots of Device Attributes
+### Ambient Weather® Station Console
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient3.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient4.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient5.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient6.PNG" width=200>
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_AWS.PNG" width=300>
 </p>
 
-### Ambient Weather® Station with multiple remote temp/soil sensors
+### Remote Ambient Weather® Station 
 
-<p align="center"><img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V4-MobileClient9.PNG" width=200>
-<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/screenshots/V303-MobileClient5.PNG" width=200>
+<p align="center">
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/ST_AWSRS.PNG" width=300>
 </p>
 
 ### Ambient Weather® Station with Particle Monitor PM25

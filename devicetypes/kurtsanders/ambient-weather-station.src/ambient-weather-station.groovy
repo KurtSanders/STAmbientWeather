@@ -13,8 +13,8 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 	: 5.01
-*  Date		: 5-20-2020
+*  Version 	: 6
+*  Date		: 9-03-2020
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
@@ -24,18 +24,20 @@ String getMoonIcon(imgNumber)   { return "https://raw.githubusercontent.com/Kurt
 
 metadata {
     definition (
-        name		: "Ambient Weather Station",
-        namespace	: "kurtsanders",
-        author		: "kurt@kurtsanders.com"
+        name			: "Ambient Weather Station",
+        namespace		: "kurtsanders",
+        author			: "kurt@kurtsanders.com",
+        mnmn			: "SmartThingsCommunity",
+        vid				: "a87ef048-5345-3b5a-b370-24760673da39"
     )
     {
-        capability "Illuminance Measurement"
         capability "Temperature Measurement"
         capability "Relative Humidity Measurement"
-        capability "Sensor"
-        capability "Refresh"
+        capability "Illuminance Measurement"
         capability "Water Sensor"
         capability "Ultraviolet Index"
+        capability "Sensor"
+        capability "Refresh"
         capability "Battery"
 
         // Wind Motion Detection

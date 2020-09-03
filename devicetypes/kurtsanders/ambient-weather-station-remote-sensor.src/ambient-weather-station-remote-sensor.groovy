@@ -13,8 +13,8 @@
 *  Ambient Weather Station Remote Sensor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version:	5.00
-*  Date:	5-14-2020
+*  Version:	6.00
+*  Date:	9-03-2020
 */
 
 import groovy.time.*
@@ -24,11 +24,11 @@ String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSand
 
 metadata {
     definition (
-        name		: "Ambient Weather Station Remote Sensor",
-        namespace	: "kurtsanders",
-        author		: "kurt@kurtsanders.com",
-        vid			: "SmartThings-smartthings-SmartSense_Temp/Humidity_Sensor",
-        mnmn		: "SmartThings",          // for the new Samsung (Connect) app
+        name			: "Ambient Weather Station Remote Sensor",
+        namespace		: "kurtsanders",
+        author			: "kurt@kurtsanders.com",
+        mnmn			: "SmartThingsCommunity",
+        vid				: "edc82bb9-ae4c-3126-9a5b-d35ef4a157f8"
     )
     {
         capability "Temperature Measurement"
@@ -44,6 +44,7 @@ metadata {
         command "refresh"
     }
     tiles(scale: 2) {
+/*
         multiAttributeTile(name:"temperature", type:"generic", width:6, height:4, canChangeIcon: true) {
             tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
                 attributeState("default",label:'${currentValue}º',
@@ -62,26 +63,41 @@ metadata {
             }
         }
     }
+*/
+        valueTile("temperature", "device.temperature", height: 2, width: 2) {
+            state "default", label:'${currentValue}°',
+                backgroundColors:[
+                    [value: 31, color: "#153591"],
+                    [value: 44, color: "#1e9cbb"],
+                    [value: 59, color: "#90d2a7"],
+                    [value: 74, color: "#44b621"],
+                    [value: 84, color: "#f1d801"],
+                    [value: 95, color: "#d04e00"],
+                    [value: 96, color: "#bc2323"]
+                ]
+        }
+        valueTile("humidity", "device.humidity", decoration: "flat", height: 1, width: 2) {
+            state "default", label:'${currentValue}% humidity'
+        }
+        standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+            state "default", 	label: '', icon: getAppImg('battery-na.png')
+            state "0", 			label: '', icon: getAppImg('battery-bad.png')
+            state "100", 		label: '', icon: getAppImg('battery-good.png')
+        }
+        valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+            state("default", label: 'Ambient Server DateTime\n${currentValue}')
+        }
+        valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
+            state "default", label: '${currentValue}', action: "refresh"
+        }
+        standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
+            state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
+        }
+    }
 
-    standardTile("battery", "device.battery", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", 	label: '', icon: getAppImg('battery-na.png')
-        state "0", 			label: '', icon: getAppImg('battery-bad.png')
-        state "100", 		label: '', icon: getAppImg('battery-good.png')
-    }
-    valueTile("date", "device.date", width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state("default", label: 'Ambient Server DateTime\n${currentValue}')
-    }
-    valueTile("lastSTupdate", "device.lastSTupdate", width: 4, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: '${currentValue}', action: "refresh"
-    }
-    standardTile("refresh", "device.weather", width: 2, height: 1, decoration: "flat", wordWrap: true) {
-        state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
-    }
-
-    main(["temperature"])
+    main(["temperature", "humidity"])
     details(
         [
-            // Inside Sensors
             "temperature",
             "humidity",
             "battery",

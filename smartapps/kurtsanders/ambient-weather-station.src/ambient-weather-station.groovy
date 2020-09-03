@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.5" }
-String appModified()			{ return "Jun-4-2020"}
+String version()				{ return "V6.0.0" }
+String appModified()			{ return "Sep-03-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
