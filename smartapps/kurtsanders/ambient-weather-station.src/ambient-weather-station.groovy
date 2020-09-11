@@ -24,8 +24,8 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V6.0.0" }
-String appModified()			{ return "Sep-03-2020"}
+String version()				{ return "V6.0.1" }
+String appModified()			{ return "Sep-11-2020"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -237,7 +237,7 @@ def optionsPage () {
                 install : !remoteSensorsExist ) {
         section("Weather Station Options") {
             input ( name: "zipCode", type: "text",
-                   title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
+                   title: "Enter either a 'USA 5 digit ZipCode' or 'latitude,longitude' (eg. 39.7,-83.9),coordinates for TWC Weather Conditions, Forecasts, Moon Day, etc (Required)",
                    required: true
                   )
             input ( name: "schedulerFreq", type: "enum",
@@ -566,7 +566,7 @@ def retryQuick(data) {
 def localWeatherInfo() {
     if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
     if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
-    // Verify zipCode for 5 digit numeric
+    // Verify zipCode for 5 digit numeric or latitude,longitude
     def valregex = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$|^[0-9]{5}$/
     def zipcode = ''
     if (zipCode ==~ valregex) {
@@ -606,7 +606,6 @@ def localWeatherInfo() {
 
     def tf = new java.text.SimpleDateFormat("h:mm")
     tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
-
     state.localSunrise = "${tf.format(sunriseDate)}"
     state.localSunset = "${tf.format(sunsetDate)}"
 
