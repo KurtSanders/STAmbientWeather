@@ -24,7 +24,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V6.0.1" }
+String version()				{ return "V6.0.2" }
 String appModified()			{ return "Sep-11-2020"}
 
 //*************************************** Constants ***************************************
@@ -600,14 +600,10 @@ def localWeatherInfo() {
     state.longitude = "${loc?.longitude}"
 
     //Getting Sunrise & Sunset
-    def dtf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-    def sunriseDate = dtf.parse(obs?.sunriseTimeLocal)
-    def sunsetDate = dtf.parse(obs?.sunsetTimeLocal)
-
-    def tf = new java.text.SimpleDateFormat("h:mm")
-    tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
-    state.localSunrise = "${tf.format(sunriseDate)}"
-    state.localSunset = "${tf.format(sunsetDate)}"
+    def sunriseDate = Date.parse("yyyy-MM-dd'T'HH:mm:ssZ",obs?.sunriseTimeLocal).format("h:mm",location.timeZone)
+    def sunsetDate = Date.parse("yyyy-MM-dd'T'HH:mm:ssZ",obs?.sunsetTimeLocal).format("h:mm",location.timeZone)
+    state.localSunrise = sunriseDate
+    state.localSunset = sunsetDate
 
     d.sendEvent(name: "localSunrise", value: state.localSunrise , displayed: false)
     d.sendEvent(name: "localSunset" , value: state.localSunset  , displayed: false)
