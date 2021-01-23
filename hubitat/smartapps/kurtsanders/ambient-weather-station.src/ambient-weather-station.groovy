@@ -1,5 +1,5 @@
 /*
-*  Copyright 2019 SanderSoft™
+*  Copyright 2021 SanderSoft™
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -14,7 +14,7 @@
 *
 *  Author: Kurt Sanders, SanderSoft™
 *
-*  Date: 2018,2019
+*  Dates: 2018,2019,2020,2021
 */
 
 import groovy.time.*
@@ -25,8 +25,8 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.3" }
-String appModified()			{ return "Mar-21-2020"}
+String version()				{ return "V5.0.4" }
+String appModified()			{ return "Jan-23-2021"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -366,11 +366,14 @@ def remoteSensorPage() {
                     title: "Provide a friendly short name for your Ambient Particulate Monitor PM25",
                     required: false,
                     null
+                input (
+                    name: "${DTHDNIPMName()}",
+                    type: "text",
+                    title: "Ambient Particulate Monitor PM25",
+                    defaultValue: "PM25",
+                    required: true
+                )
             }
-            input "${DTHDNIPMName()}", type: "text",
-                title: "Ambient Particulate Monitor PM25",
-                defaultValue: "PM25",
-                required: true
         }
     }
 }
@@ -1317,7 +1320,7 @@ def addAmbientChildDevice() {
     def PMvalue = settings.find{ it.key == "${DTHDNIPMName()}" }?.value
 
     if(PMvalue) {
-        remoteSensorNamePref = "${state.weatherStationName}${PMvalue}"
+        remoteSensorNamePref = "${state.weatherStationName}${PMvalue?'-'+PMvalue:''}"
         remoteSensorNameDNI = getChildDevice(PMkey)
         if (!remoteSensorNameDNI) {
             log.info "NEW: Adding Particulate Monitor device: ${remoteSensorNamePref}"
@@ -1598,7 +1601,7 @@ def countRemoteTempHumiditySensors() {
 }
 
 def countParticulateMonitors() {
-    state.countParticulateMonitors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^pm25$') }
+    state.countParticulateMonitors =  state.ambientMap[state.weatherStationDataIndex].lastData?.keySet().count { it.matches('^pm25$') }
     return state.countParticulateMonitors
 }
 

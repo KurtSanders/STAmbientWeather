@@ -1,12 +1,12 @@
 {
 	"packageName": "Ambient Weather Station",
 	"author": "Kurt Sanders",
-	"version": "5.0.3",
-	"minimumHEVersion": "1.0.0",
-	"dateReleased": "2020-05-29",
+	"version": "5.0.4",
+	"minimumHEVersion": "2.0.0",
+	"dateReleased": "2021-01-23",
 	"documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
 	"licenseFile": "",
-	"releaseNotes": "Ambient Weather Station for Hubitat",
+	"releaseNotes": "5.0.4: Bug Fix for Ambient PM25 sensors",
 	"apps" : [
 		{
 			"id" : "81c44d2b-623a-4428-9229-765370eabc97",
