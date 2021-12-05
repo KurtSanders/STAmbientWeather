@@ -14,7 +14,7 @@
 *
 *  Author: Kurt Sanders, SanderSoft™
 *
-*  Dates: 2018,2019,2020,2021
+*  Dates: 2018,2019,2020,2021,2022
 */
 
 import groovy.time.*
@@ -25,8 +25,8 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.4" }
-String appModified()			{ return "Jan-23-2021"}
+String version()				{ return "V5.0.5" }
+String appModified()			{ return "Dec-05-2021"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -535,20 +535,20 @@ def scheduleCheckReset(quiet=false) {
         use( TimeCategory ) {
             end = start + schedulerFreq.toInteger().minutes
         }
-        log.info "Reset the next CRON Refresh to ~${schedulerFreq} mins from now (${end.format("h:mm:ss a", location.timeZone)}) to avoid excessive HTTP requests"
+        if(infoVerbose){log.info "Reset the next CRON Refresh to ~${schedulerFreq} mins from now (${end.format("h:mm:ss a", location.timeZone)}) to avoid excessive HTTP requests"}
         }
     }
 }
 
 def appTouchHandler(evt="") {
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"
+    if(infoVerbose){log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"}
     if (debugVerbose) {
         def children = app.getChildDevices()
         def thisdevice
         log.debug "'$app.name' has ${children.size()} child devices"
         thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-            log.info "${it} <-> DNI: ${it.deviceNetworkId}"
+            if(infoVerbose){log.info "${it} <-> DNI: ${it.deviceNetworkId}"}
         }
     }
     refresh()
@@ -556,28 +556,28 @@ def appTouchHandler(evt="") {
 
 def refresh() {
     updateMyLabel('refreshing')
-    log.info "Device: 'Refresh ALL'"
+    if(infoVerbose){log.info "Device: 'Refresh ALL'"}
     def runID = new Random().nextInt(10000)
     main(runID)
 }
 
 def autoScheduleHandler() {
     def runID = new Random().nextInt(10000)
-    log.info "Executing Cron Schedule runID: ${runID} every ${schedulerFreq} min(s)"
+    if(infoVerbose){log.info "Executing Cron Schedule runID: ${runID} every ${schedulerFreq} min(s)"}
     main(runID)
     }
 
 def main(runID=null) {
     runID = (runID)?:new Random().nextInt(10000)
     if (isST) {
-        log.info "${platform} Main (#${runID}) Section: Executing Local Weather Routines for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"
+        if(infoVerbose){log.info "${platform} Main (#${runID}) Section: Executing Local Weather Routines for: ${zipCode} & Ambient Weather Station API's for: '${state.weatherStationName}'"}
         // TWC Local Weather
         if (!localWeatherInfo()) return false
 
         // TWC Local Weather Alerts
         checkForSevereWeather()
     } else {
-        log.info "${platform} Main (#${runID}) Section: Executing Ambient Weather Station API's for: '${state.weatherStationName}'"
+        if(infoVerbose){log.info "${platform} Main (#${runID}) Section: Executing Ambient Weather Station API's for: '${state.weatherStationName}'"}
     }
 
     // Ambient Weather Station API
@@ -589,7 +589,7 @@ def main(runID=null) {
 }
 
 def retryQuick(data) {
-    log.info "retryQuick #${state.retry} RunID: ${data.runID}"
+    if(infoVerbose){log.info "retryQuick #${state.retry} RunID: ${data.runID}"}
     // Ambient Weather Station API
     updateMyLabel('retry')
     ambientWeatherStation(data.runID)
@@ -756,7 +756,7 @@ def checkForSevereWeather() {
 
 def ambientWeatherStation(runID="missing runID") {
     // Ambient Weather Station
-    log.info "Executing full ambientWeatherStation routine runID: ${runID}"
+    if(infoVerbose){log.info "Executing full ambientWeatherStation routine runID: ${runID}"}
     def d = getChildDevice(state.deviceId)
     def okTOSendEvent = true
     def remoteSensorDNI = ""
@@ -1175,9 +1175,9 @@ def AmbientStationData(runID="????") {
     df.setTimeZone(location.timeZone)
 	def currentGETAmbientStationData = now()
     state.lastGETAmbientStationData = state.lastGETAmbientStationData?:now()
-    log.info "Start: AmbientStationData runID: ${runID} at ${df.format(new Date())}"
+    if(infoVerbose){log.info "Start: AmbientStationData runID: ${runID} at ${df.format(new Date())}"}
     def timeSecsLastRun = (((currentGETAmbientStationData - state.lastGETAmbientStationData)/1000).toInteger())
-    log.info "AmbientStationData Time difference is ${timeSecsLastRun} secs between last execution"
+    if(infoVerbose){log.info "AmbientStationData Time difference is ${timeSecsLastRun} secs between last execution"}
     if (runID!=0 && timeSecsLastRun < 2) {
         log.warn "Aborting AmbientStationData run ${runID}:  Too Short for API Limits"
         return
@@ -1190,7 +1190,7 @@ def AmbientStationData(runID="????") {
     state.retry = state.retry?:0
     scheduleCheckReset(true)
     if (state.retry.toInteger()>0) {
-        log.info "Executing Retry AmbientStationData re-attempt #${state.retry} for RunID: ${runID}"
+        if(infoVerbose){log.info "Executing Retry AmbientStationData re-attempt #${state.retry} for RunID: ${runID}"}
     }
     def params = [
         uri				: "https://api.ambientweather.net",
@@ -1214,7 +1214,7 @@ def AmbientStationData(runID="????") {
                 countRemoteTempHumiditySensors()
             }
             if (state.retry.toInteger()>0) {
-                log.info "SUCCESS: Retry AmbientStationData re-attempt #${state.retry} for runID: ${runID}"
+                if(infoVerbose){log.info "SUCCESS: Retry AmbientStationData re-attempt #${state.retry} for runID: ${runID}"}
                 state.retry = 0
                 updateMyLabel('updated')
             }
@@ -1231,13 +1231,13 @@ def AmbientStationData(runID="????") {
         }
         state.retry = state.retry.toInteger() + 1
         if (state.retry.toInteger()<4) {
-            log.info("Waiting 10 seconds to Try HttpGet Again runID ${runID}: Attempt #${state.retry}")
+            if(infoVerbose){log.info("Waiting 10 seconds to Try HttpGet Again runID ${runID}: Attempt #${state.retry}")}
             updateMyLabel('retry')
             runIn(10, 'retryQuick', [overwrite: true, data: [runID: "${runID}"]])
         }
         return false
     }
-    log.info "SUCCESS: AmbientStationData successfully updated for runID: ${runID}"
+    if(infoVerbose){log.info "SUCCESS: AmbientStationData successfully updated for runID: ${runID}"}
     updateMyLabel('updated')
     return true
 }

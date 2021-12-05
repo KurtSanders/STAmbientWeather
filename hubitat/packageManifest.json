@@ -1,12 +1,12 @@
 {
 	"packageName": "Ambient Weather Station",
 	"author": "Kurt Sanders",
-	"version": "5.0.4",
+	"version": "5.0.5",
 	"minimumHEVersion": "2.0.0",
-	"dateReleased": "2021-01-23",
+	"dateReleased": "2021-12-05",
 	"documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
 	"licenseFile": "",
-	"releaseNotes": "5.0.4: Bug Fix for Ambient PM25 sensors",
+	"releaseNotes": "5.0.5: Reduce excessive run-time info log messages",
 	"apps" : [
 		{
 			"id" : "81c44d2b-623a-4428-9229-765370eabc97",
