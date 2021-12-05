@@ -25,7 +25,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V5.0.5" }
+String version()				{ return "V5.0.6" }
 String appModified()			{ return "Dec-05-2021"}
 
 //*************************************** Constants ***************************************
@@ -546,7 +546,7 @@ def appTouchHandler(evt="") {
     if (debugVerbose) {
         def children = app.getChildDevices()
         def thisdevice
-        log.debug "'$app.name' has ${children.size()} child devices"
+        if(debugVerbose){log.debug "'$app.name' has ${children.size()} child devices"}
         thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
             if(infoVerbose){log.info "${it} <-> DNI: ${it.deviceNetworkId}"}
         }
@@ -1179,7 +1179,7 @@ def AmbientStationData(runID="????") {
     def timeSecsLastRun = (((currentGETAmbientStationData - state.lastGETAmbientStationData)/1000).toInteger())
     if(infoVerbose){log.info "AmbientStationData Time difference is ${timeSecsLastRun} secs between last execution"}
     if (runID!=0 && timeSecsLastRun < 2) {
-        log.warn "Aborting AmbientStationData run ${runID}:  Too Short for API Limits"
+        if(debugVerbose){log.warn "Aborting AmbientStationData run ${runID}:  Too Short for API Limits"}
         return
     }
     state.lastGETAmbientStationData = currentGETAmbientStationData
@@ -1207,7 +1207,7 @@ def AmbientStationData(runID="????") {
             state.ambientMap = resp.data
             state.respStatus = resp.status
             if (resp.status != 200) {
-                log.error "AmbientWeather.Net: response status code: ${resp.status}: response: ${resp.data}"
+                if(debugVerbose){log.error "AmbientWeather.Net: response status code: ${resp.status}: response: ${resp.data}"}
                 return false
             }
             if (state.weatherStationDataIndex) {
@@ -1220,10 +1220,10 @@ def AmbientStationData(runID="????") {
             }
         }
     } catch (e) {
-        log.debug("Ambient Weather Station API Data runID ${runID}: ${e}")
+        if(debugVerbose){log.debug("Ambient Weather Station API Data runID ${runID}: ${e}")}
         resp?.headers.each {
-                log.trace "${it.name}: ${it.value}"
-            }
+            if(debugVerbose){log.trace "${it.name}: ${it.value}"}
+        }
         state.httpError = e.toString()
         if (e.toString().contains("Unauthorized")) {
             updateMyLabel('unauthorized')
@@ -2043,7 +2043,7 @@ def findMyPushoverDevices() {
                 if(resp?.data) {
                     if(resp?.data?.status && resp?.data?.status == 1) validated = true
                     if(resp?.data?.devices) {
-                        log.debug "Found (${resp?.data?.devices?.size()}) Pushover Devices..."
+                        if(debugVerbose){log.debug "Found (${resp?.data?.devices?.size()}) Pushover Devices..."}
                         pushoverDevices = resp?.data?.devices
                     } else {
                         log.error "Device List is empty"
@@ -2051,7 +2051,7 @@ def findMyPushoverDevices() {
                     }
                 } else { validated = false }
             }
-            log.debug "findMyPushoverDevices | Validated: ${validated} | Resp | status: ${resp?.status} | data: ${resp?.data}"
+            if(debugVerbose){log.debug "findMyPushoverDevices | Validated: ${validated} | Resp | status: ${resp?.status} | data: ${resp?.data}"}
         }
     } catch (Exception ex) {
         if(ex instanceof groovyx.net.http.HttpResponseException && ex?.response) {
@@ -2068,7 +2068,7 @@ def pushoverResponse(resp, data) {
         def remain = headers["X-Limit-App-Remaining"]
         def resetDt = headers["X-Limit-App-Reset"]
         if(resp?.status == 200) {
-            log.debug "Message Received by Pushover Server ${(remain && limit) ? " | Monthly Messages Remaining (${remain} of ${limit})" : ""}"
+            if(debugVerbose){log.debug "Message Received by Pushover Server ${(remain && limit) ? " | Monthly Messages Remaining (${remain} of ${limit})" : ""}"}
         } else if (resp?.status == 429) {
             log.warn "Couldn't Send Pushover Notification... You have reached your (${limit}) notification limit for the month"
         } else {
