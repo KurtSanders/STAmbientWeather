@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *Hubitat and SmartThings® Integration for Ambient Weather® Stations by SanderSoft™*
-### Hubitat Version: 5.0.5 (Supported) <br>SmartThings Version: 6.0.0 (Legacy/Unsupported)
+### Hubitat Version: 5.0.6 (Supported) <br>SmartThings Version: 6.0.0 (Legacy/Unsupported)
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
 # The SmartThings version is Unsupported by the developer who now recommends Hubitat.
