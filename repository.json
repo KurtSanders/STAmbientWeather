@@ -5,10 +5,10 @@
 	"packages": [
 		{
 			"name": "Ambient Weather Station",
-			"category": "Weather",
+			"category": "Integrations",
 			"location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/packageManifest.json",
-			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubistat environment.",
-			"tags": [ "Monitoring", "Weather","Temperature & Humidity" ]
+			"description": "Integrate your Internet connected Ambient Weather Station system into the Hubitat environment.",
+			"tags": [ "Monitoring", "Weather","Temperature & Humidity", "Water" ]
 		},
 		{
 			"name": "BitBar Output App",
