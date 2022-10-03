@@ -10,6 +10,8 @@
 
 ### Description:
 
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/HE%20AWS%20Dashboard.jpg" width="700"> 
+
 A custom Hubitat® SmartApp which provides integration to weather/environmental data generated from one's personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html), sensors  and accessories.  
 
 This Hubitat® application provides integration to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
