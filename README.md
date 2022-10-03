@@ -4,17 +4,17 @@
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
-### Install via [Hubitat Package Manager](https://hubitatpackagemanager.hubitatcommunity.com/), which automates all the below.
+#### You must install [Hubitat Package Manager](https://hubitatpackagemanager.hubitatcommunity.com/) and install Ambient Weather Station application via HPM. Search in HPM for keyword 'Weather'.
 
 ---
 
 ### Description:
 
-A custom Hubitat® SmartApp and various device drivers which provides a connection to the weather data generated from your personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html).  
+A custom Hubitat® SmartApp which provides integration to weather/environmental data generated from one's personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html), sensors  and accessories.  
 
-This Hubitat® application provides access to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The user can set the polling rate of their weather data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
+This Hubitat® application provides integration to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
 
-### Supported Ambient Brand Devices:
+### Supported Ambient Weather Station Brand Devices and Accessories:
 
 * [Ambient Weather Station](https://ambientweather.com/ws-2902-smart-weather-station) with Internet Access
 * [PM25](https://ambientweather.com/ampm25.html)/[AQIN](https://ambientweather.com/indoor-wireless-air-quality-monitor-aqin) Sensors
