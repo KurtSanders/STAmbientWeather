@@ -13,7 +13,7 @@
 *  Ambient Weather Station Remote Sensor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 6.0.0
+*  Version 6.0.1
 */
 
 import groovy.time.*
@@ -27,8 +27,8 @@ metadata {
     author: "kurt@kurtsanders.com",
     importUrl: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station%20remote-sensor.driver"
     ) {
-        capability "Temperature Measurement"
-        capability "Relative Humidity Measurement"
+        capability "TemperatureMeasurement"
+        capability "RelativeHumidityMeasurement"
         capability "Sensor"
         capability "Battery"
         capability "Refresh"

@@ -13,7 +13,7 @@
 *  Ambient Particulate Monitor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 6.0.0
+*  Version 6.0.1
 */
 
 String getAppImg(imgName) 		{ return "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/$imgName" }

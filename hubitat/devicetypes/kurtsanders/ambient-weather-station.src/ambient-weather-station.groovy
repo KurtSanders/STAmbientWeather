@@ -13,7 +13,7 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 6.0.0
+*  Version 6.0.1
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
@@ -24,20 +24,20 @@ metadata {
     author: "kurt@kurtsanders.com",
     importUrl: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-weather-station.driver"
     ) {
-        capability "Illuminance Measurement"
-        capability "Temperature Measurement"
-        capability "Relative Humidity Measurement"
+        capability "IlluminanceMeasurement"
+        capability "TemperatureMeasurement"
+        capability "RelativeHumidityMeasurement"
         capability "Sensor"
         capability "Refresh"
-        capability "Water Sensor"
-        capability "Ultraviolet Index"
+        capability "WaterSensor"
+        capability "UltravioletIndex"
         capability "Battery"
 
         // Wind Motion Detection
-        capability "Motion Sensor"
+        capability "MotionSensor"
         // Wind Speed Psuedo Capability
-        capability "Power Meter"
-        capability "Energy Meter"
+        capability "PowerMeter"
+        capability "EnergyMeter"
 
         // Start of Ambient Weather API Rest MAP
         // Actual numeric values from Ambient Weather API non rounded
@@ -97,7 +97,7 @@ metadata {
         attribute "feelsLike", "string"
         attribute "feelslike", "string"
         attribute "hourlyrainin", "string"
-        attribute "humidity", "string"
+/*        attribute "humidity", "string" */
         attribute "humidityin", "string"
         attribute "lastRain", "string"
         attribute "location", "string"
@@ -107,7 +107,7 @@ metadata {
         attribute "monthlyrainin", "string"
         attribute "pwsName", "string"
         attribute "solarradiation", "string"
-        attribute "temperature", "string"
+/*        attribute "temperature", "string" */
         attribute "tempinf", "string"
         attribute "totalrainin", "string"
         attribute "weeklyrainin", "string"

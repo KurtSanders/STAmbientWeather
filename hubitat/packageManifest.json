@@ -1,12 +1,12 @@
 {
 	"packageName": "Ambient Weather Station",
 	"author": "Kurt Sanders",
-	"version": "6.0.0",
+	"version": "6.0.1",
 	"minimumHEVersion": "2.0.0",
-	"dateReleased": "2022-10-02",
+	"dateReleased": "2022-12-15",
 	"documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
 	"licenseFile": "",
-	"releaseNotes": "6.0.0: Only upgrade if you have an AQIN or Lightning Detector.  New Features: Added data from AQIN/CO2 Sensor to Particulate Monitor device, Added data from Lightning Detector to Main Console Device, Removed logic to detect SmartThings",
+	"releaseNotes": "6.0.1: Bug fix for temperature and humidity values: Removed attribute lines in AWS driver(s) coercing temperature and humidity values to strings for Rule compatibility.  Aligned device capabilities naming convention per hubitat documentation",
 	"apps" : [
 		{
 			"id" : "81c44d2b-623a-4428-9229-765370eabc97",
