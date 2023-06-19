@@ -25,6 +25,22 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 * Rain Sensor
 * Up to 8 Weather Remote Sensors
 
+#### Ambient Weather Station :arrow_right: Hubitat™
+
+| Capability :ballot_box_with_check: | Ambient Weather® Attribute | Show Decimals | Label|
+|------------|-------------------|:-------------------:|-------------------|
+| Energy | Max Daily Gust, mph | :ballot_box_with_check: |Wind Gust Daily Max|
+| Power  | Wind Speed, mph | :ballot_box_with_check: |Wind Speed |
+| Illuminance Measurement | Solar Radiation, lux, fc or w/m² | |Light|
+| Motion Sensor¹ | windspeedmph > 1 = active | |Wind State |
+| Relative Humidity Measurement | Outside Relative Humidity, % | |Humidity |
+| Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:|Temperature|
+| Ultraviolet Index | Ultraviolet Index, uv | | UVI |
+| Water Sensor¹ | hourlyrainin > 0 = wet | | Rain Detected |
+
+¹ It is STRONGLY recommended that one specifically designate the "motion sensors" and/or “leak detectors” in one’s Smart Home Alarm app to be notified rather than use the “Use every Motion or Moisture sensor” to avoid false alarms fro your Ambient Weather Station which uses these standard capabilities for weather conditions.
+
+
 
 ### Requirements:
 * You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
