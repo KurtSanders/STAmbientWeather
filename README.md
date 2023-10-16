@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ 
 *Hubitat® Integration for Ambient Weather® Stations by SanderSoft™*
-### Hubitat Version: 6.0.0
+### Hubitat Version: 6.1.0
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
