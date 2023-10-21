@@ -29,13 +29,13 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 
 | HE Capability | HE Attribute | Reported Type |
 |:------------:|:-------------------|:-------------------:|
-|capability|Battery|
-|capability|IlluminanceMeasurement|
-|capability|Refresh|
-|capability|RelativeHumidityMeasurement|
-|capability|Sensor|
-|capability|TemperatureMeasurement|
-|capability|UltravioletIndex|
+|capability|Battery|Battery|
+|capability|IlluminanceMeasurement|Illuminance|
+|capability|Refresh|Refresh|
+|capability|RelativeHumidityMeasurement|Humidity|
+|capability|Sensor| N/A |
+|capability|TemperatureMeasurement|Temperature|
+|capability|UltravioletIndex|Ultraviolet|
 
 | HE Attribute | HE Device State Data Key | Reported Type |
 |:------------:|:-------------------|:-------------------:|
