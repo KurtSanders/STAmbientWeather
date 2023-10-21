@@ -25,9 +25,9 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 * Rain Sensor
 * Up to 8 Weather Remote Sensors
 
-#### Ambient Weather Station Device :arrow_right: Hubitat™
+#### Ambient Weather Station Device Information :arrow_right: Hubitat™
 
-| HE Capability/Attribute :ballot_box_with_check: | Ambient Weather® HE Attribute | Reported Type |
+| HE Capability | HE Attribute | Reported Type |
 |:------------:|:-------------------|:-------------------:|
 |capability|Battery|
 |capability|IlluminanceMeasurement|
@@ -36,6 +36,9 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 |capability|Sensor|
 |capability|TemperatureMeasurement|
 |capability|UltravioletIndex|
+
+| HE Attribute | HE Device State Data Key | Reported Type |
+|:------------:|:-------------------|:-------------------:|
 |attribute|baromabsin_display|string|
 |attribute|baromabsin|number|
 |attribute|baromrelin_display|string|
