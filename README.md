@@ -27,6 +27,8 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 
 #### Ambient Weather Station Device Information :arrow_right: Hubitat™
 
+[View Ambient Weather Station's Device Data Specs](https://github.com/ambient-weather/api-docs/wiki/Device-Data-Specs)
+
 | HE Capability | HE Attribute | Reported Type |
 |:------------:|:-------------------|:-------------------:|
 |capability|Battery|Battery|
