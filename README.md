@@ -25,21 +25,78 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 * Rain Sensor
 * Up to 8 Weather Remote Sensors
 
-#### Ambient Weather Station :arrow_right: Hubitat™
+#### Ambient Weather Station Device :arrow_right: Hubitat™
 
-| Capability :ballot_box_with_check: | Ambient Weather® Attribute | Show Decimals | Label|
-|------------|-------------------|:-------------------:|-------------------|
-| Energy | Max Daily Gust, mph | :ballot_box_with_check: |Wind Gust Daily Max|
-| Power  | Wind Speed, mph | :ballot_box_with_check: |Wind Speed |
-| Illuminance Measurement | Solar Radiation, lux, fc or w/m² | |Light|
-| Motion Sensor¹ | windspeedmph > 1 = active | |Wind State |
-| Relative Humidity Measurement | Outside Relative Humidity, % | |Humidity |
-| Temperature Measurement | Outside Temperature, °F |:ballot_box_with_check:|Temperature|
-| Ultraviolet Index | Ultraviolet Index, uv | | UVI |
-| Water Sensor¹ | hourlyrainin > 0 = wet | | Rain Detected |
-
-¹ It is STRONGLY recommended that one specifically designate the "motion sensors" and/or “leak detectors” in one’s Smart Home Alarm app to be notified rather than use the “Use every Motion or Moisture sensor” to avoid false alarms fro your Ambient Weather Station which uses these standard capabilities for weather conditions.
-
+| HE Capability/Attribute :ballot_box_with_check: | Ambient Weather® HE Attribute | Reported Type |
+|:------------:|:-------------------|:-------------------:|
+|capability|Battery|
+|capability|IlluminanceMeasurement|
+|capability|Refresh|
+|capability|RelativeHumidityMeasurement|
+|capability|Sensor|
+|capability|TemperatureMeasurement|
+|capability|UltravioletIndex|
+|attribute|baromabsin_display|string|
+|attribute|baromabsin|number|
+|attribute|baromrelin_display|string|
+|attribute|baromrelin|number|
+|attribute|batt_lightning|number|
+|attribute|city|string|
+|attribute|dailyrainin_display|string|
+|attribute|dailyrainin|number|
+|attribute|date|string|
+|attribute|date|string|
+|attribute|dateutc|string|
+|attribute|dewPoint_display|string|
+|attribute|dewpoint|number|
+|attribute|dewPoint|number|
+|attribute|eventrainin_display|string|
+|attribute|eventrainin|number|
+|attribute|feelsLike_display|string|
+|attribute|feelslike|number|
+|attribute|feelsLike|number|
+|attribute|hourlyrainin_display|string|
+|attribute|hourlyrainin|number|
+|attribute|humidity_display|string|
+|attribute|humidityin_display|string|
+|attribute|humidityin|number|
+|attribute|lastRain|string|
+|attribute|lastRainDuration|string|
+|attribute|lastSTupdate|string|
+|attribute|lightning_day|number|
+|attribute|lightning_distance|number|
+|attribute|lightning_hour|number|
+|attribute|lightning_time|number|
+|attribute|location|string|
+|attribute|macAddress|string|
+|attribute|maxdailygust_display|string|
+|attribute|maxdailygust|number|
+|attribute|monthlyrainin_display|string|
+|attribute|monthlyrainin|number|
+|attribute|pwsName|string|
+|attribute|scheduleFreqMin|string|
+|attribute|solarradiation_display|string|
+|attribute|solarradiation|number|
+|attribute|tempf_display|string|
+|attribute|tempinf_display|string|
+|attribute|tempinf|number|
+|attribute|totalrainin_display|string|
+|attribute|totalrainin|number|
+|attribute|ultravioletIndexDisplay|string|
+|attribute|version|string|
+|attribute|weeklyrainin_display|string|
+|attribute|weeklyrainin|number|
+|attribute|wind_cardinal|string|
+|attribute|wind|number|
+|attribute|winddir|string|
+|attribute|windDirection|number|
+|attribute|winddirection|string|
+|attribute|windgustmph_display|string|
+|attribute|windgustmph|number|
+|attribute|windSpeed|number|
+|attribute|windspeedmph_display|string|
+|attribute|windspeedmph|number|
+|attribute|windVector|string|
 
 
 ### Requirements:
