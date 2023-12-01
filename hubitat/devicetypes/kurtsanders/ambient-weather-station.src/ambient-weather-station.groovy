@@ -1,5 +1,5 @@
 /**
-*  Copyright 2018, 2019, 2021, 2022 SanderSoft
+*  Copyright 2018, 2019, 2021, 2022, 2023 SanderSoft
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -13,7 +13,7 @@
 *  Ambient Weather Station
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 6.0.1
+*  Version 6.1.0
 */
 import groovy.time.*
 import java.text.SimpleDateFormat;
@@ -29,36 +29,11 @@ metadata {
         capability "RelativeHumidityMeasurement"
         capability "Sensor"
         capability "Refresh"
-        capability "WaterSensor"
         capability "UltravioletIndex"
         capability "Battery"
 
-        // Wind Motion Detection
-        capability "MotionSensor"
-        // Wind Speed Psuedo Capability
-        capability "PowerMeter"
-        capability "EnergyMeter"
-
         // Start of Ambient Weather API Rest MAP
         // Actual numeric values from Ambient Weather API non rounded
-        attribute "windspeedmph_real", "number"
-        attribute "windgustmph_real", "number"
-        attribute "maxdailygust_real", "number"
-        attribute "tempf_real", "number"
-        attribute "hourlyrainin_real", "number"
-        attribute "eventrainin_real", "number"
-        attribute "dailyrainin_real", "number"
-        attribute "weeklyrainin_real", "number"
-        attribute "monthlyrainin_real", "number"
-        attribute "totalrainin_real", "number"
-        attribute "baromrelin_real", "number"
-        attribute "baromabsin_real", "number"
-        attribute "humidity_real", "number"
-        attribute "tempinf_real", "number"
-        attribute "humidityin_real", "number"
-        attribute "solarradiation_real", "number"
-        attribute "feelsLike_real", "number"
-        attribute "dewPoint_real", "number"
         attribute "wind", "number"              //SharpTool.io
         attribute "windDirection", "number"     //Hubitat  OpenWeather
         attribute "windSpeed", "number"         //Hubitat  OpenWeather
@@ -84,38 +59,35 @@ metadata {
         attribute "feelsLike_display", "string"
         attribute "dewPoint_display", "string"
 
-		// Numeric values from Ambient API are rounded to 0.1 if 0 < X < 0.1 because SmartThings Tiles cannot display values less than 0.1 and greater than zero
-        attribute "baromabsin", "string"
-        attribute "baromrelin", "string"
+        attribute "baromabsin", "number"
+        attribute "baromrelin", "number"
         attribute "city", "string"
-        attribute "dailyrainin", "string"
+        attribute "dailyrainin", "number"
         attribute "date", "string"
         attribute "dateutc", "string"
-        attribute "dewPoint", "string"
-        attribute "dewpoint", "string"
-        attribute "eventrainin", "string"
-        attribute "feelsLike", "string"
-        attribute "feelslike", "string"
-        attribute "hourlyrainin", "string"
-/*        attribute "humidity", "string" */
-        attribute "humidityin", "string"
+        attribute "dewPoint", "number"
+        attribute "dewpoint", "number"
+        attribute "eventrainin", "number"
+        attribute "feelsLike", "number"
+        attribute "feelslike", "number"
+        attribute "hourlyrainin", "number"
+        attribute "humidityin", "number"
         attribute "lastRain", "string"
         attribute "location", "string"
         attribute "lastRainDuration", "string"
         attribute "macAddress", "string"
-        attribute "maxdailygust", "string"
-        attribute "monthlyrainin", "string"
+        attribute "maxdailygust", "number"
+        attribute "monthlyrainin", "number"
         attribute "pwsName", "string"
-        attribute "solarradiation", "string"
-/*        attribute "temperature", "string" */
-        attribute "tempinf", "string"
-        attribute "totalrainin", "string"
-        attribute "weeklyrainin", "string"
+        attribute "solarradiation", "number"
+        attribute "tempinf", "number"
+        attribute "totalrainin", "number"
+        attribute "weeklyrainin", "number"
         attribute "windVector", "string"
         attribute "winddir", "string"
         attribute "winddirection", "string"
-        attribute "windgustmph", "string"
-        attribute "windspeedmph", "string"
+        attribute "windgustmph", "number"
+        attribute "windspeedmph", "number"
         attribute "ultravioletIndexDisplay", "string"
         attribute "lightning_day", "number"
         attribute "lightning_time", "number"
@@ -125,67 +97,54 @@ metadata {
         // End of Ambient Weather API Rest MAP
 
         // Weather Forecast & Misc attributes
-        attribute "moonAge", "number"
-        attribute "rainForecast", "string"
-        attribute "windPhrase", "string"
         attribute "lastSTupdate", "string"
-        attribute "localSunrise", "string"
-        attribute "localSunset", "string"
-        attribute "weatherIcon", "string"
-        attribute "secondaryControl", "string"
-        attribute "forecastIcon", "string"
         attribute "scheduleFreqMin", "string"
-        attribute "sunriseDate", "string"
-        attribute "sunsetDate", "string"
-        attribute "alertDescription", "string"
-        attribute "alertMessage", "string"
         attribute "version", "string"
         attribute "date", "string"
-        attribute "unitsOfMeasure", "string"
 
         command "refresh"
+        command "ClearAllStates"
     }
 }
 
 def initialize() {
-    def naStndardFields = [
-        "baromabsin_display",
-        "baromrelin_display",
-        "dailyrainin_display",
-        "dewPoint_display",
-        "eventrainin_display",
-        "feelsLike_display",
-        "hourlyrainin_display",
-        "lastRain",
-        "lastRainDuration",
-        "monthlyrainin_display",
-        "solarradiation",
-        "totalrainin_display",
-        "ultravioletIndexDisplay",
-        "weeklyrainin_display",
-        "windgustmph_display",
-        "windPhrase",
-        "windspeedmph_display",
-        "unitsOfMeasure"
-    ]
-    naStndardFields.eachWithIndex { field, i ->
-        log.debug "${i}) Setting Initial Weather Field: '${field}' to 'N/A'"
-        sendEvent(name: "${field}", value: "N/A")
-    }
 }
 
 def installed() {
-    initialize()
 }
 
 def updated() {
 }
 
+def ClearAllStates() {
+    // This routine removes all device state values from previous/legacy releases of Abient Weather Station.  Optional to run by end user!
+    def list = ["RelativeHumidity", "Motion", "PowerMeter", "Battery", "Illuminance", "UltravioletIndex",
+                "EnergyMeter", "Water", "Temperature", "humidity_display", "wind_cardinal", "ultravioletIndex",
+                "baromrelin_real", "scheduleFreqMin", "sunriseDate", "windVector", "hourlyrainin", "illuminance", "monthlyrainin_real", "pwsName",
+                "windSpeed", "lightning_hour", "solarradiation", "feelslike", "feelsLike_display", "dailyrainin_real", "baromrelin", "feelsLike_real",
+                "humidity", "tempinf_real", "weatherIcon", "alertDescription", "dateutc", "dewPoint", "secondaryControl", "dewPoint_display",
+                "maxdailygust_real", "weeklyrainin_real", "temperature", "baromabsin_real", "solarradiation_real", "lastRain", "rainForecast",
+                "tempinf", "localSunset", "unitsOfMeasure", "alertMessage", "totalrainin_real", "batt_lightning", "water", "totalrainin_display",
+                "tempinf_display", "localSunrise", "lastSTupdate", "humidity_real", "motion", "windspeedmph", "totalrainin", "maxdailygust_display",
+                "eventrainin_real", "eventrainin_display", "tempf_display", "weeklyrainin_display", "date", "feelsLike", "solarradiation_display",
+                "humidityin_display", "moonAge", "baromabsin_display", "lightning_distance", "maxdailygust", "energy", "windDirection", "dailyrainin",
+                "winddirection", "power", "tempf_real", "hourlyrainin_display", "forecastIcon", "windgustmph", "sunsetDate", "winddir", "lightning_day",
+                "lightning_time", "baromrelin_display", "humidityin_real", "monthlyrainin", "date", "humidityin", "weeklyrainin", "windspeedmph_real",
+                "dewpoint", "hourlyrainin_real", "eventrainin", "battery", "ultravioletIndexDisplay", "windPhrase", "windgustmph_display", "version",
+                "dewPoint_real", "windspeedmph_display", "macAddress", "dailyrainin_display", "baromabsin", "monthlyrainin_display", "city", "location",
+                "windgustmph_real", "wind", "lastRainDuration"]
+    log.info "Clearing ${list.size()} current/stale states of this device..."
+    list.eachWithIndex { item, index ->
+        log.info "${index+1} of ${list.size()} removed ${item}"
+        device.deleteCurrentState(item)
+    }
+    log.info "Refreshing currentstates of this device..."
+    parent.refresh()
+}
+
 def refresh() {
     Date now = new Date()
     def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
-    sendEvent(name: "secondaryControl", value: "Cloud Refresh Requested...", "displayed":false)
-    sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", "displayed":false)
     log.info "User requested a 'Manual Refresh' from Ambient Weather Station device, sending refresh() request to parent smartApp"
 
     parent.refresh()

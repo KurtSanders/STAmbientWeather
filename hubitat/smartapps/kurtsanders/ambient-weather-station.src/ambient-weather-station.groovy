@@ -1,5 +1,5 @@
 /*
-*  Copyright 2022 SanderSoft™
+*  Copyright 2023 SanderSoft™
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -14,19 +14,20 @@
 *
 *  Author: Kurt Sanders, SanderSoft™
 *
-*  Dates: 2018,2019,2020,2021,2022
+*  Dates: 2018,2019,2020,2021,2022,2023
 */
 
 import groovy.time.*
 import java.text.DecimalFormat
 import groovy.time.TimeCategory
 import groovy.json.JsonOutput
-import java.util.Date;
-import java.text.SimpleDateFormat;
+import java.util.Date
+import java.text.SimpleDateFormat
+import groovy.json.JsonSlurper
 
 //************************************ Version Specific ***********************************
-String version()				{ return "V6.0.0" }
-String appModified()			{ return "Oct-02-2022"}
+String version()				{ return "V6.1.0" }
+String appModified()			{ return "Dec-01-2023"}
 
 //*************************************** Constants ***************************************
 String appNameVersion() 		{ return "Ambient Weather Station ${version()}" }
@@ -74,15 +75,36 @@ preferences {
     page(name: "unitsPage")
     page(name: "remoteSensorPage")
     page(name: "notifyPage")
+    page(name: "DataPage")
 }
 
 def apiPage() {
-    dynamicPage(name: "apiPage", title: "Ambient API Key Required", submitOnChange: true, nextPage: mainPage, uninstall : true, install : false ) {
-        section("Ambient Weather API Key") {
+    if (apiKey == null) {
+        log.info "First Run: Initializing default 'Units of Measure' values to Imperial system"
+        app.updateSetting("tempUnits", [type: "enum", value: "°F"])
+        app.updateSetting("windUnits", [type: "enum", value: "mph"])
+        app.updateSetting("measureUnits", [type: "enum", value: "in"])
+        app.updateSetting("baroUnits", [type: "enum", value: "inHg"])
+        app.updateSetting("solarRadiationTileDisplayUnits", [type: "enum", value: "W/m²"])
+    }
+    if (keepDataKeysAllOption == null) {
+        log.info "First Run: Initializing default keepDataKeysAllOption = True"
+        app.updateSetting("keepDataKeysAllOption", [type: "bool", value: true])
+    }
+
+    dynamicPage(name: "apiPage", title: "<span style=\"color:red\">Ambient API Key Required</span>", submitOnChange: true, nextPage: mainPage, uninstall : true, install : false ) {
+        section() {
             input ( name: "apiKey", type: "text",
-                   title: "Enter Ambient Weather Station API Key",
+                   title: "<span style=\"color:blue\">Enter Ambient Weather Station API Key below</span>",
                    required: true
                   )
+            href(name: "APIKeyLink",
+                 title: "WebLink to display Ambient Weather Station Account Page (bottom of the page has your API string",
+                 required: false,
+                 style: "external",
+                 url: "https://ambientweather.net/account",
+                 description: "tap to view your weather station account page and copy your API key")
+
         }
     }
 }
@@ -106,16 +128,16 @@ def mainPage() {
     if (apiappSetupCompleteBool && AmbientStationDataRC) {
         setupMessage = "SUCCESS! You have completed entering a valid Ambient API Key for ${appNameVersion()}. "
         setupMessage += (weatherStationMac)?"Please Press 'Next' for additional configuration choices.":"I found ${state.ambientMap.size()} reporting weather station(s)."
-        setupTitle = "Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'"
+        setupTitle = "<span style=\"color:red\">Please confirm the Ambient Weather Station Information below and if correct, Tap 'NEXT' to continue to the 'Settings' page'</span>"
     } else {
-        setupMessage = "Ambient API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}"
+        setupMessage = "<span style=\"color:red\">Ambient API Setup INCOMPLETE or MISSING!\n\nPlease check and/or complete the REQUIRED Ambient Weather API key setup for ${appNameVersion()}.\n\nAPI Error message: ${state.httpError}</span>"
         nextPageName = null
     }
     dynamicPage(name: "mainPage", title: setupTitle, submitOnChange: true, nextPage: nextPageName, uninstall:true, install:false) {
         section(hideable: apiappSetupCompleteBool, hidden: apiappSetupCompleteBool, setupMessage ) {
-            paragraph "The API string key is used to securely connect your weather station to ${appNameVersion()}."
+            paragraph "<span style=\"color:blue\">The API string key is used to securely connect your weather station to ${appNameVersion()}.</span>"
             paragraph image: AppImg("blue-ball-100.jpg"),
-                title: "Required API Key",
+                title: "<span style=\"color:red\">Required API Key</span>",
                 required: false,
                 informationList("apiHelp")
                 href(name: "hrefReadme",
@@ -136,7 +158,7 @@ def mainPage() {
                 setStateWeatherStationData()
                 state.weatherStationMac = weatherStationMac
                 countRemoteTempHumiditySensors()
-                section ("Ambient Weather Station Information") {
+                section ("<span style=\"color:blue\">Ambient Weather Station Information</span>") {
                     paragraph image: AppImg("blue-ball-100.jpg"),
                         title: "${state.weatherStationName}",
                         required: false,
@@ -145,7 +167,7 @@ def mainPage() {
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
                         "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
                         "\nPM25/AQIN Particulate Monitor: ${state.countParticulateMonitors}"
-                    href(name: "Weather Station Options",
+                    href(name: "<span style=\"color:blue\">Weather Station Options</span>",
                          page: "optionsPage",
                          description: "<span style=\"color:red\"Next: Complete options -></span>")
                 }
@@ -218,8 +240,74 @@ def unitsPage() {
     }
 }
 
+def DataPage() {
+    dynamicPage(name: "DataPage", title: getFormat("title", myText="Ambient Weather Station Data Key Import Selector"), submitOnChange: true,
+                uninstall : false,
+                install   : false ) {
+        section() {
+            input ( name: "keepDataKeysAllOption", type: "bool",
+                   title: "<span style=\"color:red\">Select ALL Data Keys?' Toggle OFF to ONLY import partial weather data keys into Hubitat for '${state.weatherStationName} Weather Station'</span>",
+                   required: true,
+                   submitOnChange: true,
+                   defaultValue:true
+                  )
+        }
+        if(!keepDataKeysAllOption) {
+            section () {
+                def dateKeystoKeep = ["date","tz","dateutc"]
+                def dataValues = new JsonSlurper().parseText(JsonOutput.toJson(state.respdata))
+                dataValues = dataValues[state.weatherStationDataIndex].lastData.keySet()
+                dataValues.removeAll(dateKeystoKeep)
+                section (getFormat("header-blue","Partial Data Keys Selector")) {
+                    def wikiURL = "https://github.com/ambient-weather/api-docs/wiki/Device-Data-Specs"
+                    paragraph("<span style=\"color:blue\">This Wiki lists all the data key parameters that a AMbient Weather Station device might send.</span> <span style=\"color:red\">Note: Not all devices send all the data key parameters.</span>\n\n<span style=\"color:green\">Weather Data Name Wiki Documentation Wiki</span> <span style=\"color:red\"><i><b>(opens in a new browser tab/window, close tab/window to return): </i></b></span><a href=\"${wikiURL}\" target=\"_blank\">Click Here</a>")
+                    input ( name: "keepDataKeys", type: "enum",
+                           multiple: true,
+                           title: "<span style=\"color:red\">Select the Data Keys of your weather station to <b><u>ONLY</b></u> import into Hubitat for '${state.weatherStationName}.'</span>",
+                           options: dataValues.sort(),
+                           submitOnChange: true,
+                           required: true
+                          )
+                }
+            }
+        }
+        selectWeatherKeys(state.respdata)
+    }
+}
+
+def selectWeatherKeys(respdata) {
+    // Keep these time/date related data keys in the filtered dataset
+    def dateKeystoKeep = ["date","tz","dateutc"]
+    if (debugVerbose) log.debug "==> Start state.ambientMap= ${state.ambientMap}"
+
+    if (keepDataKeysAllOption) {
+        if (debugVerbose)log.debug "Keeping ALL Data Keys..."
+        state.ambientMap = respdata
+    } else if (keepDataKeys) {
+        if (debugVerbose) {
+            log.debug "Partial Data Keys Selected"
+            log.debug "Keeping only '${keepDataKeys}' keys"
+        }
+        keepDataKeys.addAll(dateKeystoKeep) // Add back the date related data keys to the keepDataKeys array
+        AWSmap = new JsonSlurper().parseText(JsonOutput.toJson(state.respdata))
+        AWSmap[state.weatherStationDataIndex].lastData.keySet().retainAll(keepDataKeys)
+        state.ambientMap = AWSmap
+        if (debugVerbose) {
+            log.debug "==> End state.ambientMap keys = ${state.ambientMap[state.weatherStationDataIndex].lastData.size()}"
+        }
+    } else {
+        log.warn "keepDataKeys LIST is Null => ${keepDataKeys}..  Changing 'keepDataKeysAllOption' to 'True' in AWS Preferences"
+        app.updateSetting("keepDataKeysAllOption", true)
+        state.ambientMap = respdata
+    }
+    if (debugVerbose) {
+        log.debug "==> End state.ambientMap= ${state.ambientMap}"
+        log.debug "==> End state.ambientMap keys = ${state.ambientMap[state.weatherStationDataIndex].lastData.size()}"
+    }
+}
+
 def optionsPage () {
-    log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.weatherStationLocation}"
+    if (infoVerbose) log.info "Ambient Weather Station: Mac: ${weatherStationMac}, Name/Loc: ${state.weatherStationName}/${state.weatherStationLocation}"
     def remoteSensorsExist = (state.countRemoteTempHumiditySensors+state.countParticulateMonitors > 0)
     def lastPageName = remoteSensorsExist?"remoteSensorPage":""
         if (app.label.contains('<span')) {
@@ -237,15 +325,15 @@ def optionsPage () {
                    defaultValue: '15 mins'
                   )
             if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) ) {
-                input ( name: "${DTHDNIRemoteSensorName()}0", type: "text",
+                input (name: "${DTHDNIRemoteSensorName()}0", type: "text",
                        title: "Enter a location name for your Ambient Weather Station console located inside the house?",
                        required: true,
                        defaultValue: 'Kitchen',
                        submitOnChange: true
                       )
             }
-            input ( name: "showBattery", type: "bool",
-                   title: "Show battery level from sensor(s)? (Ambient only reports 0% and 100%)",
+            input (name: "showBattery", type: "bool",
+                   title: "Show battery level from sensor(s)? (Ambient devices only report 0% and 100%)",
                    defaultValue: true,
                    required: true
                   )
@@ -255,12 +343,18 @@ def optionsPage () {
                  defaultValue: "<span style=\"color:red\">Tap to Select Units</span>",
                  description:  tempUnits?"<span style=\"color:green\">${unitsSet()}</span>":"<span style=\"color:red\">Tap to Select Units</span>",
                  page: "unitsPage")
+            href(name: "Weather Station Filtered Data Key Import Selector",
+                 title: "Select/DeSelect the weather station data keys to import (Required)",
+                 required: true,
+                 defaultValue: "<span style=\"color:red\">Tap to Select Partial Data Keys to Import</span>",
+                 description:  keepDataKeysAllOption?"<span style=\"color:red\">All ${state?.ambientMap[state.weatherStationDataIndex].lastData.size()-3} Weather Data Keys are selected. </span><span style=\"color:blue\">Tap to Select Partial Weather Data Keys</span>":"<span style=\"color:red\">${keepDataKeys?.size()} of ${state.respdata[state?.weatherStationDataIndex].lastData.size()-3} Data Keys Selected. </span><span style=\"color:blue\">Tap to Modify Selection or Select ALL Weather Data Keys</span>",
+                 page: "DataPage")
 
             href(name: "Activate Weather Alerts/Notification",
-                 title: "Weather Alerts/Notification",
+                 title: "Weather Alerts/Notification (Optional)",
                  required: false,
-                 defaultValue: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
-                 description: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:red\">Tap to Activate Alerts</span>",
+                 defaultValue: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:blue\">Tap to Activate Alerts</span>",
+                 description: (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled]))?"<span style=\"color:green\">Alerts Activated</span> ":"<span style=\"color:blue\">Tap to Activate Alerts</span>",
                  page: "notifyPage")
         }
         section ('<b>Name this instance of Ambient Weather Station</b>') {
@@ -455,20 +549,6 @@ def scheduleCheckReset(quiet=false) {
     }
 }
 
-def appTouchHandler(evt="") {
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    if(infoVerbose){log.info "App Touch: 'Refresh ALL' requested at ${timeStamp}"}
-    if (debugVerbose) {
-        def children = app.getChildDevices()
-        def thisdevice
-        if(debugVerbose){log.debug "'$app.name' has ${children.size()} child devices"}
-        thisdevice = children.findAll { it.typeName }.sort { a, b -> a.deviceNetworkId <=> b.deviceNetworkId }.each {
-            if(infoVerbose){log.info "${it} <-> DNI: ${it.deviceNetworkId}"}
-        }
-    }
-    refresh()
-}
-
 def refresh() {
     updateMyLabel('refreshing')
     if(infoVerbose){log.info "Device: 'Refresh ALL'"}
@@ -504,162 +584,6 @@ def retryQuick(data) {
     notifyEvents()
 }
 
-def localWeatherInfo() {
-    if(infoVerbose){log.info "Executing 'localWeatherInfo', zipcode: ${zipCode}"}
-    if(infoVerbose){log.info "Getting TWC Current Weather Conditions"}
-    // Verify zipCode for 5 digit numeric
-    def valregex = /^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$|^[0-9]{5}$/
-    def zipcode = ''
-    if (zipCode ==~ valregex) {
-        zipcode = zipCode
-    } else {
-        log.warn "The Zipcode or Lat,Long entered ${zipCode} entered in Ambient Weather App preferences is either not an valid USA 5 digit zipcode NNNNN or Longitutude,Latitude NNN.NN,NNN.NN format'...  Using ST Hub's default zipcode for weather"
-        zipcode = ""
-    }
-    def obs = getTwcConditions(zipcode)
-    if (!obs) {
-        log.warn "The Zipcode/coord you entered in the User Preferences '${zipcode}' is invalid, using the ST Hub Zipcode of '${location.zipCode}' as default"
-        zipcode=""
-        obs = getTwcConditions(zipcode)
-    }
-    def d = getChildDevice(state.deviceId)
-    d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-    if (obs) {
-        state.weatherIcon = obs?.iconCode as String
-        state.wxPhraseShort = obs?.wxPhraseShort
-        d.sendEvent(name: "weatherIcon", value: state.weatherIcon, displayed: false)
-    } else {
-        log.error "The Zipcode '${zipcode}' is invalid, aborting..."
-        d.sendEvent(name: 'secondaryControl', value: "Error: The Zipcode entered '${zipcode}' is invalid", displayed: true )
-        return false
-    }
-
-    if(infoVerbose){log.info "Getting TWC Location Info for ${zipcode}"}
-    def loc = getTwcLocation(zipcode)?.location
-    state.cityValue = "${loc?.city}, ${loc?.adminDistrictCode?loc.adminDistrictCode+" ":''}${loc?.countryCode}"
-    state.latitude = "${loc?.latitude}"
-    state.longitude = "${loc?.longitude}"
-
-    //Getting Sunrise & Sunset
-    def dtf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-    def sunriseDate = dtf.parse(obs?.sunriseTimeLocal)
-    def sunsetDate = dtf.parse(obs?.sunsetTimeLocal)
-
-    def tf = new java.text.SimpleDateFormat("h:mm")
-    tf.setTimeZone(TimeZone.getTimeZone(loc.ianaTimeZone))
-
-    state.localSunrise = "${tf.format(sunriseDate)}"
-    state.localSunset = "${tf.format(sunsetDate)}"
-
-    d.sendEvent(name: "localSunrise", value: state.localSunrise , displayed: false)
-    d.sendEvent(name: "localSunset" , value: state.localSunset  , displayed: false)
-
-    // Get the Weather Forecast
-    if(infoVerbose){log.info "Getting TWC Forecast for ${state.cityValue}"}
-    def f = getTwcForecast(zipcode)
-    if (f) {
-        state.forecastIcon = f.daypart[0].iconCode[0] ?: f.daypart[0].iconCode[1]
-        state.precipChance = f.daypart[0].precipChance[0] ?: f.daypart[0].precipChance[1]
-        def rainType = f.daypart[0].precipType[0] ?: f.daypart[0].precipType[1]
-        def windPhrase = f.daypart[0].windPhrase[0] ?: f.daypart[0].windPhrase[1]
-        d.sendEvent(name: "moonPhase", value: "Lunar Day: ${f.moonPhaseDay[0]}\n${f.moonPhase[0]}", displayed: false)
-        d.sendEvent(name: "moonAge", value: "${f.moonPhaseDay[0]}", displayed: false)
-        d.sendEvent(name: "rainForecast", value: "${rainType.capitalize()}\n${state.precipChance}%", displayed: false)
-        d.sendEvent(name: "windPhrase", value: "Forecast: ${windPhrase}", displayed: false)
-
-        def narrative = f.daypart[0].narrative
-        def daypartName = f.daypart[0].daypartName
-        def f2= sprintf(
-            "%s forecast for %s\n%s %s %s %s %s %s",
-            f.dayOfWeek[0],
-            state.cityValue,
-            daypartName[0]?:"",
-            narrative[0]?narrative[0].uncapitalize():"",
-            daypartName[1]?:"",
-            narrative[1]?narrative[1].uncapitalize():"",
-            daypartName[2]?:"",
-            narrative[2]?narrative[2].uncapitalize():"",
-        )
-        d.sendEvent(name: "weather", value: f2, displayed: false)
-    }
-    else {
-        log.warn "TWC Forecast Data not provided by API"
-        d.sendEvent(name: 'secondaryControl', value: "TWC Forecast Data not provided by API", displayed: true )
-        return false
-    }
-    return true
-}
-
-def checkForSevereWeather() {
-    if(infoVerbose){log.info "Getting TWC Alerts"}
-    def d = getChildDevice(state.deviceId)
-    def alertMsg = []
-    def alertDescription = []
-    def alertGeoLocation = ((state.latitude) && (state.longitude))?"${state.latitude},${state.longitude}":""
-    def alerts = getTwcAlerts("${alertGeoLocation}")
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-    def msg = ""
-    // Filter Alerts
-    if ((productIdentifierFilterList) && (alerts)) {
-        def removeidx = []
-        alerts.eachWithIndex { alert, idx ->
-            productIdentifierFilterList.each { productIdentifier ->
-                if (alert.productIdentifier.contains("${productIdentifier}")) {
-                    log.info "Suppresing Weather Alert '${productIdentifier}' -> ${idx}:${alert}"
-                    removeidx << idx
-                }
-            }
-        }
-        removeidx.each {
-            alerts.remove(it)
-        }
-    }
-
-    switch (alerts.size()) {
-        case {it==1}:
-        state.weatherAlerts = "(1 Alert) "
-        break
-        case {it>1}:
-        state.weatherAlerts = "(${alerts.size()} Alerts) "
-        break
-        default:
-            state.weatherAlerts = ""
-        break
-    }
-    if (alerts) {
-        alerts.each {alert ->
-            msg += "${alert.productIdentifier} - ${alert.headlineText}"
-            if (alert.effectiveTimeLocal && !msg.contains(" from ")) {
-                msg += " from ${parseAlertTime(alert.effectiveTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.effectiveTimeLocalTimeZone))}"
-            }
-            if (alert.expireTimeLocal && !msg.contains(" until ")) {
-                msg += " until ${parseAlertTime(alert.expireTimeLocal).format("E hh:mm a", TimeZone.getTimeZone(alert.expireTimeLocalTimeZone))}"
-            }
-            alertMsg << msg
-            def detailKey = alert.detailKey
-            def TwcAlertDetail = getTwcAlertDetail(detailKey)
-            alertDescription << TwcAlertDetail.alertDetail.texts.description.join(",").replaceAll("[\\t\\n\\r&]+"," ").take((400/alerts.size()).toInteger())
-            msg = ""
-        }
-    } else {
-        alertMsg = "No current weather alerts for ${state.cityValue} at ${timeStamp}\nlatitude = ${state.latitude}º\nlongitude = ${state.longitude}º"
-        if (productIdentifierFilterList) {
-        alertMsg = "Filters: ${productIdentifierFilterList}\n${alertMsg}"
-        }
-    }
-    if(infoVerbose){log.info "Alert msg: ${alertMsg}"}
-    if(infoVerbose){log.info "Alert description: ${alertDescription}"}
-    d.sendEvent(name: "alertMessage", value: informationList(alertMsg), displayed: false)
-    d.sendEvent(name: "alertDescription", value: informationList(alertDescription), displayed: false)
-    if ( (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])) && (notifySevereAlert) && (alerts) ) {
-        if (lastNotifyDT(state.notifySevereAlertDT, "${alerts.size()} Weather Alert(s)")) {
-            msg = "Ambient Weather Station ${state.weatherStationName}: SEVERE WEATHER ALERT for ${state.cityValue} at ${timeStamp}: ${alertMsg.join(', ')}"
-            state.notifySevereAlertDT = now()
-            send_message(msg)
-        }
-    }
-}
-
 def ambientWeatherStation(runID="missing runID") {
     // Ambient Weather Station
     if(infoVerbose){log.info "Executing full ambientWeatherStation routine runID: ${runID}"}
@@ -675,9 +599,9 @@ def ambientWeatherStation(runID="missing runID") {
         if(infoVerbose){log.info "Processing Ambient Weather data returned from AmbientStationData)"}
         setStateWeatherStationData()
         convertStateWeatherStationData()
-        d.sendEvent(name:"unitsOfMeasure",
-                    value: "Temperature: ${state.tempUnitsDisplay}\nHeight: ${state.measureUnitsDisplay}\nWind: ${state.windUnitsDisplay}\nBarometric: ${state.baroUnitsDisplay}",
-                    displayed: false)
+//        d.sendEvent(name:"unitsOfMeasure",
+//                    value: "Temperature: ${state.tempUnitsDisplay}\nHeight: ${state.measureUnitsDisplay}\nWind: ${state.windUnitsDisplay}\nBarometric: ${state.baroUnitsDisplay}",
+//                    displayed: false)
         if(debugVerbose || infoVerbose) {
             state.ambientMap[state.weatherStationDataIndex].each{ k, v ->
                 log.info "${k} = ${v}"
@@ -704,17 +628,17 @@ def ambientWeatherStation(runID="missing runID") {
                     d.sendEvent(name:"lastRainDuration", value: lastRainDuration, displayed: false)
                 }
             }
-        } else {
-            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
-            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
+//        } else {
+//            if(debugVerbose){log.debug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"}
+//            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
-        if ((state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('totalrainin')==false) || (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('yearlyrainin')==false)) {
-            d.sendEvent(name:"totalrainin", value: "N/A", unit: state.measureUnitsDisplay, displayed: false)
-        }
+//        if ((state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('totalrainin')==false) || (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('yearlyrainin')==false)) {
+//            d.sendEvent(name:"totalrainin", value: "N/A", unit: state.measureUnitsDisplay, displayed: false)
+//        }
         d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
         d.sendEvent(name:"macAddress", value: state.ambientMap[state.weatherStationDataIndex].macAddress, displayed: false)
 
-        if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('feelsLike')) {
+/*        if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('feelsLike')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity')) {
                 d.sendEvent(name: 'secondaryControl', value: sprintf("%sHumidity is %s%% at %s", state.weatherAlerts, state.ambientMap[state.weatherStationDataIndex].lastData.humidity, nowTime), displayed: false )
             } else if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('humidity1')) {
@@ -723,7 +647,7 @@ def ambientWeatherStation(runID="missing runID") {
                 d.sendEvent(name: 'secondaryControl', value: state.weatherAlerts, displayed: false )
             }
         }
-
+*/
         // Update Main Weather Device with Remote Sensor 1 values if tempf does not exist, same with humidity
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
             if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('temp1f')) {
@@ -750,7 +674,7 @@ def ambientWeatherStation(runID="missing runID") {
             }
         }
 
-        state.ambientServerDate=convertToCurrentTimeZone(state.ambientMap[state.weatherStationDataIndex].lastData.date)
+        state.ambientServerDate=convertToCurrentTimeZone(state.respdata[state.weatherStationDataIndex].lastData.date)
 
         state.ambientMap[state.weatherStationDataIndex].info.each{ k, v ->
             if(k=='name'){k='pwsName'}
@@ -760,28 +684,22 @@ def ambientWeatherStation(runID="missing runID") {
             }
         }
 
-        // Send display & real numeric weather values to the devices with _display & _real suffix
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
             if(debugVerbose){log.debug "k=${k}, v=${v}"}
             switch(k) {
                 case ~/.*rain.*/:
-                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v} ${state.measureUnitsDisplay}")
                 break
                 case ~/^barom.*/:
-                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v}${state.baroUnitsDisplay}")
                 break
                 case ~/^tempi?n?f$|^dewPoint$|^feelsLike$/:
-                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v}${state.tempUnitsDisplay}")
                 break
                 case ~/^wind.*|^maxdailygust$/:
-                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v} ${state.windUnitsDisplay}")
                 break
                 case ~/^humidity($|1|in)/:
-                d.sendEvent(name: "${k}_real"   , value: v , displayed: false)
                 d.sendEvent(name: "${k}_display", value: "${v}%")
                 break
                 case ~/^batt.*/:
@@ -794,18 +712,6 @@ def ambientWeatherStation(runID="missing runID") {
 
                 default:
                     break
-            }
-
-            // SmartThings devices automatically force a 'round down' on ALL displayed numeric values in the Tile when less than 0.1 but GT 0.
-            // Therefore, when an Ambient sensor reports a sensor that is below 0.1 but greater than 0, the value will be rounded up to .1
-            try {
-                if( (v.toString().isNumber()) && (v>0) && (v<0.1) ) {
-                    if(debugVerbose){log.debug "${k}: Rounding small weather number '${v}'<0.1 -> 0.1} for Tile Display"}
-                    v = 0.1
-                }
-            }
-            catch (e) {
-                log.error "Caught exception assigning field '${k}' value -> '${v}' to a number, ${e}"
             }
             okTOSendEvent = true
             switch (k) {
@@ -827,10 +733,7 @@ def ambientWeatherStation(runID="missing runID") {
                 okTOSendEvent = false
                 break
                 case 'lastRain':
-                // log.debug "convertToCurrentTimeZone = " +  convertToCurrentTimeZone(v)
-                // v=Date.parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", v).format('EEE MMM d, h:mm a',location.timeZone)
                 v=convertToCurrentTimeZone(v)
-                // log.debug "lastRain = ${v}"
                 break
                 case 'lightning_time':
                 def lightning_datetime = new Date(v).toString()
@@ -839,13 +742,8 @@ def ambientWeatherStation(runID="missing runID") {
                 case 'tempf':
                 k='temperature'
                 break
-                case 'hourlyrainin':
-                def waterState = state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin?.toFloat()>0?'wet':'dry'
-                if(debugVerbose){log.debug "water -> ${waterState}"}
-                d.sendEvent(name:'water', value: waterState)
-                break
                 case 'feelsLike':
-                def scText
+/*                def scText
                 switch(true) {
                     case {( (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('hourlyrainin')) && (state.ambientMap[state.weatherStationDataIndex].lastData?.hourlyrainin.toFloat()>0 ))} :
                         DecimalFormat df = new DecimalFormat("0.00")
@@ -863,20 +761,11 @@ def ambientWeatherStation(runID="missing runID") {
                     break
                 }
                 d.sendEvent(name: 'secondaryControl', value: scText, displayed: false )
-                break
+*/                break
                 case 'windspeedmph':
-                def motionState = state.ambientMap[state.weatherStationDataIndex].lastData?.windspeedmph?.toFloat()>0?'active':'inactive'
-                if(debugVerbose){log.debug "Wind motion -> ${motionState}"}
-                d.sendEvent(name:'motion', value: motionState)
-                // Send windSpeed as power for pseudo tiles in ActionTiles™
-                d.sendEvent(name: "power", value: v,  displayed: false)
                 // Send windSpeed as wind for Hubitat™
                 d.sendEvent(name: "wind"   , value: v , displayed: false)
                 d.sendEvent(name: "windSpeed"   , value: v , displayed: false)
-                break
-                case 'maxdailygust':
-                // Send maxdailygust as energy for pseudo tiles in ActionTiles™
-                d.sendEvent(name: "energy", value: v, displayed: false)
                 break
                 case 'winddir':
                 def winddirectionState = degToCompass(state.ambientMap[state.weatherStationDataIndex].lastData?.winddir, true)
@@ -1110,8 +999,10 @@ def AmbientStationData(runID="????") {
     try {
         httpGet(params) { resp ->
             // get the data from the response body
-            state.ambientMap = resp.data
+            state.respdata = resp.data
+            selectWeatherKeys(resp.data)
             state.respStatus = resp.status
+            state.remove("httpError")
             if (resp.status != 200) {
                 if(debugVerbose){log.error "AmbientWeather.Net: response status code: ${resp.status}: response: ${resp.data}"}
                 return false
@@ -1130,8 +1021,8 @@ def AmbientStationData(runID="????") {
         resp?.headers.each {
             if(debugVerbose){log.trace "${it.name}: ${it.value}"}
         }
-        state.httpError = e.toString()
-        if (e.toString().contains("Unauthorized")) {
+        state.httpError = e.toString().toLowerCase()
+        if (e.toString().contains("unauthorized")) {
             updateMyLabel('unauthorized')
             return false
         }
@@ -1314,7 +1205,7 @@ def setScheduler(schedulerFreq) {
 
 def tileLastUpdated() {
     def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
-    return sprintf("%s Tile Last Refreshed at\n%s","${version()}", now)
+    return now
 }
 def informationList(variable) {
     switch(variable) {
@@ -2009,7 +1900,11 @@ public String convertToCurrentTimeZone(String dateStr) {
     return destFormat.format(convertedDate);
 
 }
-
+def getFormat(type, myText="") {
+    if(type == "header-blue") return "<div style='color:#ffffff;font-weight: bold;background-color:#309bff;border: 1px solid;box-shadow: 2px 3px #A9A9A9'>${myText}</div>"
+    if(type == "line") return "<hr style='background-color:#1A77C9; height: 1px; border: 0;'>"
+    if(type == "title") return "<h2 style='color:#1A77C9;font-weight: bold'>${myText}</h2>"
+}
 
 //get the current time zone
 

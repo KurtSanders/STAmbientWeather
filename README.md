@@ -106,7 +106,6 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 
 ### Requirements:
 * You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
-    * [macAddress](https://ambientweather.net/devices)
-![](https://aws1.discourse-cdn.com/smartthings/original/3X/c/0/c0dd23531f62ff196cee61b3f286e3d0bb5d0322.png)
-    * [apiKey](https://ambientweather.net/account)
+    * [Locate your weather station's macAddress](https://ambientweather.net/devices)
+    * [Locate your Ambient API key](https://ambientweather.net/account)
         
