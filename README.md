@@ -1,6 +1,6 @@
-# Ambient Weather® Station™ 
+# Ambient Weather® Station™ (AWS) 
 *Hubitat® Integration for Ambient Weather® Stations by SanderSoft™*
-### Hubitat Version: 6.1.0
+### Hubitat AWS Suite Version: 6.1.0
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
@@ -24,6 +24,16 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 * Wind Sensor
 * Rain Sensor
 * Up to 8 Weather Remote Sensors
+
+#### AWS Settings Examples
+* Preference Screens
+
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/Ambient Preferences Settings.jpg" width="700"> 
+
+* Import Selection 
+<img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/Ambient Weather Station Data Key Import Selector.jpg" width="700"> 
+
+
 
 #### Ambient Weather Station Device Information :arrow_right: Hubitat™
 
