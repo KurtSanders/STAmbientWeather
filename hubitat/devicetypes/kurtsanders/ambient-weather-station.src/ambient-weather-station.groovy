@@ -17,7 +17,7 @@
 import groovy.time.*
 import java.text.SimpleDateFormat;
 import groovy.transform.Field
-#include kurtsanders.kes-coreFunctions
+#include kurtsanders.AWS-Library
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
 @Field static final String VERSION                 = "6.1.2"

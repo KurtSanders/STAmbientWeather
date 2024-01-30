@@ -17,8 +17,7 @@
 *  Dates: 2018,2019,2020,2021,2022,2023
 */
 
-#include kurtsanders.kes-coreFunctions
-
+#include kurtsanders.AWS-Library
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
 @Field static final String VERSION                 = "6.2.0"
 
