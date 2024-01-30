@@ -15,8 +15,8 @@
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
       "name": "STAmbientWeather",
       "namespace": "kurtsanders",
-      "location": "https://github.com/kurtsanders/STAmbientWeather/blob/main/hubitat/bundles/AmbientWeatherStationLibrary.zip?raw=true",
-      "betaLocation": "https://github.com/kurtsanders/STAmbientWeather/blob/beta/hubitat/bundles/AmbientWeatherStationLibrary.zip?raw=true",
+      "location": "https://github.com/KurtSanders/STAmbientWeather/raw/master/hubitat/bundles/AmbientWeatherStationLibrary.zip",
+      "betaLocation": "https://github.com/KurtSanders/STAmbientWeather/raw/beta/hubitat/bundles/AmbientWeatherStationLibrary.zip",
       "required": true
     }
   ],
