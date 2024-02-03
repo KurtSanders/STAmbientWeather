@@ -13,7 +13,6 @@
 *  Ambient Particulate Monitor
 *
 *  Author: Kurt Sanders, SanderSoft™
-*  Version 6.0.1
 */
 
 import groovy.time.*
