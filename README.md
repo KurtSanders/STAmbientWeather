@@ -6,6 +6,8 @@
 
 #### You must install [Hubitat Package Manager](https://hubitatpackagemanager.hubitatcommunity.com/) and install Ambient Weather Station application via HPM. Search in HPM for keyword 'Weather'.
 
+[Hubitat Community Support WebLink](https://community.hubitat.com/t/release-ambient-weather-station-app/128838) 
+
 ---
 
 ### Description:
