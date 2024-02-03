@@ -23,7 +23,7 @@ import groovy.transform.Field
 
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Particulate Monitor"
-@Field static final String VERSION                 = "6.1.2"
+@Field static final String VERSION                 = "6.2.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,

@@ -10,7 +10,7 @@ library (
     description: "Core functions for Ambient Weather Station Suite.",
     name: "AWS-Library",
     namespace: "kurtsanders",
-    documentationLink: "",
+    documentationLink: "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
     version: "1.0.0",
     disclaimer: "This library is only for use with SanderSoft Apps and Drivers."
 )

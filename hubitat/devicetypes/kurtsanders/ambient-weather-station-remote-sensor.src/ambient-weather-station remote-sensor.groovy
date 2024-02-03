@@ -21,7 +21,7 @@ import groovy.transform.Field
 #include kurtsanders.AWS-Library
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station Remote Sensor"
-@Field static final String VERSION                 = "6.1.2"
+@Field static final String VERSION                 = "6.2.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,

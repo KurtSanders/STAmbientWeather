@@ -26,7 +26,7 @@
       "name": "Ambient Weather Station",
       "namespace": "kurtsanders",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
-      "betalocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
+      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
       "required": true,
       "primary": true,
       "oauth": false
@@ -38,7 +38,7 @@
       "name": "Ambient Weather Station",
       "namespace": "kurtsanders",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
-      "betalocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
+      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
       "required": true
     },
     {
@@ -46,7 +46,7 @@
       "name": "Ambient Weather Station Remote Sensor",
       "namespace": "kurtsanders",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-weather-station-remote-sensor.src/ambient-weather-station%20remote-sensor.groovy",
-      "betalocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station-remote-sensor.src/ambient-weather-station%20remote-sensor.groovy",
+      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station-remote-sensor.src/ambient-weather-station%20remote-sensor.groovy",
       "required": true
     },
     {
@@ -54,7 +54,7 @@
       "name": "Ambient Particulate Monitor",
       "namespace": "kurtsanders",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-particulate-monitor.src/ambient-particulate-monitor.groovy",
-      "betalocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-particulate-monitor.src/ambient-particulate-monitor.groovy",
+      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-particulate-monitor.src/ambient-particulate-monitor.groovy",
       "required": true
     }
   ]
