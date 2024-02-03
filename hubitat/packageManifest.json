@@ -5,18 +5,16 @@
   "dateReleased": "2024-1-30",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
-  "version": "6.1.0",
   "licenseFile": "",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Versions 6.1.2 (Beta)\n\n1. Notice, please fully test this new release before implmenting into your production hub. There are numerous major fixes & code changes implemented in this beta release.\n\n2. Upgraded Logging in app and devices\n\n2. Improved installation GUI, fixed numerous issues with child device creation.\n\n3. Improved integration of new Ambient soil sensors and data\n\n4. Added ability to rename child device labels in app.\n\n5. Miscellaneous bug fixes and improvments.\n\n6.Implemented HE library for code optimization.\n\n7.Implemented synnchronnization of logging in child devices from the AWS app for improved troubleshooting.\n\n8.Removed old device data value states in all child devices from the AWS app which removes data states that might not be accurate after a user exits the AWS app.  A refresh will re-populate the device states.",
+  "releaseNotes": "Versions 6.2.0\n\n**Notice**, please fully test this new release before implmenting into your production hub. There are numerous major fixes & code changes implemented in this release.\n\n1. Upgraded logging capabilities and schedules in the app and device drivers\n\n2. Improved installation GUI, fixed numerous issues with child device creation.\n\n3. Improved integration of new Ambient soil sensors and data\n\n4. Added ability to rename child device labels in and outside of AWS app.\n\n4. Miscellaneous bug fixes and improvments.\n\n5.Implemented HE library/bundle for code optimization.\n\n6.Implemented synchronization of logging in child devices from the AWS parent app for improved troubleshooting and consistency of logging.\n\n7.Auvtomatically remove old device data value states in all child devices from the AWS app after update which removes stale data states that might not be accurate after a user exits the AWS app.  A manual or auto refresh will re-populate the current device data states.",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
       "name": "Ambient Weather Station Library",
       "namespace": "kurtsanders",
+      "version": "6.2.0",
       "location": "https://github.com/KurtSanders/STAmbientWeather/raw/master/hubitat/bundles/AmbientWeatherStationLibrary.zip",
-      "betaVersion": "6.1.2",
-      "betaLocation": "https://github.com/KurtSanders/STAmbientWeather/raw/beta/hubitat/bundles/AmbientWeatherStationLibrary.zip",
       "required": true
     }
   ],
@@ -25,9 +23,8 @@
       "id": "81c44d2b-623a-4428-9229-765370eabc97",
       "name": "Ambient Weather Station",
       "namespace": "kurtsanders",
+      "version": "6.2.0",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
-      "betaVersion": "6.1.2",
-      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/smartapps/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
       "required": true,
       "primary": true,
       "oauth": false
@@ -38,27 +35,24 @@
       "id": "5cf77327-f54d-4c2b-be9a-4ec31a3bfcd6",
       "name": "Ambient Weather Station",
       "namespace": "kurtsanders",
-      "betaVersion": "6.1.2",
+      "version": "6.2.0",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
-      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station.src/ambient-weather-station.groovy",
       "required": true
     },
     {
       "id": "ce03d310-92cc-4848-8ba3-42255efe3a1b",
       "name": "Ambient Weather Station Remote Sensor",
       "namespace": "kurtsanders",
+      "version": "6.2.0",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-weather-station-remote-sensor.src/ambient-weather-station%20remote-sensor.groovy",
-      "betaVersion": "6.1.2",
-      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-weather-station-remote-sensor.src/ambient-weather-station%20remote-sensor.groovy",
       "required": true
     },
     {
       "id": "237364e5-039c-4b7b-ad81-dec3cb251659",
       "name": "Ambient Particulate Monitor",
       "namespace": "kurtsanders",
+      "version": "6.2.0",
       "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/devicetypes/kurtsanders/ambient-particulate-monitor.src/ambient-particulate-monitor.groovy",
-      "betaVersion": "6.1.2",
-      "betaLocation": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/beta/hubitat/devicetypes/kurtsanders/ambient-particulate-monitor.src/ambient-particulate-monitor.groovy",
       "required": true
     }
   ]
