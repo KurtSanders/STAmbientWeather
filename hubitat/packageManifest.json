@@ -2,12 +2,12 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.3.7",
-  "dateReleased": "2024-1-30",
+  "dateReleased": "2024-02-03",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Versions 6.2.0\n\n**Notice**, please fully test this new release before implmenting into your production hub. There are numerous major fixes & code changes implemented in this release.\n\n1. Upgraded logging capabilities and schedules in the app and device drivers\n\n2. Improved installation GUI, fixed numerous issues with child device creation.\n\n3. Improved integration of new Ambient soil sensors and data\n\n4. Added ability to rename child device labels in and outside of AWS app.\n\n4. Miscellaneous bug fixes and improvements.\n\n5.Implemented HE library/bundle for code optimization.\n\n6.Implemented synchronization of logging in child devices from the AWS parent app for improved troubleshooting and consistency of logging.\n\n7.Automatically remove old device data value states in all child devices from the AWS app after update which removes stale data states that might not be accurate after a user exits the AWS app.  A manual or auto refresh will re-populate the current device data states.",
+  "releaseNotes": "Versions 6.2.0\n\n**Notice**, please fully test this new release before implmenting into your production hub. There are numerous major fixes & code changes implemented in this release.\n\n1. Upgraded logging capabilities and schedules in the app and device drivers\n\n2. Improved installation GUI, fixed numerous issues with child device creation.\n\n3. Improved integration of new Ambient soil sensors and data\n\n4. Added ability to rename child device labels in and outside of AWS app.\n\n5. Miscellaneous bug fixes and improvements.\n\n6. Implemented HE library/bundle for code optimization.\n\n7. Implemented synchronization of logging in child devices from the AWS parent app for improved troubleshooting and consistency of logging.\n\n8. Automatically remove old device data value states in all child devices from the AWS app after update which removes stale data states that might not be accurate after a user exits the AWS app.  A manual or auto refresh will re-populate the current device data states.",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
