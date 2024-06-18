@@ -8,7 +8,7 @@ library (
     author: "Kurt Sanders",
     category: "Apps",
     description: "Core functions for Ambient Weather Station Suite.",
-    name: "AWS-Library",
+    name: "AWSLibrary",
     namespace: "kurtsanders",
     documentationLink: "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
     version: "1.0.0",

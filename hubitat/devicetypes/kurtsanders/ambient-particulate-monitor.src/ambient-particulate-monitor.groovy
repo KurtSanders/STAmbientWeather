@@ -18,11 +18,11 @@
 import groovy.time.*
 import java.text.SimpleDateFormat;
 import groovy.transform.Field
-#include kurtsanders.AWS-Library
+#include kurtsanders.AWSLibrary
 
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Particulate Monitor"
-@Field static final String VERSION                 = "6.2.0"
+@Field static final String VERSION                 = "6.2.1"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,

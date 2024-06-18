@@ -17,12 +17,12 @@
 *  Dates: 2018,2019,2020,2021,2022,2023
 */
 
-#include kurtsanders.AWS-Library
+#include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.2.0"
+@Field static final String VERSION                 = "6.2.1"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Jan-30-2024" }
+String appModified()			{ return "Jun-18-2024" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
