@@ -1,14 +1,14 @@
 {
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
-  "minimumHEVersion": "2.3.7",
-  "dateReleased": "2024-06-18",
+  "minimumHEVersion": "2.4.0",
+  "dateReleased": "2025-03-07",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.2.1",
+  "version": "6.3.0",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Bug install Fix. No changes to AWS features.  Renamed the AWS Hubitat library in bundle (old version had illegal hyphen in filename).",
+  "releaseNotes": "Version 6.3.0\n\nFix to recognize Ambient AQIN Particle Monitor Sensors which report PM10. PM2.5, CO2, Humidity and Temperature.\n\nRemoved legacy calculated attribute AQIN Category Breakpoints in Particle Monitor device.  AQIN Category Breakpoints can be calculated using Hubitat Rule Machine App.",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",

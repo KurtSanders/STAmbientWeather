@@ -1,5 +1,5 @@
 /*
-*  Copyright 2024 SanderSoft™
+*  Copyright 2025 SanderSoft™
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -14,15 +14,15 @@
 *
 *  Author: Kurt Sanders, SanderSoft™
 *
-*  Dates: 2018,2019,2020,2021,2022,2023
+*  Dates: 2018,2019,2020,2021,2022,2023,2024,2025
 */
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.2.1"
+@Field static final String VERSION                 = "6.3.0"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Jun-18-2024" }
+String appModified()			{ return "Mar-08-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -160,7 +160,7 @@ def mainPage() {
                         "\nLocation: ${state.weatherStationLocation?:'Not Provided'}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
                         "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
-                        "\nPM25/AQIN Particulate Monitor: ${state.countParticulateMonitors}"
+                        "\nAQIN Particulate Monitor Sensor: ${state.countParticulateMonitors}"
                     href(name: "<span style=\"color:blue\">Weather Station Options</span>",
                          page: nextPageName,
                          description: "<span style=\"color:red\"Next: Label your weather device sensor locations -></span>")
@@ -421,18 +421,18 @@ def remoteSensorPage() {
                 }
             }
         }
-        if (lastData?.pm25) {
+        if (lastData.findAll { it.key.startsWith("pm") }.size() > 0) {
             section() {
                 paragraph "Ambient Weather Station Particulate Monitor Location Name"
                 paragraph image: AppImg("ambient-weather-pm25.jpg"),
-                    title: fmtTitle("Provide a friendly short name for your Ambient Particulate Monitor PM25/AQIN"),
+                    title: fmtTitle("Provide a friendly short name for your Ambient Particulate Monitor PM10/PM25/AQIN/CO2"),
                     required: false,
                     null
                 input (
                     name: "${DTHDNIPMName()}",
                     type: "text",
-                    title: fmtTitle("Ambient Weather Station Particulate Monitor PM25/AQIN"),
-                    defaultValue: "AWS PM25/AQIN",
+                    title: fmtTitle("Ambient Weather Station Particulate Monitor PM10/PM25/AQIN/CO2"),
+                    defaultValue: "AWS Particle Monitor",
                     required: true
                 )
             }
@@ -696,7 +696,7 @@ def ambientWeatherStation(runID="missing runID") {
         }
 
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
-            logDebug "k=${k}, v=${v}"
+            logDebug "Posted ${k.toUpperCase()}: ${v}"
             switch(k) {
                 case ~/.*rain.*/:
                 d.sendEvent(name: "${k}_display", value: "${v} ${state.measureUnitsDisplay}")
@@ -864,7 +864,7 @@ def ambientWeatherStation(runID="missing runID") {
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
                 logDebug "${k} = ${remoteSensorDNI}"
                 if (remoteSensorDNI) {
-                    logDebug "Posted ${k} with value ${v} -> ${remoteSensorDNI}"
+                    logDebug "Posted ${k.toUpperCase()}: ${v} -> ${remoteSensorDNI}"
                     remoteSensorDNI.sendEvent(name: "dewpoint", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name: "dewPoint", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name: "dewPoint_display", value: "${v}${state.tempUnitsDisplay}", units: state.tempUnitsDisplay)
@@ -875,9 +875,9 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 case ~/^feelsLike\d/:
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
-                logDebug "${k} = ${remoteSensorDNI}"
+                logDebug "Posted ${k.toUpperCase()} = ${remoteSensorDNI}"
                 if (remoteSensorDNI) {
-                    logDebug "Posted ${k} with value ${v} -> ${remoteSensorDNI}"
+                    logDebug "Posted ${k.toUpperCase()}: ${v} -> ${remoteSensorDNI}"
                     remoteSensorDNI.sendEvent(name: "feelsLike", value: v, units: state.tempUnitsDisplay)
                     remoteSensorDNI.sendEvent(name: "feelsLike_display", value: "${v}${state.tempUnitsDisplay}", units: state.tempUnitsDisplay)
                 } else {
@@ -887,7 +887,7 @@ def ambientWeatherStation(runID="missing runID") {
                 break
                 case ~/^humidity[0-9][0-9]?$|^soilhum[0-9][0-9]?$/:
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
-                logDebug "${k} = ${remoteSensorDNI}"
+                logDebug "Posted ${k.toUpperCase()} = ${remoteSensorDNI}"
                 if (remoteSensorDNI) {
                     logDebug "Posted humidity with value ${v} -> ${remoteSensorDNI}"
                     remoteSensorDNI.sendEvent(name: "humidity", value: v, units: "%", displayed: false)
@@ -897,35 +897,41 @@ def ambientWeatherStation(runID="missing runID") {
                 }
                 okTOSendEvent = false
                 break
-                // Post values for Particle Monitor PM25/AQIN
-                case ~/^pm25$/:
+                // Post values for Particle Monitor which report PM10/PM25/AQI/CO2
+                case ~/(^pm.*)|(^co2.*)|(^aqi.*)/:
                 remoteSensorDNI = getChildDevice("${DTHDNIPMName()}")
                 logDebug "${k} = ${remoteSensorDNI}"
                 if (remoteSensorDNI) {
-                    logDebug "Posted PM25/AQIN ${k} with value ${v} -> ${remoteSensorDNI}"
-                    remoteSensorDNI.sendEvent(name: "pm25", value: v, units: 'µg/m3')
-                    remoteSensorDNI.sendEvent(name:"aqi", value: aqiCategory(v), displayed: false)
+                    def sensorUnits = ''
+                    switch (k) {
+                        case ~/^aqi.*/:
+                            sensorUnits = ''
+                        	break
+                        case ~/^co2.*/:
+                            sensorUnits = 'ppm'
+                        	break
+                        case ~/^pm\d\d.*/:
+                            sensorUnits = 'µg/m3'
+                        	break
+                        case ~/.*temp.*/:
+                            sensorUnits = '°F'
+                        	break
+                        case ~/.*humidity.*/:
+                            sensorUnits = '%'
+                        	break
+                        default:
+                            sensorUnits = ''
+                        	break
+                    }
+                    logDebug "Posted ${k.toUpperCase()}: ${v} ${sensorUnits} -> ${remoteSensorDNI}"
+                    remoteSensorDNI.sendEvent(name: k, value: v, units: sensorUnits)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
-                    if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("pm25_24h")) {
-                        remoteSensorDNI.sendEvent(name:"pm25_24h", value: state.ambientMap[state.weatherStationDataIndex].lastData.pm25_24h)
-                    }
                     if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt_25")) {
                         remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData.batt_25.toInteger()*100, displayed: false)
+                    } else if (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey("batt_co2")) {
+                        remoteSensorDNI.sendEvent(name:"battery", value: state.ambientMap[state.weatherStationDataIndex].lastData.batt_co2.toInteger()*100, displayed: false)
                     }
-                } else {
-                    logErr "Missing HE Device ${DTHDNIPMName()} for ${k}"
-                }
-                okTOSendEvent = false
-                break
-                case ~/.*aqi.*/:
-                remoteSensorDNI = getChildDevice("${DTHDNIPMName()}")
-                logDebug "${k} = ${remoteSensorDNI}"
-                if (remoteSensorDNI) {
-                    logDebug "Posted PM25/AQIN ${k} with value ${v} -> ${remoteSensorDNI}"
-                    remoteSensorDNI.sendEvent(name: k, value: v, units: 'µg/m3')
-                    remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-                    remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
                 } else {
                     logErr "Missing HE Device ${DTHDNIPMName()} for ${k}"
                 }
@@ -1240,7 +1246,7 @@ def setScheduler(schedulerFreq) {
 }
 
 def tileLastUpdated() {
-    def now = new Date().format('EEE MMM d, h:mm:ss a',location.timeZone)
+    def now = new Date().format('EEE MMM dd, hh:mm:ss a',location.timeZone)
     return now
 }
 def informationList(variable) {
@@ -1435,38 +1441,9 @@ def countRemoteTempHumiditySensors() {
 }
 
 def countParticulateMonitors() {
-    state.countParticulateMonitors =  state.ambientMap[state.weatherStationDataIndex].lastData?.keySet().count { it.matches('^pm25$') }
+    def pmDevice =  state.ambientMap[state.weatherStationDataIndex].lastData?.keySet().count { it.matches('^pm.*') }
+    state.countParticulateMonitors = (pmDevice == 0)?:1
     return state.countParticulateMonitors
-}
-
-def aqiCategory(v) {
-    def aqi_category
-    switch (v.toInteger()) {
-        case 0..12:
-        aqi_category = "Good"
-        break
-        case 13..35:
-        aqi_category = "Moderate"
-        break
-        case 36..55:
-        aqi_category = "Unhealthy for Sensitive Groups"
-        break
-        case 56..150:
-        aqi_category = "Unhealthy"
-        break
-        case 151..250:
-        aqi_category = "Very Unhealthy"
-        break
-        case 251..350:
-        aqi_category = "Hazardous"
-        break
-        case 351..500:
-        aqi_category = "Extremely Hazardous"
-        break
-        default:
-            aqi_category = "Nuclear Holocaust Level"
-    }
-    return "AQI: ${aqi_category}"
 }
 
 def unitsSet() {
@@ -1890,162 +1867,3 @@ def pushoverResponse(resp, data) {
         } else { logErr "pushoverResponse() Exception:", ex }
     }
 }
-/*
-void updateMyLabel(key=null) {
-    def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
-
-	String myLabel = state.weatherStationName
-	if ((myLabel == null) || !app.label.startsWith(myLabel)) {
-		myLabel = app.label
-	}
-	if (myLabel.contains('<span')) {
-		myLabel = myLabel.substring(0, myLabel.indexOf('<span'))
-	}
-	switch (key) {
-        case 'unauthorized':
-            newLabel = myLabel + "<span style=\"color:red\"> Unauthorized at ${timeStamp} </span>"
-            break;
-		case 'updated':
-            newLabel = myLabel + "<span style=\"color:green\"> Updated at ${timeStamp} </span>"
-			break;
-		case 'refreshing':
-			newLabel = myLabel + "<span style=\"color:orange\"> Refreshing at ${timeStamp}</span>"
-			break;
-		case 'retry':
-        newLabel = myLabel + "<span style=\"color:red\"> Re-trying #${state.retry} at ${timeStamp}</span>"
-			break;
-		default:
-			newLabel = myLabel
-			break;
-	}
-	if (newLabel && (app.label != newLabel)) app.updateLabel(newLabel)
-}
-
-public String convertToCurrentTimeZone(String dateStr) {
-
-    TimeZone utc = TimeZone.getTimeZone("UTC");
-    SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    SimpleDateFormat destFormat = new SimpleDateFormat('EEE MMM d, h:mm a');
-    sourceFormat.setTimeZone(utc);
-    Date convertedDate = sourceFormat.parse(dateStr);
-    return destFormat.format(convertedDate);
-
-}
-//get the current time zone
-
-public String getCurrentTimeZone(){
-    TimeZone tz = Calendar.getInstance().getTimeZone();
-    return tz.getID();
-}
-
-/*******************************************************************
- *** SanderSoft - Core App/Device Helpers                        ***
-/*******************************************************************/
-
-/*
-String fmtTitle(String str) {
-	return "<strong>${str}</strong>"
-}
-String fmtDesc(String str) {
-	return "<div style='font-size: 85%; font-style: italic; padding: 1px 0px 4px 2px;'>${str}</div>"
-}
-String fmtHelpInfo(String str) {
-	String info =     "${PARENT_DEVICE_NAME} v${VERSION}"
-	String prefLink = "<a href='${COMM_LINK}' target='_blank'>${str}<br><div style='font-size: 70%;'>${info}</div></a>"
-	String topStyle = "style='font-size: 18px; padding: 1px 12px; border: 2px solid Crimson; border-radius: 6px;'" //SlateGray
-	String topLink =  "<a ${topStyle} href='${COMM_LINK}' target='_blank'>${str}<br><div style='font-size: 14px;'>${info}</div></a>"
-    return "<div style='text-align: center; position: absolute; top: 0px; left: 400px; padding: 0px;'><ul class='nav'><li>${topLink}</ul></li></div>"
-}
-def getImage(type) {
-    if(type == "Blank")          return "<img src=${GITHUB_IMAGES_LINK}/blank.png height=40 width=5}>"
-    if(type == "checkMarkGreen") return "<img src=${GITHUB_IMAGES_LINK}/checkMarkGreen2.png height=30 width=30>"
-    if(type == "optionsGreen")   return "<img src=${GITHUB_IMAGES_LINK}/options-green.png height=30 width=30>"
-    if(type == "optionsRed")     return "<img src=${GITHUB_IMAGES_LINK}/options-red.png height=30 width=30>"
-    if(type == "button-red")     return "<img src=${GITHUB_IMAGES_LINK}/button-red.png height=30 width=30>"
-    if(type == "instructions")   return "<img src=${GITHUB_IMAGES_LINK}/instructions.png height=30 width=30>"
-}
-
-def getFormat(type, myText="") {
-    if(type == "header-blue") return "<div style='color:#ffffff;font-weight: bold;background-color:#309bff;border: 1px solid;box-shadow: 2px 3px #A9A9A9'>${myText}</div>"
-    if(type == "header-red")  return "<div style='color:#ffffff;font-weight: bold;background-color:#ff0000;border: 1px solid;box-shadow: 2px 3px #A9A9A9'>${myText}</div>"
-    if(type == "line")        return "<hr style='background-color:#1A77C9; height: 1px; border: 0;'>"
-    if(type == "title")       return "<h2 style='color:#1A77C9;font-weight: bold'>${myText}</h2>"
-    if(type == "text-green")  return "<div style='color:green'>${myText}</div>"
-    if(type == "text-red")    return "<div style='color:red'>${myText}</div>"
-}
-
-def help() {
-    section("${getImage('instructions')} <b>${app.name} Online Documentation</b>", hideable: true, hidden: true) {
-        paragraph "<a href='${GITHUB_LINK}#readme' target='_blank'><h4 style='color:DodgerBlue;'>Click this link to view Online Documentation for ${app.name}</h4></a>"
-    }
-}
-
-def sectionHeader(title){
-    return getFormat("header-blue", "${getImage("Blank")}"+" ${title}")
-}
-
-/*****************************************************************+**
- ***** SanderSoft - Logging Functions                             ***
-********************A************************************************/
-//Logging Level Options
-/*
-@Field static final Map LOG_LEVELS = [0:"Off", 1:"Error", 2:"Warn", 3:"Info", 4:"Debug", 5:"Trace"]
-@Field static final Map LOG_TIMES  = [0:"Indefinitely", 1:"01 Minute", 5:"05 Minutes", 10:"10 Minutes", 15:"15 Minutes", 30:"30 Minutes", 60:"1 Hour", 120:"2 Hours", 180:"3 Hours", 360:"6 Hours", 720:"12 Hours", 1440:"24 Hours"]
-@Field static final String LOG_DEFAULT_LEVEL = 0
-
-//Call this function from within updated() and configure() with no parameters: checkLogLevel()
-void checkLogLevel(Map levelInfo = [level:null, time:null]) {
-	unschedule(logsOff)
-	//Set Defaults
-	if (settings.logLevel == null) app.updateSetting("logLevel",[value:LOG_DEFAULT_LEVEL, type:"enum"])
-	if (settings.logLevelTime == null) app.updateSetting("logLevelTime",[value:"0", type:"enum"])
-	//Schedule turn off and log as needed
-	if (levelInfo.level == null) levelInfo = getLogLevelInfo()
-	String logMsg = "Logging Level is: ${LOG_LEVELS[levelInfo.level]}"
-	if (levelInfo.level >= 1 && levelInfo.time > 0) {
-		logMsg += " for ${LOG_TIMES[levelInfo.time]}"
-		runIn(60*levelInfo.time, logsOff, [overwrite: true])
-	}
-    if (levelInfo.time == 0) logMsg += " (${LOG_TIMES[levelInfo.time]})"
-	logInfo(logMsg)
-}
-
-//Function for optional command
-void setLogLevel(String levelName, String timeName=null) {
-	Integer level = LOG_LEVELS.find{ levelName.equalsIgnoreCase(it.value) }.key
-	Integer time = LOG_TIMES.find{ timeName.equalsIgnoreCase(it.value) }.key
-	app.updateSetting("logLevel",[value:"${level}", type:"enum"])
-	device.updateSetting("logLevelTime",[value:"${time}", type:"enum"])
-	checkLogLevel(level: level, time: time)
-}
-
-Map getLogLevelInfo() {
-	Integer level = settings.logLevel as Integer ?: 0
-	Integer time = settings.logLevelTime as Integer ?: 0
-	return [level: level, time: time]
-}
-
-//Current Support
-void logsOff() {
-    log.info "${app.name}: Debug and Trace logging disabled..."
-		app.updateSetting("logLevel",[value:"0", type:"enum"])
-	}
-}
-
-//Logging Functions
-void logErr(String msg) {
-	if (logLevelInfo.level>=1) log.error "${app.displayName}: ${msg}"
-}
-void logWarn(String msg) {
-	if (logLevelInfo.level>=2) log.warn "${app.name}: ${msg}"
-}
-void logInfo(String msg) {
-	if (logLevelInfo.level>=3) log.info "${app.name}: ${msg}"
-}
-void logDebug(String msg) {
-	if (logLevelInfo.level>=4) log.debug "${app.name}: ${msg}"
-}
-void logTrace(String msg) {
-	if (logLevelInfo.level>=5) log.trace "${app.name}: ${msg}"
-}
-*/
