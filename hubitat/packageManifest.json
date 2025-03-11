@@ -6,9 +6,9 @@
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.3.0\n\nFix to recognize Ambient AQIN Particle Monitor Sensors which report PM10. PM2.5, CO2, Humidity and Temperature.\n\nRemoved legacy calculated attribute AQIN Category Breakpoints in Particle Monitor device.  AQIN Category Breakpoints can be calculated using Hubitat Rule Machine App.",
+  "releaseNotes": "Version 6.3.1\nBug Fix for 6.3.0 version: No signature of method: java.lang.Integer.plus() is applicable for argument types",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",

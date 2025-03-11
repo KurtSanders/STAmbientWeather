@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.3.0"
+@Field static final String VERSION                 = "6.3.1"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Mar-08-2025" }
+String appModified()			{ return "Mar-11-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -796,13 +796,13 @@ def ambientWeatherStation(runID="missing runID") {
                 k='totalrainin'
                 break
                 case 'solarradiation':
-                v = v.toInteger()
+                	v = v.toInteger()
                     switch(solarRadiationTileDisplayUnits) {
                         case ('lux'):
-                    v = wm2lux(v)
-                        break
+                    		v = wm2lux(v)
+                        	break
                         case ('fc'):
-                    v = wm2fc(v)
+                    		v = wm2fc(v)
                         break
                         default:
                             break
@@ -1442,7 +1442,8 @@ def countRemoteTempHumiditySensors() {
 
 def countParticulateMonitors() {
     def pmDevice =  state.ambientMap[state.weatherStationDataIndex].lastData?.keySet().count { it.matches('^pm.*') }
-    state.countParticulateMonitors = (pmDevice == 0)?:1
+    if (pmDevice == 0) state.countParticulateMonitors = 0
+    else state.countParticulateMonitors = 1
     return state.countParticulateMonitors
 }
 
