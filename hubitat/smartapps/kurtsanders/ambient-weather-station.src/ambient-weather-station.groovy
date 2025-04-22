@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.3.1"
+@Field static final String VERSION                 = "6.4.0"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Mar-11-2025" }
+String appModified()			{ return "Apr-21-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -159,7 +159,7 @@ def mainPage() {
                         "Name: ${state.weatherStationName}" +
                         "\nLocation: ${state.weatherStationLocation?:'Not Provided'}" +
                         "\nMac Address: ${state.ambientMap[state.weatherStationDataIndex].macAddress}" +
-                        "\nRemote Temp/Hydro Sensors: ${state.countRemoteTempHumiditySensors}" +
+                        "\nRemote Temp/Hydro/Moisture Sensors: ${state.countRemoteTempHumiditySensors}" +
                         "\nAQIN Particulate Monitor Sensor: ${state.countParticulateMonitors}"
                     href(name: "<span style=\"color:blue\">Weather Station Options</span>",
                          page: nextPageName,
@@ -413,8 +413,17 @@ def remoteSensorPage() {
                         input (
                             name: "${DTHDNIRemoteSensorName()}${i}",
                             type: "text",
-                            title: getImage("checkMarkGreen") + fmtTitle("Ambient Weather Station Remote Device #${i} → Soil Sensor (Current: ${lastData["soiltemp${i}"]}°)"),
-                            defaultValue: "Soil Sensor #${i}",
+                            title: getImage("checkMarkGreen") + fmtTitle("Ambient Weather Station Remote Device #${i} → Soil Temp Sensor (Current: ${lastData["soiltemp${i}"]}°)"),
+                            defaultValue: "Soil Temp Sensor #${i}",
+                            required: true
+                        )
+                    }
+                    if (lastData["soilhum${i}"]) {
+                        input (
+                            name: "${DTHDNIRemoteSensorName()}${i}",
+                            type: "text",
+                            title: getImage("checkMarkGreen") + fmtTitle("Ambient Weather Station Remote Device #${i} → Soil Moisture Sensor (Current: ${lastData["soilhum${i}"]})"),
+                            defaultValue: "Soil Moisture Sensor #${i}",
                             required: true
                         )
                     }
@@ -1436,7 +1445,7 @@ def setStateWeatherStationData() {
 }
 
 def countRemoteTempHumiditySensors() {
-    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9][0-9]?f|^soiltemp[0-9]?[0-9]?') }
+    state.countRemoteTempHumiditySensors =  state.ambientMap[state.weatherStationDataIndex].lastData.keySet().count { it.matches('^temp[0-9][0-9]?f|^soiltemp[0-9]?[0-9]?|^soilhum[0-9]?[0-9]?') }
     return state.countRemoteTempHumiditySensors
 }
 

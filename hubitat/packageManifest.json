@@ -1,14 +1,14 @@
 {
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
-  "minimumHEVersion": "2.4.0",
-  "dateReleased": "2025-03-07",
+  "minimumHEVersion": "2.4.1",
+  "dateReleased": "2025-04-21",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.3.1",
+  "version": "6.4.0",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.3.1\nBug Fix for 6.3.0 version: No signature of method: java.lang.Integer.plus() is applicable for argument types",
+  "releaseNotes": "Version 6.4.0\nAdded support for Soil Moisture Ambient Weather WH31SM Soil Moisture Sensor for WS-1965, WS-2000, WS-4000, and WS-5000 Weather Stations",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
