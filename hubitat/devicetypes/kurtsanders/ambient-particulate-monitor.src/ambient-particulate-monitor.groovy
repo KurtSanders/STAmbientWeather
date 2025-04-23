@@ -30,6 +30,12 @@ metadata {
     author: AUTHOR_NAME,
     importUrl: "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/drivers/ambient-particulate-monitor.driver"
     ) {
+ 
+         // Adding flags for temperature and humitiy capabilities
+       
+        capability "TemperatureMeasurement"
+        capability "RelativeHumidityMeasurement"
+
         capability "Sensor"
         capability "Battery"
         capability "Refresh"
@@ -52,6 +58,11 @@ metadata {
         attribute "pm25", "number"
         attribute "version", "string"
 
+        // field names for homekit
+
+        attribute "temperature", "number"
+        attribute "humidity", "number"
+
         command "refresh"
         command "clearAllDeviceCurrentStates"
     }
@@ -61,6 +72,26 @@ def refresh() {
     def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
     sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", "displayed":false)
     sendEvent(name: "aqi", value: "Refresh Requested at ${timeString}...", displayed: false)
+
+    // Add vaules to the fields for Homekit
+
+    device.currentStates.eachWithIndex {item, index ->
+
+        if (item.name == "pm_in_temp_aqin") {
+            
+		    sendEvent(name: "temperature", value: item.value, displayed: false)
+            
+        }
+
+        if (item.name == "pm_in_humidity_aqin") {
+            
+		    sendEvent(name: "humidity", value: item.value, displayed: false)
+            
+        }
+        
+        
+    }
+
     parent.refresh()
 }
 

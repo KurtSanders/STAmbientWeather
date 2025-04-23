@@ -97,6 +97,17 @@ metadata {
         attribute "lightning_distance", "number"
         attribute "lightning_hour", "number"
         attribute "batt_lightning", "number"
+
+        attribute "batleak1", "number"
+        attribute "batleak2", "number"
+        attribute "batleak3", "number"
+        attribute "batleak4", "number"
+
+        attribute "leak1", "number"
+        attribute "leak2", "number"
+        attribute "leak3", "number"
+        attribute "leak4", "number"
+
         // End of Ambient Weather API Rest MAP
 
         // Weather Forecast & Misc attributes
