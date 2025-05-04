@@ -2,13 +2,13 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.4.1",
-  "dateReleased": "2025-04-21",
+  "dateReleased": "2025-05-05",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.4.0",
+  "version": "6.6.0",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.4.0\nAdded support for Soil Moisture Ambient Weather WH31SM Soil Moisture Sensor for WS-1965, WS-2000, WS-4000, and WS-5000 Weather Stations",
+  "releaseNotes": "Version 6.6.0\n1. Added a new AWS console device driver feature to allow one to programmatically change the AWS polling interval in pre-defined time intervals (mins).\n2. Corrected the main console device attribute 'solarradiation' to reflect a numerical value and added a new device attribute 'solarradiation_display' to reflect a string value of the value and unit of measurement.",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
