@@ -101,7 +101,7 @@ metadata {
 
         // Weather Forecast & Misc attributes
         attribute "lastSTupdate", "string"
-        attribute "scheduleFreqMin", "string"
+        attribute "scheduleFreqMin", "number"
         attribute "version", "string"
         attribute "date", "string"
 
