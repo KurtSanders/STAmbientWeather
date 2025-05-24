@@ -20,7 +20,7 @@ import groovy.transform.Field
 #include kurtsanders.AWSLibrary
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.3.0"
+@Field static final String VERSION                 = "6.6.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
@@ -112,12 +112,14 @@ metadata {
 
         // Weather Forecast & Misc attributes
         attribute "lastSTupdate", "string"
-        attribute "scheduleFreqMin", "string"
+        attribute "scheduleFreqMin", "number"
         attribute "version", "string"
         attribute "date", "string"
 
         command "refresh"
         command "clearAllDeviceCurrentStates"
+        command "setPollingInterval", [[name:"Set AWS Polling Interval*", type:"ENUM", description:"Set AWS Polling Interval", constraints:POLLING_OPTIONS_MAP]]
+
     }
 }
 
@@ -152,6 +154,12 @@ def refresh() {
     def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
     logInfo "User requested a 'Manual Refresh' from Ambient Weather Station device, sending refresh() request to parent smartApp"
     parent.refresh()
+}
+
+def setPollingInterval(pollingInterval) {
+    def pollingKey = POLLING_OPTIONS_MAP.find { it.value == pollingInterval }?.key
+    log.debug "Set pollingInterval = ${pollingInterval} (${pollingKey})" 
+    parent.setPollingInterval(pollingKey)   
 }
 
 //Additional Preferences

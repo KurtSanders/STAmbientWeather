@@ -11,7 +11,7 @@ library (
     name: "AWSLibrary",
     namespace: "kurtsanders",
     documentationLink: "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
-    version: "1.0.0",
+    version: "1.1.0",
     disclaimer: "This library is only for use with SanderSoft Apps and Drivers."
 )
 
@@ -31,7 +31,7 @@ import java.util.TimeZone
 @Field static final String COMM_LINK               = "https://community.hubitat.com/t/release-ambient-weather-station-app/128838"
 @Field static final String GITHUB_LINK             = "https://github.com/KurtSanders/STAmbientWeather?tab=readme-ov-file#ambient-weather-station-aws"
 @Field static final String GITHUB_IMAGES_LINK      = "https://raw.githubusercontent.com/kurtsanders/HubitatPackages/master/resources/images/"
-
+@Field static final Map    POLLING_OPTIONS_MAP     = ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','120':'Every 2 Hours','180':'Every 3 Hours']
 
 def setLibraryVersion() {
     state.libraryVersion = "1.0.0"
@@ -224,9 +224,9 @@ void logsOff() {
 //Logging Functions
 def logMessage(String msg) {
     if (app) {
-        return "<span style='color: blue'>${app.name}</span>: ${msg}"
+        return "<span style='color: blue'>${app.name}</span>: ${msg}"   
     } else {
-        return "<span style='color: green'>${device.name}</span>: ${msg}"
+        return "<span style='color: green'>${device.name}</span>: ${msg}"           
     }
 }
 

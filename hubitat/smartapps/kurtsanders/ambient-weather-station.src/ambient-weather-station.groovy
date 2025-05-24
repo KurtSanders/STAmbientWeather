@@ -19,7 +19,7 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.4.0"
+@Field static final String VERSION                 = "6.4.1"
 
 //************************************ Version Specific ***********************************
 String appModified()			{ return "Apr-21-2025" }
@@ -314,7 +314,8 @@ def optionsPage () {
         section(sectionHeader("Ambient Weather Station (AWS) Preference Settings for: <i>'${state.weatherStationName}'</i>")) {
             input ( name: "schedulerFreq", type: "enum",
                    title: fmtTitle("Poll the Ambient Weather Station Server every"),
-                   options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
+                   options: POLLING_OPTIONS_MAP,
+//                 options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                    required: true,
                    defaultValue: '15 mins'
                   )
@@ -538,12 +539,12 @@ def initialize() {
     addAmbientChildDevice()
     // Set user defined refresh rate
     if(state.schedulerFreq!=schedulerFreq) {
-        logInfo "Updating your Cron REFRESH schedule from ${state.schedulerFreq?:0} mins to ${schedulerFreq} mins"
-        state.schedulerFreq = schedulerFreq
-        if(debugVerbose){logDebug "state.schedulerFreq->${state.schedulerFreq}"}
-        setScheduler(schedulerFreq)
+        logDebug "state.schedulerFreq → ${state.schedulerFreq} and schedulerFreq → ${schedulerFreq}"
         def d = getChildDevice(state.deviceId)
-        d.sendEvent(name: "scheduleFreqMin", value: state.schedulerFreq)
+        logInfo "Updating your Cron REFRESH schedule from ${state.schedulerFreq?:0} mins to ${schedulerFreq} mins and updating ${d} AWS 'scheduleFreqMin' device attribute"
+        setScheduler(schedulerFreq)
+        d.sendEvent(name: "scheduleFreqMin", value: schedulerFreq)
+        state.schedulerFreq = schedulerFreq
     }
     checkLogLevel()
 }
@@ -563,6 +564,26 @@ def updated() {
         it.deleteDeviceData()
     }
     refresh()
+}
+
+def setPollingInterval(pollingInterval=null) {
+    logDebug "==> setPollingInterval(${pollingInterval})"
+     // Set user defined refresh rate
+    if (POLLING_OPTIONS_MAP.containsKey(pollingInterval)) {
+        app.updateSetting("schedulerFreq", [type: "enum", value: pollingInterval])
+        if(state.schedulerFreq!=schedulerFreq) {
+            logDebug "state.schedulerFreq → ${state.schedulerFreq} and schedulerFreq → ${schedulerFreq}"
+            def d = getChildDevice(state.deviceId)
+            logInfo "Updating your Cron REFRESH schedule from ${state.schedulerFreq?:0} mins to ${schedulerFreq} mins and updating ${d.name} device attribute"
+            setScheduler(schedulerFreq)
+            d.sendEvent(name: "scheduleFreqMin", value: schedulerFreq)
+            state.schedulerFreq = schedulerFreq
+        }   
+    } else {
+        logErr "Invalid polling interval '${pollingInterval}'.  Valid polling interval keys are ${POLLING_OPTIONS_MAP.keySet()}"
+        return false
+    }
+    return true
 }
 
 def scheduleCheckReset(quiet=false) {
@@ -665,8 +686,9 @@ def ambientWeatherStation(runID="missing runID") {
 //        if ((state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('totalrainin')==false) || (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('yearlyrainin')==false)) {
 //            d.sendEvent(name:"totalrainin", value: "N/A", unit: state.measureUnitsDisplay, displayed: false)
 //        }
-        d.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
-        d.sendEvent(name:"macAddress", value: state.ambientMap[state.weatherStationDataIndex].macAddress, displayed: false)
+        d.sendEvent(name:"scheduleFreqMin"	, value: schedulerFreq, descriptionText: "AWS Polling Interval")
+        d.sendEvent(name:"lastSTupdate"		, value: tileLastUpdated())
+        d.sendEvent(name:"macAddress"		, value: state.ambientMap[state.weatherStationDataIndex].macAddress)
 
         // Update Main Weather Device with Remote Sensor 1 values if tempf does not exist, same with humidity
         if (!state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('tempf')) {
@@ -816,7 +838,8 @@ def ambientWeatherStation(runID="missing runID") {
                         default:
                             break
                     }
-                d.sendEvent(name: k, value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: 'solarradiation_display', value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
                 k='illuminance'
                 break
 
@@ -1213,6 +1236,7 @@ def degToCompass(num,longTitles=true) {
 def setScheduler(schedulerFreq) {
     def scheduleHandler = 'autoScheduleHandler'
     unschedule(scheduleHandler)
+    def randonInt = Math.abs(new Random().nextInt() % 59) + 1
     if(infoVerbose){logInfo "Auto Schedule Refresh Rate is now -> ${schedulerFreq} mins"}
     switch(schedulerFreq) {
         case '0':
@@ -1222,13 +1246,13 @@ def setScheduler(schedulerFreq) {
         runEvery1Minute(scheduleHandler)
         break
         case '2':
-        schedule("20 0/2 * * * ?",scheduleHandler)
+        schedule("0 ${randonInt}/2 * * * ?",scheduleHandler)
         break
         case '3':
-        schedule("20 0/3 * * * ?",scheduleHandler)
+        schedule("0 ${randonInt}/3 * * * ?",scheduleHandler)
         break
         case '4':
-        schedule("20 0/4 * * * ?",scheduleHandler)
+        schedule("0 ${randonInt}/4 * * * ?",scheduleHandler)
         break
         case '5':
         runEvery5Minutes(scheduleHandler)
@@ -1244,6 +1268,9 @@ def setScheduler(schedulerFreq) {
         break
         case '60':
         runEvery1Hour(scheduleHandler)
+        break
+        case '120':
+        schedule("0 ${randonInt} 0/2 * * ?",scheduleHandler)
         break
         case '180':
         runEvery3Hours(scheduleHandler)
