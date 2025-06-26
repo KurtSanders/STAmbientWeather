@@ -20,7 +20,7 @@ import groovy.transform.Field
 #include kurtsanders.AWSLibrary
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.6.0"
+@Field static final String VERSION                 = "6.7.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
@@ -61,27 +61,35 @@ metadata {
         attribute "humidityin_display", "string"
         attribute "solarradiation_display", "string"
         attribute "feelsLike_display", "string"
+        attribute "feelsLikein_display", "string"
         attribute "dewPoint_display", "string"
 
+        // Weather Station meta data
+        attribute "elevation", "number"
+        attribute "location", "string"
+        attribute "lat", "number"
+        attribute "lon", "number"
+        attribute "macAddress", "string"
+        attribute "pwsName", "string"
+
+        
+        // Weather Station device data
         attribute "baromabsin", "number"
         attribute "baromrelin", "number"
-        attribute "city", "string"
         attribute "dailyrainin", "number"
         attribute "date", "string"
         attribute "dateutc", "string"
         attribute "dewPoint", "number"
         attribute "dewpoint", "number"
         attribute "eventrainin", "number"
-        attribute "feelslike", "number"
+        attribute "feelsLike", "number"
+        attribute "feelsLikein", "number"
         attribute "hourlyrainin", "number"
         attribute "humidityin", "number"
         attribute "lastRain", "string"
-        attribute "location", "string"
         attribute "lastRainDuration", "string"
-        attribute "macAddress", "string"
         attribute "maxdailygust", "number"
         attribute "monthlyrainin", "number"
-        attribute "pwsName", "string"
         attribute "solarradiation", "number"
         attribute "tempinf", "number"
         attribute "totalrainin", "number"
@@ -105,6 +113,7 @@ metadata {
         attribute "version", "string"
         attribute "date", "string"
 
+        // Commands
         command "refresh"
         command "clearAllDeviceCurrentStates"
         command "setPollingInterval", [[name:"Set AWS Polling Interval*", type:"ENUM", description:"Set AWS Polling Interval", constraints:POLLING_OPTIONS_MAP]]
@@ -114,14 +123,16 @@ metadata {
 
 def initialize() {
     checkLogLevel()
+    state.dataFieldsWiki = '<a target="_blank" rel="noopener noreferrer" href=${DEVICE_DATA_SPECS} >Wiki Device Data Specs Link</a>'
+    state.webLink = fmtDataFieldsWikiLink()
 }
 
 def installed() {
-    checkLogLevel()
+    initialize()
 }
 
 def updated() {
-    checkLogLevel()
+    initialize()
 }
 
 def deleteDeviceData() {

@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.4.1"
+@Field static final String VERSION                 = "6.7.0"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Apr-21-2025" }
+String appModified()			{ return "June-26-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -315,7 +315,6 @@ def optionsPage () {
             input ( name: "schedulerFreq", type: "enum",
                    title: fmtTitle("Poll the Ambient Weather Station Server every"),
                    options: POLLING_OPTIONS_MAP,
-//                 options: ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','180':'Every 3 Hours'],
                    required: true,
                    defaultValue: '15 mins'
                   )
@@ -380,7 +379,6 @@ def remoteSensorPage() {
     }
 
     dynamicPage(name: "remoteSensorPage", nextPage: "optionsPage", uninstall:false, install : false ) {
-//        if ( (!state.deviceId) && (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) ) {
         if (state.ambientMap[state.weatherStationDataIndex].lastData?.tempinf) {
             section (sectionHeader("Enter a location name for your AWS Weather console located inside the house?")) {
                 input (name: "${DTHDNIRemoteSensorName()}0",
@@ -650,9 +648,6 @@ def ambientWeatherStation(runID="missing runID") {
         logInfo "Processing Ambient Weather data returned from AmbientStationData)"
         setStateWeatherStationData()
         convertStateWeatherStationData()
-//        d.sendEvent(name:"unitsOfMeasure",
-//                    value: "Temperature: ${state.tempUnitsDisplay}\nHeight: ${state.measureUnitsDisplay}\nWind: ${state.windUnitsDisplay}\nBarometric: ${state.baroUnitsDisplay}",
-//                    displayed: false)
         if (settings.logLevel > 4) {
             state.ambientMap[state.weatherStationDataIndex].each{ k, v ->
                 logTrace "${k} = ${v}"
@@ -679,13 +674,7 @@ def ambientWeatherStation(runID="missing runID") {
                     d.sendEvent(name:"lastRainDuration", value: lastRainDuration, displayed: false)
                 }
             }
-//        } else {
-//            logDebug "Weather Station does NOT provide 'Last Rain Date' information...Skipping"
-//            d.sendEvent(name:"lastRainDuration", value: "N/A", displayed: false)
         }
-//        if ((state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('totalrainin')==false) || (state.ambientMap[state.weatherStationDataIndex].lastData.containsKey('yearlyrainin')==false)) {
-//            d.sendEvent(name:"totalrainin", value: "N/A", unit: state.measureUnitsDisplay, displayed: false)
-//        }
         d.sendEvent(name:"scheduleFreqMin"	, value: schedulerFreq, descriptionText: "AWS Polling Interval")
         d.sendEvent(name:"lastSTupdate"		, value: tileLastUpdated())
         d.sendEvent(name:"macAddress"		, value: state.ambientMap[state.weatherStationDataIndex].macAddress)
@@ -718,16 +707,20 @@ def ambientWeatherStation(runID="missing runID") {
 
         state.ambientServerDate=convertToCurrentTimeZone(state.respdata[state.weatherStationDataIndex].lastData.date)
 
-        state.ambientMap[state.weatherStationDataIndex].info.each{ k, v ->
-            if(k=='name'){k='pwsName'}
-            if (v) {
-                logDebug "sendEvent(name: ${k}, value: ${v})"
-                d.sendEvent(name: k, value: v, displayed: false)
-            }
-        }
+        // Send AWS Info metaata events
+        def infoBase = state.ambientMap[state.weatherStationDataIndex].info
+		d.sendEvent(name: 'pwsName', 	value: infoBase?.name)
+		d.sendEvent(name: 'location', 	value: infoBase?.location)
+		d.sendEvent(name: 'lat', 		value: infoBase?.coords.coords.lat)
+		d.sendEvent(name: 'lon', 		value: infoBase?.coords.coords.lon)
+		d.sendEvent(name: 'address', 	value: infoBase?.coords.address)
+		d.sendEvent(name: 'elevation', 	value: infoBase?.coords.elevation)
 
+        // Loop through the weather data elements creating events
         state.ambientMap[state.weatherStationDataIndex].lastData.each{ k, v ->
-            logDebug "Posted ${k.toUpperCase()}: ${v}"
+            logDebug "Received Data ${k} = ${v}"
+            
+            // Post weather data as a displayed string value
             switch(k) {
                 case ~/.*rain.*/:
                 d.sendEvent(name: "${k}_display", value: "${v} ${state.measureUnitsDisplay}")
@@ -755,6 +748,8 @@ def ambientWeatherStation(runID="missing runID") {
                 default:
                     break
             }
+            // Post weather data as numeric values except for dates, etc
+            
             okTOSendEvent = true
             switch (k) {
                 case 'dateutc':
@@ -917,6 +912,18 @@ def ambientWeatherStation(runID="missing runID") {
                 }
                 okTOSendEvent = false
                 break
+                case ~/^feelsLikein\d/:
+                remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
+                logDebug "Posted ${k.toUpperCase()} = ${remoteSensorDNI}"
+                if (remoteSensorDNI) {
+                    logDebug "Posted ${k.toUpperCase()}: ${v} -> ${remoteSensorDNI}"
+                    remoteSensorDNI.sendEvent(name: "feelsLikein", value: v, units: state.tempUnitsDisplay)
+                    remoteSensorDNI.sendEvent(name: "feelsLikein_display", value: "${v}${state.tempUnitsDisplay}", units: state.tempUnitsDisplay)
+                } else {
+                    logErr "Missing HE Device ${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]} for ${k}"
+                }
+                okTOSendEvent = false
+                break
                 case ~/^humidity[0-9][0-9]?$|^soilhum[0-9][0-9]?$/:
                 remoteSensorDNI = getChildDevice("${DTHDNIRemoteSensorName()}${k.findAll( /\d+/ )[0]}")
                 logDebug "Posted ${k.toUpperCase()} = ${remoteSensorDNI}"
@@ -955,7 +962,7 @@ def ambientWeatherStation(runID="missing runID") {
                             sensorUnits = ''
                         	break
                     }
-                    logDebug "Posted ${k.toUpperCase()}: ${v} ${sensorUnits} -> ${remoteSensorDNI}"
+                    logDebug "Posted ${k}: ${v} ${sensorUnits} -> ${remoteSensorDNI}"
                     remoteSensorDNI.sendEvent(name: k, value: v, units: sensorUnits)
                     remoteSensorDNI.sendEvent(name:"lastSTupdate", value: tileLastUpdated(), displayed: false)
                     remoteSensorDNI.sendEvent(name:"date", value: state.ambientServerDate, displayed: false)
@@ -973,50 +980,46 @@ def ambientWeatherStation(runID="missing runID") {
                     break
             }
             if (okTOSendEvent){
-                // , unit: "%"
+                logDebug "okTOSendEvent: name: ${k} = value: ${v}"
                 switch (k) {
                     case ('battery'):
                     case ('date'):
-                    sendEventOptions = [displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, displayed : false)  
+                        break
                     case ~/^temp.*/:
-                    sendEventOptions = [units : state.tempUnitsDisplay, displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: state.tempUnitsDisplay, displayed : false)  
+                        break
                     case ~/^feelsLike$|^feelsLikein$/:
-                    sendEventOptions = [units : state.tempUnitsDisplay, displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: state.tempUnitsDisplay)  
+                        break
                     case ('dewPointin'):
                     case ('dewPoint'):
-                    sendEventOptions = [units : state.tempUnitsDisplay, displayed : false]
-                    d.sendEvent(name: k.toLowerCase(), value: v, units : state.tempUnitsDisplay, displayed: false )
-                    break
+                        d.sendEvent(name: k, value: v, units: state.tempUnitsDisplay, displayed : false)  
+                        d.sendEvent(name: k.toLowerCase(), value: v, units : state.tempUnitsDisplay, displayed: false )
+                        break
                     case ('illuminance'):
-                    sendEventOptions = [units: solarRadiationTileDisplayUnits?:'W/m²']
-                    break
+                        d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²', displayed : false)  
+                        break
                     case ~/^humidity.*/:
-                    sendEventOptions = [units : '%', displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: '%', displayed : false)  
+                        break
                     case ~/.*rain.*/:
-                    sendEventOptions = [units : state.measureUnitsDisplay, displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: state.measureUnitsDisplay, displayed : false)  
+                        break
                     case ('windir'):
-                    sendEventOptions = [units : 'º']
-                    break
+                        d.sendEvent(name: k, value: v, units: 'º', displayed : false)  
+                        break
                     case ~/^wind.*/:
                     case ('maxdailygust'):
-                    sendEventOptions = [units : state.windUnitsDisplay, displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: state.windUnitsDisplay, displayed : false)  
+                        break
                     case ~/^barom.*/:
-                    sendEventOptions = [units : state.baroUnitsDisplay, displayed : false]
-                    break
+                        d.sendEvent(name: k, value: v, units: state.baroUnitsDisplay, displayed : false)  
+                        break
                     default:
-                        sendEventOptions = []
-                    break
+                        d.sendEvent(name: k, value: v)
+	                    break
                 }
-                sendEventOptions << [name: k, value: v]
-                d.sendEvent(sendEventOptions)
-                logDebug "${d}.sendEvent(${sendEventOptions})"
-                sendEventOptions = []
             }
         }
     } else {
@@ -1116,17 +1119,6 @@ def addAmbientChildDevice() {
         logInfo "Success: Added ${AWSName} with DNI: ${DTHDNI()}"
     } else {
         logInfo "Verified Weather Station '${getChildDevice(state.deviceId).label}' = DNI: '${DTHDNI()}'"
-        /*
-        if (!AWSDNI.name.equalsIgnoreCase(AWSName)) {
-            logInfo "Device NAME MIS-MATCH: Device Name: ${AWSDNI.name} <> ${AWSName}"
-            AWSDNI.name = AWSName
-        }
-        if (!AWSDNI.label.equalsIgnoreCase(AWSName)) {
-            logInfo "Device LABEL MIS-MATCH: Device Label: ${AWSDNI.label} <> ${AWSName}"
-            deleteChildDevice(AWSDNI)
-            addChildDevice(DTHnamespace(), DTHName(), DTHDNI(), null, ["name": AWSName, "label": AWSName, completedSetup: true])
-        }
-        */
     }
 
 
@@ -1158,18 +1150,6 @@ def addAmbientChildDevice() {
                         logInfo "Renaming Device ${remoteSensorNameDNI.deviceNetworkId}: Old Device Label: ${remoteSensorNameDNI.label} → New Device Label: ${value}"
                         remoteSensorNameDNI.label = value
                     }
-                    /*
-                    if (!remoteSensorNameDNI.name.equalsIgnoreCase(remoteSensorNamePref)) {
-                        logInfo "Device NAME MIS-MATCH: Device Name: ${remoteSensorNameDNI.name} <> ${remoteSensorNamePref}"
-                        remoteSensorNameDNI.name  = remoteSensorNamePref
-                    }
-                    if (!remoteSensorNameDNI.label.equalsIgnoreCase(remoteSensorNamePref)) {
-                        logInfo "Device LABEL MIS-MATCH: Device Label: ${remoteSensorNameDNI.label} <> ${remoteSensorNamePref}"
-                        logDebug "remoteSensorNameDNI.deviceNetworkId = ${remoteSensorNameDNI.deviceNetworkId}"
-                        deleteChildDevice(remoteSensorNameDNI.deviceNetworkId)
-                        addChildDevice(DTHnamespace(), DTHRemoteSensorName(), "${key}", null, ["name": remoteSensorNamePref, "label": remoteSensorNamePref, completedSetup: true])
-                    }
-                    */
                 }
             } else {
                 logWarn "Device ${remoteSensorNumber} DNI: ${key} '${remoteSensorNameDNI.name}' exceeds # of remote sensors (${state.countRemoteTempHumiditySensors}) reporting from Ambient -> ACTION REQUIRED"
@@ -1202,18 +1182,6 @@ def addAmbientChildDevice() {
                 logInfo "Renaming Device ${remoteSensorNameDNI.deviceNetworkId}: Old Device Label: ${remoteSensorNameDNI.label} → New Device Label: ${PMvalue}"
                 remoteSensorNameDNI.label = PMvalue
             }
-            /*
-            if ( (remoteSensorNameDNI.label == remoteSensorNamePref) && (remoteSensorNameDNI.name == remoteSensorNamePref) ) {
-                if(infoVerbose){
-                    logInfo "Device Label/Name Pref Match: Name: ${remoteSensorNameDNI.name} = Label: ${remoteSensorNameDNI.label} == Pref Label: ${remoteSensorNamePref} -> NO CHANGE"
-                }
-            } else {
-                logWarn "Device Label/Name Pref Mis-Match: Name: ${remoteSensorNameDNI.name} <> Label: ${remoteSensorNameDNI.label} <> Pref Label: ${remoteSensorNamePref} -> RENAMING"
-                remoteSensorNameDNI.name  = remoteSensorNamePref
-                remoteSensorNameDNI.label = remoteSensorNamePref
-                logWarn "Successfully Renamed Device Label and Names for: ${remoteSensorNameDNI}"
-            }
-            */
         }
     }
 }
@@ -1348,7 +1316,6 @@ def SMSNotifcationHistory() {
 def notifyEvents() {
     if (checkRequired([pushoverEnabled,sendSMSEnabled,sendPushEnabled])){
         def now = now()
-        //        state.notifyAlertLowTempDT = now-3600000*2
         def msg
         def tempCheck = state.ambientMap[state.weatherStationDataIndex].lastData.tempf?:state.ambientMap[state.weatherStationDataIndex].lastData.temp1f
         def ambientWeatherStationName = "${DTHName()} - '${state.weatherStationName}'"

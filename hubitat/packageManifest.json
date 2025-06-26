@@ -2,13 +2,13 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.4.1",
-  "dateReleased": "2025-05-05",
+  "dateReleased": "2025-06-26",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.6.0",
+  "version": "6.7.0",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.6.0\n1. Added a new AWS console device driver feature to allow one to programmatically change the AWS polling interval in pre-defined time intervals (mins).\n2. Corrected the main console device attribute 'solarradiation' to reflect a numerical value and added a new device attribute 'solarradiation_display' to reflect a string value of the value and unit of measurement.",
+  "releaseNotes": "Version 6.7.0\n1. Corrected FeelsLike and FeelsLikein data events\n2. Added additional Weather Station Metadata to device events.\n3. Added a 'Data Fields Wiki' webLink in device page banner and in 'State Variables' section to help understand the weather fields returned from Ambient",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",

@@ -11,7 +11,7 @@ library (
     name: "AWSLibrary",
     namespace: "kurtsanders",
     documentationLink: "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
-    version: "1.1.0",
+    version: "1.2.0",
     disclaimer: "This library is only for use with SanderSoft Apps and Drivers."
 )
 
@@ -31,10 +31,11 @@ import java.util.TimeZone
 @Field static final String COMM_LINK               = "https://community.hubitat.com/t/release-ambient-weather-station-app/128838"
 @Field static final String GITHUB_LINK             = "https://github.com/KurtSanders/STAmbientWeather?tab=readme-ov-file#ambient-weather-station-aws"
 @Field static final String GITHUB_IMAGES_LINK      = "https://raw.githubusercontent.com/kurtsanders/HubitatPackages/master/resources/images/"
+@Field static final String DEVICE_DATA_SPECS 	   = "https://github.com/ambient-weather/api-docs/wiki/Device-Data-Specs"
 @Field static final Map    POLLING_OPTIONS_MAP     = ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','120':'Every 2 Hours','180':'Every 3 Hours']
 
 def setLibraryVersion() {
-    state.libraryVersion = "1.0.0"
+    state.libraryVersion = "1.2.0"
 }
 
 def uninstalled() {
@@ -125,8 +126,18 @@ String fmtHelpInfo(String str) {
     String prefLink = "<a href='${COMM_LINK}' target='_blank'>${str}<br><div style='font-size: 70%;'>${info}</div></a>"
     String topStyle = "style='font-size: 18px; padding: 1px 12px; border: 2px solid Crimson; border-radius: 6px;'" //SlateGray
     String topLink =  "<a ${topStyle} href='${COMM_LINK}' target='_blank'>${str}<br><div style='font-size: 14px;'>${info}</div></a>"
-    return "<div style='text-align: center; position: absolute; top: 0px; left: 400px; padding: 0px;'><ul class='nav'><li>${topLink}</ul></li></div>"
+    return "<div style='text-align: center; position: absolute; top: 0px; left: 900px; padding: 0px;'><ul class='nav'><li>${topLink}</ul></li></div>"
 }
+
+String fmtDataFieldsWikiLink() {
+    String str = 'Data Fields Wiki'
+    String info =     "${PARENT_DEVICE_NAME} v${VERSION}"
+    String prefLink = "<a href='${DEVICE_DATA_SPECS}' target='_blank'>${str}<br><div style='font-size: 70%;'>${info}</div></a>"
+    String topStyle = "style='font-size: 18px; padding: 1px 12px; border: 2px solid Crimson; border-radius: 6px;'" //SlateGray
+    String topLink =  "<a ${topStyle} href='${DEVICE_DATA_SPECS}' target='_blank'>${str}<br><div style='font-size: 14px;'>${info}</div></a>"
+    return "<div style='text-align: center; position: absolute; top: 0px; left: 900px; padding: 0px;'><ul class='nav'><li>${topLink}</ul></li></div>"
+}
+
 def getImage(type) {
     def loc = "<img src=" + GITHUB_IMAGES_LINK
     if(type == "Blank")          return "${loc}blank.png height=40 width=5}>"
