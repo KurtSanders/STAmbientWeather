@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.0"
+@Field static final String VERSION                 = "6.7.1"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "June-26-2025" }
+String appModified()			{ return "Sept-15-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -726,7 +726,7 @@ def ambientWeatherStation(runID="missing runID") {
                 d.sendEvent(name: "${k}_display", value: "${v} ${state.measureUnitsDisplay}")
                 break
                 case ~/^barom.*/:
-                d.sendEvent(name: "${k}_display", value: "${v}${state.baroUnitsDisplay}")
+                d.sendEvent(name: "${k}_display", value: "${v} ${state.baroUnitsDisplay}")
                 break
                 case ~/^tempi?n?f$|^dewPoint$|^feelsLikein$|^feelsLike$/:
                 d.sendEvent(name: "${k}_display", value: "${v}${state.tempUnitsDisplay}")
@@ -1408,7 +1408,7 @@ def convertStateWeatherStationData() {
             case ~/^barom.*/:
             if (state.baroUnitsDisplay == 'mmHg') {
                 tempVar = String.format("%.02f",v*25.4)
-            } else if (state.baroUnitsDisplay == 'hpa') {
+            } else if (state.baroUnitsDisplay == 'hPa') {
                 tempVar = String.format("%.02f",v*33.86389)
             }
             break
