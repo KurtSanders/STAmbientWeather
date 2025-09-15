@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ (AWS) 
 *Hubitat® Integration for Ambient Weather® Stations by SanderSoft™*
-### Hubitat AWS Suite Version: 6.6.0
+### Hubitat AWS Suite Version: 6.7.1
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
