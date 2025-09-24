@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.1"
+@Field static final String VERSION                 = "6.7.2"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Sept-15-2025" }
+String appModified()			{ return "Sept-24-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -228,6 +228,12 @@ def unitsPage() {
                    title: fmtTitle("Select Solar Radiation ('Light') Units of Measure"),
                    options: ['W/m²':'Imperial Units (W/m²)','lux':'Metric Units (lux)', 'fc':'Foot Candles (fc)'],
                    defaultValue: "W/m²",
+                   required: true
+                  )
+            input ( name: "solarRadiationDecimalFormat", type: "enum",
+                   title: fmtTitle("Select Solar Radiation ('Light') Decimal Format"),
+                   options: [0,1,2],
+                   defaultValue: 0,
                    required: true
                   )
         }
@@ -822,7 +828,14 @@ def ambientWeatherStation(runID="missing runID") {
                 k='totalrainin'
                 break
                 case 'solarradiation':
-                	v = v.toInteger()
+	                logDebug "==> solarRadiation Raw = ${v}"
+                	logDebug "==> solarRadiation Decimal Format= ${solarRadiationDecimalFormat}"
+                    if (solarRadiationDecimalFormat) {
+		                def formatSpecifier = "%." + solarRadiationDecimalFormat + "f"
+		                logDebug "==> formatSpecifier= ${formatSpecifier}"
+						v = String.format(formatSpecifier, v)
+                    }
+	                logDebug "==> solarRadiation decimal formatted = ${v}"
                     switch(solarRadiationTileDisplayUnits) {
                         case ('lux'):
                     		v = wm2lux(v)
@@ -833,7 +846,7 @@ def ambientWeatherStation(runID="missing runID") {
                         default:
                             break
                     }
-                d.sendEvent(name: 'solarradiation_display', value: sprintf("%,7d %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
                 d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
                 k='illuminance'
                 break

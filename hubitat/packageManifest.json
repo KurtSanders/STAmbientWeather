@@ -2,13 +2,13 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.4.1",
-  "dateReleased": "2025-09-15",
+  "dateReleased": "2025-09-24",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.7.1",
+  "version": "6.7.2",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.7.1\n1. Corrected bug to correctly display hPa for barometric pressure when hPa is selected in App preferences.",
+  "releaseNotes": "Version 6.7.2\n1. Added a new AWS app 'Units of Measurement' preference option to specify solar radiation number of decimals (Default is 0)",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
