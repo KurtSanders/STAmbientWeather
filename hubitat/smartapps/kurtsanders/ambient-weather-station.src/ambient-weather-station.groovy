@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.2"
+@Field static final String VERSION                 = "6.7.3"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Sept-24-2025" }
+String appModified()			{ return "Oct-24-2025" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -830,10 +830,13 @@ def ambientWeatherStation(runID="missing runID") {
                 case 'solarradiation':
 	                logDebug "==> solarRadiation Raw = ${v}"
                 	logDebug "==> solarRadiation Decimal Format= ${solarRadiationDecimalFormat}"
+	                // Check to see if the user has set a decimal format for solar radiation
                     if (solarRadiationDecimalFormat) {
-		                def formatSpecifier = "%." + solarRadiationDecimalFormat + "f"
-		                logDebug "==> formatSpecifier= ${formatSpecifier}"
-						v = String.format(formatSpecifier, v)
+                        if (v.toInteger() > 0) {
+                            def formatSpecifier = "%." + solarRadiationDecimalFormat + "f"
+                            logDebug "==> formatSpecifier= ${formatSpecifier}"
+                            v = String.format(formatSpecifier, v)
+                        }
                     }
 	                logDebug "==> solarRadiation decimal formatted = ${v}"
                     switch(solarRadiationTileDisplayUnits) {
