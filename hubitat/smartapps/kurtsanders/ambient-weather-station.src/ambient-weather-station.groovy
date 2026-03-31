@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.3"
+@Field static final String VERSION                 = "6.7.4"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Oct-24-2025" }
+String appModified()			{ return "Mar-31-2026" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -41,8 +41,8 @@ String DTHnamespace()			{ return NAMESPACE }
 String appAuthor()	 			{ return AUTHOR_NAME }
 String AppImg(imgName) 			{ return GITHUB_IMAGES_LINK + "${imgName}" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
-Integer wm2lux(value)			{ return (value * 126.7).toInteger() }
-Integer wm2fc(value)			{ return (wm2lux(value) * 0.0929).toInteger() }
+Integer wm2lux(value)			{ return (value.toBigDecimal() * 126.7).toInteger() }
+Integer wm2fc(value)			{ return (wm2lux(value.toBigDecimal()) * 0.0929).toInteger() }
 
 // ============================================================================================================
 // This APP key is ONLY for this application - Do not copy or use elsewhere
@@ -849,7 +849,7 @@ def ambientWeatherStation(runID="missing runID") {
                         default:
                             break
                     }
-                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",String.format("%,d",v),solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
                 d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
                 k='illuminance'
                 break

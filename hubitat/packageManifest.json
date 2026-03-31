@@ -1,14 +1,14 @@
 {
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
-  "minimumHEVersion": "2.4.3",
-  "dateReleased": "2025-10-24",
+  "minimumHEVersion": "2.4.4",
+  "dateReleased": "2026-03-31",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.7.3",
+  "version": "6.7.4",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.7.3\n1. Bug Fix for 'Illegal Format Conversion' of Solar Radiation when value is 0",
+  "releaseNotes": "Version 6.7.4\n1. Bug Fix for Solar Radiation when formatted to lux units",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
