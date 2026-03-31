@@ -19,7 +19,7 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.4"
+@Field static final String VERSION                 = "6.7.5"
 
 //************************************ Version Specific ***********************************
 String appModified()			{ return "Mar-31-2026" }
@@ -841,15 +841,15 @@ def ambientWeatherStation(runID="missing runID") {
 	                logDebug "==> solarRadiation decimal formatted = ${v}"
                     switch(solarRadiationTileDisplayUnits) {
                         case ('lux'):
-                    		v = wm2lux(v)
+                    		v = String.format("%,d",wm2lux(v))
                         	break
                         case ('fc'):
-                    		v = wm2fc(v)
+                    		v = String.format("%,d",wm2fc(v))
                         break
                         default:
                             break
                     }
-                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",String.format("%,d",v),solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
+                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
                 d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
                 k='illuminance'
                 break
