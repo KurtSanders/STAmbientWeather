@@ -1,5 +1,5 @@
 /*
-*  Copyright 2025 SanderSoft™
+*  Copyright 2026 SanderSoft™
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -19,10 +19,10 @@
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.5"
+@Field static final String VERSION                 = "6.7.6"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Mar-31-2026" }
+String appModified()			{ return "Apr-1-2026" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -41,8 +41,8 @@ String DTHnamespace()			{ return NAMESPACE }
 String appAuthor()	 			{ return AUTHOR_NAME }
 String AppImg(imgName) 			{ return GITHUB_IMAGES_LINK + "${imgName}" }
 String wikiURL(pageName)		{ return "https://github.com/KurtSanders/STAmbientWeather/wiki/$pageName"}
-Integer wm2lux(value)			{ return (value.toBigDecimal() * 126.7).toInteger() }
-Integer wm2fc(value)			{ return (wm2lux(value.toBigDecimal()) * 0.0929).toInteger() }
+Float wm2lux(value)				{ return (value.toFloat() * 126.7)}
+Float wm2fc(value)				{ return (wm2lux(value.toFloat()) * 0.0929) }
 
 // ============================================================================================================
 // This APP key is ONLY for this application - Do not copy or use elsewhere
@@ -828,30 +828,35 @@ def ambientWeatherStation(runID="missing runID") {
                 k='totalrainin'
                 break
                 case 'solarradiation':
-	                logDebug "==> solarRadiation Raw = ${v}"
+	                def v_display
+                	v = v.toFloat() 
+	                logDebug "==> solarRadiation Raw = ${v} Float: ${v instanceof Float}"
                 	logDebug "==> solarRadiation Decimal Format= ${solarRadiationDecimalFormat}"
 	                // Check to see if the user has set a decimal format for solar radiation
-                    if (solarRadiationDecimalFormat) {
-                        if (v.toInteger() > 0) {
-                            def formatSpecifier = "%." + solarRadiationDecimalFormat + "f"
-                            logDebug "==> formatSpecifier= ${formatSpecifier}"
-                            v = String.format(formatSpecifier, v)
-                        }
-                    }
-	                logDebug "==> solarRadiation decimal formatted = ${v}"
                     switch(solarRadiationTileDisplayUnits) {
                         case ('lux'):
-                    		v = String.format("%,d",wm2lux(v))
+                        	v = wm2lux(v)
                         	break
                         case ('fc'):
-                    		v = String.format("%,d",wm2fc(v))
+                    		v = wm2fc(v)
                         break
                         default:
+                            
                             break
                     }
-                d.sendEvent(name: 'solarradiation_display', value: sprintf("%s %s",v,solarRadiationTileDisplayUnits?:'W/m²'), units: solarRadiationTileDisplayUnits?:'W/m²')
-                d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
-                k='illuminance'
+	                logDebug "==> solarRadiation Conversion = ${v} Float: ${v instanceof Float}"
+                    if (solarRadiationDecimalFormat) {
+                        if (v > 0) {
+                            def formatSpecifier = "%." + solarRadiationDecimalFormat + "f"
+                            logDebug "==> formatSpecifier= ${formatSpecifier}"
+                            v = String.format(formatSpecifier, v).toFloat()
+			                logDebug "==> solarRadiation Decimal Conversion = ${v} Float: ${v instanceof Float}"
+                            v_display = String.format('%,.' + "${solarRadiationDecimalFormat}" + 'f',v)
+                        }
+                    }
+    	            d.sendEvent(name: k, value: v, units: solarRadiationTileDisplayUnits?:'W/m²')
+	                d.sendEvent(name: 'solarradiation_display', value: "${v_display?:String.format('%,.0f',v)} ${solarRadiationTileDisplayUnits?:'W/m²'}", units: solarRadiationTileDisplayUnits?:'W/m²')
+        	        k='illuminance'
                 break
 
                 // Weather Console Sensors

@@ -2,11 +2,11 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.4.4",
-  "dateReleased": "2026-03-31",
+  "dateReleased": "2026-4-1",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.7.5",
+  "version": "6.7.6",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
   "releaseNotes": "Version 6.7.5\n1. Bug Fix for Solar Radiation error when formatted to various display units",
   "bundles": [
