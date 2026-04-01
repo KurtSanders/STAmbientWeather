@@ -8,7 +8,7 @@
   "licenseFile": "",
   "version": "6.7.6",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.7.5\n1. Bug Fix for Solar Radiation error when formatted to various display units",
+  "releaseNotes": "Version 6.7.6\n1. Bug Fix for Solar Radiation error when formatted to various display units",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
