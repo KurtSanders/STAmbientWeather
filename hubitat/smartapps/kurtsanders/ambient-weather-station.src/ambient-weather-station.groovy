@@ -14,15 +14,15 @@
 *
 *  Author: Kurt Sanders, SanderSoft™
 *
-*  Dates: 2018,2019,2020,2021,2022,2023,2024,2025
+*  Dates: 2018,2019,2020,2021,2022,2023,2024,2025,2026
 */
 
 #include kurtsanders.AWSLibrary
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.6"
+@Field static final String VERSION                 = "6.7.7"
 
 //************************************ Version Specific ***********************************
-String appModified()			{ return "Apr-1-2026" }
+String appModified()			{ return "Jun-19-2026" }
 //*************************************** Constants ***************************************
 
 String appNameVersion() 		{ return "Ambient Weather Station " + VERSION }
@@ -59,7 +59,8 @@ definition(
     iconX2Url         : "",
     documentationLink : COMM_LINK,
 	singleInstance    : false,
-	pausable          :	false
+	pausable          :	false,
+    menu			  : "Integrations"
 )
 preferences {
     page(name: "apiPage")
@@ -1214,7 +1215,7 @@ def degToCompass(num,longTitles=true) {
         if (longTitles) {
             arr = ["N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"]
         } else {
-            arr = ["N", "N NE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+            arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
         }
         return arr[(val % 16)]
     }

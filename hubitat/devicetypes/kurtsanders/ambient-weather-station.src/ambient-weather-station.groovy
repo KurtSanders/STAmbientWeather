@@ -1,5 +1,5 @@
 /**
-*  Copyright 2018, 2019, 2021, 2022, 2023, 2024, 2025 SanderSoft
+*  Copyright 2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026 SanderSoft
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -20,7 +20,7 @@ import groovy.transform.Field
 #include kurtsanders.AWSLibrary
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.0"
+@Field static final String VERSION                 = "6.7.7"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
@@ -101,7 +101,7 @@ metadata {
         attribute "windspeedmph", "number"
         attribute "ultravioletIndexDisplay", "string"
         attribute "lightning_day", "number"
-        attribute "lightning_time", "number"
+        attribute "lightning_time", "string"
         attribute "lightning_distance", "number"
         attribute "lightning_hour", "number"
         attribute "batt_lightning", "number"
