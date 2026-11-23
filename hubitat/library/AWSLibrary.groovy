@@ -11,7 +11,7 @@ library (
     name: "AWSLibrary",
     namespace: "kurtsanders",
     documentationLink: "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
-    version: "1.2.0",
+    version: "1.3.0",
     disclaimer: "This library is only for use with SanderSoft Apps and Drivers."
 )
 
@@ -34,8 +34,11 @@ import java.util.TimeZone
 @Field static final String DEVICE_DATA_SPECS 	   = "https://github.com/ambient-weather/api-docs/wiki/Device-Data-Specs"
 @Field static final Map    POLLING_OPTIONS_MAP     = ['0':'Off','1':'1 min','2':'2 mins','3':'3 mins','4':'4 mins','5':'5 mins','10':'10 mins','15':'15 mins','30':'Every ½ Hour','60':'Every Hour','120':'Every 2 Hours','180':'Every 3 Hours']
 
+@Field static final Integer MAX_REMOTE_SENSORS     = 8
+@Field static final List   DATE_KEYS_TO_KEEP       = ["date", "tz", "dateutc"]
+
 def setLibraryVersion() {
-    state.libraryVersion = "1.2.0"
+    state.libraryVersion = "1.3.0"
 }
 
 def uninstalled() {
@@ -46,6 +49,109 @@ def uninstalled() {
 
 private removeChildDevices(delete) {
     delete.each {deleteChildDevice(it.deviceNetworkId)}
+}
+
+String cleanMac(String mac) {
+    return mac ? mac.replaceAll(/[^A-Fa-f0-9]/, "").toUpperCase() : ""
+}
+
+Float wm2lux(value) { return (value.toFloat() * 126.7f) }
+Float wm2fc(value)  { return (wm2lux(value.toFloat()) * 0.0929f) }
+
+String tileLastUpdated() {
+    return new Date().format('EEE MMM dd, hh:mm:ss a', location.timeZone)
+}
+
+Integer countStationRemoteSensors(Map lastData) {
+    if (!lastData) return 0
+    return lastData.keySet().count { it.matches('^temp[0-9][0-9]?f|^soiltemp[0-9]?[0-9]?|^soilhum[0-9]?[0-9]?') }
+}
+
+Integer countStationParticulateMonitors(Map lastData) {
+    if (!lastData) return 0
+    return (lastData.keySet().count { it.matches('^pm.*') } > 0) ? 1 : 0
+}
+
+Map filterStationLastData(Map lastData, Boolean keepAll, List keepKeys = []) {
+    if (!lastData) return [:]
+    if (keepAll || !keepKeys) {
+        return new LinkedHashMap(lastData)
+    }
+    Set allowed = new HashSet(keepKeys)
+    allowed.addAll(DATE_KEYS_TO_KEEP)
+    return lastData.findAll { k, v -> allowed.contains(k) }
+}
+
+Map convertStationLastData(Map lastData, Map unitSettings) {
+    if (!lastData) return [:]
+    Map converted = new LinkedHashMap(lastData)
+    String tUnits = unitSettings?.tempUnits ?: "°F"
+    String wUnits = unitSettings?.windUnits ?: "mph"
+    String mUnits = unitSettings?.measureUnits ?: "in"
+    String bUnits = unitSettings?.baroUnits ?: "inHg"
+
+    lastData.each { k, v ->
+        if (v == null) return
+        def tempVar = null
+        switch (k) {
+            case ~/^temp.*/:
+            case ~/^feelsLike.*/:
+            case 'dewPoint':
+                if (tUnits == '°C') {
+                    tempVar = String.format("%.01f", (v.toFloat() - 32.0f) * 5.0f / 9.0f)
+                }
+                break
+            case ~/.*rain.*/:
+                try {
+                    if (mUnits == 'cm') {
+                        tempVar = String.format("%.02f", v.toFloat() * 2.54f)
+                    } else if (mUnits == 'mm') {
+                        tempVar = String.format("%.02f", v.toFloat() * 25.4f)
+                    }
+                } catch (Exception ex) {
+                    tempVar = "0"
+                }
+                break
+            case ~/^winddir.*/:
+                break
+            case ~/^wind.*/:
+            case 'maxdailygust':
+                if (wUnits == 'kph') {
+                    tempVar = String.format("%.02f", v.toFloat() * 1.609344f)
+                } else if (wUnits == 'fps') {
+                    tempVar = String.format("%.02f", v.toFloat() * 2.0f / 3.0f)
+                } else if (wUnits == 'mps') {
+                    tempVar = String.format("%.02f", v.toFloat() * 0.44704f)
+                } else if (wUnits == 'knotts') {
+                    tempVar = String.format("%.02f", v.toFloat() * 0.86898f)
+                }
+                break
+            case ~/^barom.*/:
+                if (bUnits == 'mmHg') {
+                    tempVar = String.format("%.02f", v.toFloat() * 25.4f)
+                } else if (bUnits == 'hPa') {
+                    tempVar = String.format("%.02f", v.toFloat() * 33.86389f)
+                }
+                break
+            default:
+                break
+        }
+        if (tempVar != null) {
+            converted[k] = tempVar.toFloat()
+        }
+    }
+    return converted
+}
+
+String degToCompass(num, Boolean longTitles = true) {
+    if (num != null) {
+        def val = Math.floor((num.toFloat() / 22.5f) + 0.5f).toInteger()
+        def arr = longTitles
+            ? ["N", "North NE", "NE", "East NE", "E", "East SE", "SE", "South SE", "S", "South SW", "SW", "West SW", "W", "West NW", "NW", "North NW"]
+            : ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        return arr[(val % 16)]
+    }
+    return "N/A"
 }
 
 def displayVersion() {
@@ -68,7 +174,14 @@ def displayVersion() {
     }
 }
 
+void cleanAppLabel() {
+    if (app?.label?.contains('<span')) {
+        app.updateLabel(app.label.replaceAll(/<span.*$/, "").trim())
+    }
+}
+
 void updateMyLabel(key=null) {
+    if (!app?.label) return
     def timeStamp = new Date().format("h:mm:ss a", location.timeZone)
 
     String myLabel = state.weatherStationName
@@ -76,20 +189,21 @@ void updateMyLabel(key=null) {
         myLabel = app.label
     }
     if (myLabel.contains('<span')) {
-        myLabel = myLabel.substring(0, myLabel.indexOf('<span'))
+        myLabel = myLabel.replaceAll(/<span.*$/, "").trim()
     }
+    String newLabel
     switch (key) {
         case 'unauthorized':
-        newLabel = myLabel + "<span style=\"color:red\"> Unauthorized at ${timeStamp} </span>"
+        newLabel = myLabel + " <span style=\"color:red\">Unauthorized at ${timeStamp}</span>"
         break;
         case 'updated':
-        newLabel = myLabel + "<span style=\"color:green\"> Updated at ${timeStamp} </span>"
+        newLabel = myLabel + " <span style=\"color:green\">Updated at ${timeStamp}</span>"
         break;
         case 'refreshing':
-        newLabel = myLabel + "<span style=\"color:orange\"> Refreshing at ${timeStamp}</span>"
+        newLabel = myLabel + " <span style=\"color:orange\">Refreshing at ${timeStamp}</span>"
         break;
         case 'retry':
-        newLabel = myLabel + "<span style=\"color:red\"> Re-trying #${state.retry} at ${timeStamp}</span>"
+        newLabel = myLabel + " <span style=\"color:red\">Re-trying #${state.retry} at ${timeStamp}</span>"
         break;
         default:
             newLabel = myLabel
@@ -99,11 +213,14 @@ void updateMyLabel(key=null) {
 }
 
 public String convertToCurrentTimeZone(String dateStr) {
-
+    if (!dateStr) return ""
     TimeZone utc = TimeZone.getTimeZone("UTC");
     SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     SimpleDateFormat destFormat = new SimpleDateFormat('EEE MMM d, h:mm a');
     sourceFormat.setTimeZone(utc);
+    if (location?.timeZone) {
+        destFormat.setTimeZone(location.timeZone);
+    }
     Date convertedDate = sourceFormat.parse(dateStr);
     return destFormat.format(convertedDate);
 
@@ -213,7 +330,7 @@ void setLogLevel(String levelName, String timeName=null) {
     Integer time = LOG_TIMES.find{ timeName.equalsIgnoreCase(it.value) }.key
     if (app) {
         app.updateSetting("logLevel",[value:"${level}", type:"enum"])
-        app.updateSetting("logLevelTime",[value:"${level}", type:"enum"])
+        app.updateSetting("logLevelTime",[value:"${time}", type:"enum"])
     } else {
         device.updateSetting("logLevel",[value:"${level}", type:"enum"])
         device.updateSetting("logLevelTime",[value:"${time}", type:"enum"])

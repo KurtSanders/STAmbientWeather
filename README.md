@@ -1,6 +1,6 @@
 # Ambient Weather® Station™ (AWS) 
 *Hubitat® Integration for Ambient Weather® Stations by SanderSoft™*
-### Hubitat AWS Suite Version: 6.7.7
+### Hubitat AWS Suite Version: 7.0.0
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/readme.png" width="50">[Change-log & Version Release Features](https://github.com/KurtSanders/STAmbientWeather/wiki/Features-by-Version)
 
@@ -14,9 +14,30 @@
 
 <img src="https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/images/HE%20AWS%20Dashboard.jpg" width="700"> 
 
-A custom Hubitat® SmartApp integrates weather/environmental data generated from one's personal [Ambient Weather® station](https://www.ambientweather.com/ambientnet.html), sensors, and accessories.  
+A custom Hubitat® SmartApp integrates weather/environmental data generated from one or more personal [Ambient Weather® stations](https://www.ambientweather.com/ambientnet.html), sensors, and accessories.  
 
-This Hubitat® application provides integration to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#).  The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
+This Hubitat® application provides integration to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#) using a single asynchronous poll (`asynchttpGet`) across all stations on your account. The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
+
+### Multi-Station Architecture (v7.0.0+)
+
+Version 7.0.0 supports multiple Ambient Weather stations from a **single API poll** using either (or a mix) of two modes—choose **one mode per station**:
+
+* **Option A — Direct Multi-MAC (Shared Settings):** Select one or more stations directly in the main app. All stations share the same units of measure, data-key filter, and alert thresholds.
+* **Option B — Per-Station Child Apps (Independent Settings):** Create an **Ambient Weather Station Child** app for any station that needs its own units of measure, data-key filter, or alert thresholds. Stations assigned to a Child App are automatically excluded from Option A (and vice versa).
+
+```mermaid
+flowchart TD
+    API["Ambient Weather Cloud API<br/>/v1/devices (Single asynchttpGet Poll)"] --> Parent["Ambient Weather Station<br/>(Parent App v7.0.0)"]
+    Parent -->|"Option A: Direct Multi-MAC<br/>(Shared Units, Keys & Alerts)"| DirectMAC1["Station 1 Devices<br/>Console + Remote(s) + PM<br/>(Legacy or MAC-Scoped DNI)"]
+    Parent -->|"Option A: Direct Multi-MAC"| DirectMAC2["Station 2 Devices<br/>Console + Remote(s) + PM<br/>(MAC-Scoped DNI)"]
+    Parent -->|"Option B: Dispatches by MAC"| Child1["Ambient Weather Station Child<br/>(Independent Units, Keys & Alerts)"]
+    Child1 --> ChildDevs["Station N Devices<br/>Console + Remote(s) + PM<br/>(Child App MAC-Scoped DNI)"]
+```
+
+#### Upgrading from v6.x
+* **Existing Single-Station Users (Option A):** Seamless upgrade—existing devices keep their legacy DNIs, so dashboards, Rule Machine rules, and sensor names stay intact.
+* **Adding a 2nd Station:** Keep your original station in **Option A** and either add the new station in **Option A** or create a **Child App (Option B)** for it.
+* **Moving an Existing Station to a Child App:** Because a Child App has its own `app.id`, moving an existing station out of Option A into a Child App creates new devices under the Child App (requiring rule/dashboard updates and removal of the old parent devices).
 
 ### Supported Ambient Weather Station Brand Devices and Accessories:
 
@@ -120,4 +141,3 @@ This Hubitat® application provides integration to your [Ambientweather.net](htt
 * You must create your own and have access to the following **private data strings** displayed at your [AWS Account](https://ambientweather.net/account)  and [My Devices](https://ambientweather.net/devices) webpages. 
     * [Locate your weather station's MAC address](https://ambientweather.net/devices)
     * [Locate your Ambient API key](https://ambientweather.net/account)
-        

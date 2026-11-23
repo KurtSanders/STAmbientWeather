@@ -22,7 +22,7 @@ import groovy.transform.Field
 
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Particulate Monitor"
-@Field static final String VERSION                 = "6.3.0"
+@Field static final String VERSION                 = "6.4.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
@@ -59,8 +59,7 @@ metadata {
 def refresh() {
     Date now = new Date()
     def timeString = now.format("EEE MMM dd h:mm:ss a", location.timeZone)
-    sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", "displayed":false)
-    sendEvent(name: "aqi", value: "Refresh Requested at ${timeString}...", displayed: false)
+    sendEvent(name: "lastSTupdate", value: "Cloud Refresh Requested at\n${timeString}...", displayed: false)
     parent.refresh()
 }
 

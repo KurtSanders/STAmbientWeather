@@ -2,13 +2,13 @@
   "packageName": "Ambient Weather Station",
   "author": "Kurt Sanders",
   "minimumHEVersion": "2.5.0",
-  "dateReleased": "2026-6-19",
+  "dateReleased": "2026-11-23",
   "gitHubUrl": "https://github.com/KurtSanders/STAmbientWeather",
   "documentationLink": "https://github.com/KurtSanders/STAmbientWeather/blob/master/README.md",
   "licenseFile": "",
-  "version": "6.7.7",
+  "version": "7.0.0",
   "payPalUrl": "https://www.paypal.com/donate/?hosted_button_id=E4WXT86RTPXDC",
-  "releaseNotes": "Version 6.7.7\n1. Bug Fixes for lightning_time, and windirection abreviations. \n2. Moved AWS from Apps to Integrations in the Hubitat side menu.",
+  "releaseNotes": "Version 7.0.0\n1. Added multi-station support via both Single App Multi-MAC and optional Parent-Child app.\n2. Switched API polling to asynchttpGet and removed heavy state JSON storage.\n3. Removed dead SmartThings/NWS alert code and fixed minor library and driver bugs.",
   "bundles": [
     {
       "id": "db82c41e-d7e5-4de5-9691-b432b2255500",
@@ -27,7 +27,17 @@
       "required": true,
       "primary": true,
       "oauth": false
+    },
+	{
+      "id": "d4e8f1a2-7b3c-4e90-8a12-9c3d4e5f6a7b",
+      "name": "Ambient Weather Station Child",
+      "namespace": "kurtsanders",
+      "location": "https://raw.githubusercontent.com/KurtSanders/STAmbientWeather/master/hubitat/smartapps/kurtsanders/ambient-weather-station-child.src/ambient-weather-station-child.groovy",
+      "required": true,
+      "primary": false,
+      "oauth": false
     }
+
   ],
   "drivers": [
     {

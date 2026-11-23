@@ -20,7 +20,7 @@ import groovy.transform.Field
 #include kurtsanders.AWSLibrary
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station"
-@Field static final String VERSION                 = "6.7.7"
+@Field static final String VERSION                 = "6.8.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
@@ -123,7 +123,7 @@ metadata {
 
 def initialize() {
     checkLogLevel()
-    state.dataFieldsWiki = '<a target="_blank" rel="noopener noreferrer" href=${DEVICE_DATA_SPECS} >Wiki Device Data Specs Link</a>'
+    state.dataFieldsWiki = "<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"${DEVICE_DATA_SPECS}\">Wiki Device Data Specs Link</a>"
     state.webLink = fmtDataFieldsWikiLink()
 }
 

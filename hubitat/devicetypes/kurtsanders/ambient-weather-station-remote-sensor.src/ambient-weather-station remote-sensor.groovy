@@ -21,7 +21,7 @@ import groovy.transform.Field
 #include kurtsanders.AWSLibrary
 
 @Field static String PARENT_DEVICE_NAME            = "Ambient Weather Station Remote Sensor"
-@Field static final String VERSION                 = "6.3.0"
+@Field static final String VERSION                 = "6.4.0"
 
 metadata {
     definition (name: PARENT_DEVICE_NAME,
