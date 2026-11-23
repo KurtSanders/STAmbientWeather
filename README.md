@@ -16,7 +16,23 @@
 
 A custom Hubitat® SmartApp integrates weather/environmental data generated from one or more personal [Ambient Weather® stations](https://www.ambientweather.com/ambientnet.html), sensors, and accessories.  
 
-This Hubitat® application provides integration to your [Ambientweather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#) using a single asynchronous poll (`asynchttpGet`) across all stations on your account. The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
+This Hubitat® application provides integration to your [AmbientWeather.net](https://ambientweather.net/) weather data via the [AmbientWeather API](https://ambientweather.docs.apiary.io/#) using a single asynchronous poll (`asynchttpGet`) across all stations on your account. The HE user can set the polling rate of their weather and sensor data from either a manual or automatic refresh cycle (1 min to 180 mins (3 hours)).
+
+### What's New in Version 7.0.0
+* **Multi-Station Support (Two Flexible Modes, One API Poll):**
+  * **Option A — Direct Multi-MAC (Shared Settings):** Select multiple weather stations directly in the main app. All selected stations share the same units of measure, data-key filter, and alert rules.
+  * **Option B — Per-Station Child Apps (Independent Settings):** Add an optional **Ambient Weather Station Child** app for any station that needs its own independent units, data-key filter, sensor labels, or alert thresholds. Stations assigned to a Child App are automatically hidden from Option A (and from other Child Apps) so you never get duplicate devices.
+* **Single Asynchronous API Poll (`asynchttpGet`):** Both Option A and Option B share a single non-blocking `/v1/devices` call per polling cycle, keeping hub CPU usage low and avoiding Ambient Weather API rate limits.
+* **Leaner `state` & Code Cleanup:** Removed full JSON payload caching from hub `state`, removed ~350 lines of legacy SmartThings/unused NWS code, fixed inside-console naming prompts (so multiple consoles aren't all defaulted to `Kitchen`), and fixed app label status badge stacking.
+
+---
+
+### What Happens to Your Existing Devices When Upgrading?
+* **Existing Single-Station Users (Staying in Option A):** **Nothing breaks.** Your existing `weatherStationMac` setting is preserved, and the app automatically falls back to your legacy Device Network IDs (`MyAmbientWeatherStation`, `MyAmbientRemoteSensorN`, `MyAmbientParticulateMonitor`). All existing devices, dashboards, and Rule Machine rules continue working without any changes.
+* **Adding a 2nd Station:**
+  * If you add your 2nd station in **Option A**, your 1st station keeps its legacy DNIs and the 2nd station gets new MAC-scoped DNIs.
+  * If you add your 2nd station as a **Child App (Option B)** while keeping your 1st station in **Option A**, your existing rules and dashboards remain untouched.
+* **Moving an Existing Station into a Child App (Option B):** Because each Child App has its own `app.id`, moving an *already-installed* station from Option A into a Child App will create **new** child devices under that Child App. You'll need to update any rules/dashboards to point to the new Child App devices and remove the old orphaned devices under the parent app.
 
 ### Multi-Station Architecture (v7.0.0+)
 
